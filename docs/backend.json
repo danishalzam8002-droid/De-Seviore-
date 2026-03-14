@@ -1,0 +1,43 @@
+
+{
+  "entities": {
+    "Member": {
+      "title": "Anggota",
+      "description": "Data profil individu anggota angkatan.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Nama lengkap anggota." },
+        "pob": { "type": "string", "description": "Tempat lahir." },
+        "dob": { "type": "string", "description": "Tanggal lahir." },
+        "phone": { "type": "string", "description": "Nomor telepon/WhatsApp." },
+        "ig": { "type": "string", "description": "Username Instagram." },
+        "quote": { "type": "string", "description": "Kutipan pribadi atau 'kata-kata'." },
+        "imageUrl": { "type": "string", "description": "URL foto profil anggota." }
+      },
+      "required": ["name", "quote"]
+    },
+    "BatchInfo": {
+      "title": "Informasi Angkatan",
+      "description": "Data umum mengenai sejarah, filosofi, dan media angkatan.",
+      "type": "object",
+      "properties": {
+        "history": { "type": "string", "description": "Teks sejarah angkatan." },
+        "philosophy": { "type": "string", "description": "Teks filosofi angkatan." },
+        "trailerVideoUrl": { "type": "string", "description": "URL video trailer angkatan." }
+      }
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "/members/{memberId}": {
+      "schema": "Member",
+      "description": "Koleksi data anggota angkatan."
+    },
+    "/batch/info": {
+      "schema": "BatchInfo",
+      "description": "Dokumen tunggal berisi informasi umum angkatan."
+    }
+  }
+}

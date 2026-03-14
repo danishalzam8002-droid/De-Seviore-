@@ -1,0 +1,52 @@
+{
+  "placeholderImages": [
+    {
+      "id": "batch-logo",
+      "description": "Logo Resmi Angkatan De'Seviore",
+      "imageUrl": "https://picsum.photos/seed/deseviore-logo/400/400",
+      "imageHint": "community logo"
+    },
+    {
+      "id": "gallery-1",
+      "description": "Kenangan studi banding angkatan",
+      "imageUrl": "https://picsum.photos/seed/class-1/800/600",
+      "imageHint": "students trip"
+    },
+    {
+      "id": "gallery-2",
+      "description": "Makan malam tahunan angkatan",
+      "imageUrl": "https://picsum.photos/seed/class-2/800/600",
+      "imageHint": "dinner party"
+    },
+    {
+      "id": "gallery-3",
+      "description": "Kemenangan hari olahraga",
+      "imageUrl": "https://picsum.photos/seed/class-3/800/600",
+      "imageHint": "sports team"
+    },
+    {
+      "id": "member-1",
+      "description": "Potret John Doe",
+      "imageUrl": "https://picsum.photos/seed/member-1/400/500",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "member-2",
+      "description": "Potret Jane Smith",
+      "imageUrl": "https://picsum.photos/seed/member-2/400/500",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "member-3",
+      "description": "Potret Alice Brown",
+      "imageUrl": "https://picsum.photos/seed/member-3/400/500",
+      "imageHint": "student portrait"
+    },
+    {
+      "id": "member-4",
+      "description": "Potret Bob Wilson",
+      "imageUrl": "https://picsum.photos/seed/member-4/400/500",
+      "imageHint": "modern portrait"
+    }
+  ]
+}
