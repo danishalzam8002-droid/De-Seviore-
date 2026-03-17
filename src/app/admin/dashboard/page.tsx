@@ -21,7 +21,7 @@ import { Plus, Pencil, Trash2, Save, X, Image as ImageIcon, Users, BookOpen, Vid
 import { QuoteGenerator } from "@/components/QuoteGenerator";
 import { UsageMonitor } from "@/components/admin/UsageMonitor";
 import { toast } from "@/hooks/use-toast";
-import { Activity } from "lucide-react";
+import { Activity, Bell, FileCheck, Check, X as XMark } from "lucide-react";
 
 
 
@@ -48,9 +48,10 @@ function AdminDashboard() {
   const [newKitab, setNewKitab] = useState({ title: "", author: "", category: "Fiqih", file_url: "" });
 
   const [adminRoles, setAdminRoles] = useState<any[]>([]);
-  const [newAdmin, setNewAdmin] = useState({ email: "", password: "", role: "Moderator" });
+  const [newAdmin, setNewAdmin] = useState({ email: "", password: "", role: "Member" });
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
-  const currentUserRole = adminRoles.find(a => a.email === user?.email)?.role;
+  const [requests, setRequests] = useState<any[]>([]);
+  const currentUserRole = adminRoles.find(a => a.email === user?.email)?.role || 'Member';
 
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; title: string; description: string; onConfirm: () => void }>({
     open: false,
@@ -87,6 +88,13 @@ function AdminDashboard() {
         // Fetch Albums
         const { data: albumData } = await supabase.from('albums').select('*').order('created_at', { ascending: false });
         setAlbumItems(albumData || []);
+
+        // Fetch Requests if Admin
+        const { data: adminCheck } = await supabase.from('admins').select('role').eq('email', user?.email).single();
+        if (adminCheck?.role === 'Admin') {
+          const { data: requestData } = await supabase.from('requests').select('*').eq('status', 'pending').order('created_at', { ascending: false });
+          setRequests(requestData || []);
+        }
 
       } catch (e: any) {
         console.error("Supabase Fetch Error:", e);
@@ -225,30 +233,45 @@ function AdminDashboard() {
             image_url: imageUrl
           };
 
-          if (editingMember) {
-            const { error } = await supabase
-              .from('members')
-              .update(memberPayload)
-              .eq('id', editingMember.id);
-            
+          if (currentUserRole === 'Member') {
+            const { error } = await supabase.from('requests').insert([{
+              table_name: 'members',
+              action: editingMember ? 'UPDATE' : 'CREATE',
+              data: memberPayload,
+              target_id: editingMember?.id || null,
+              requested_by: user?.email
+            }]);
             if (error) throw error;
-            
-            setMembers(members.map(m => m.id === editingMember.id ? { ...m, ...memberPayload } : m));
             setEditingMember(null);
             setIsEditModalOpen(false);
-          } else {
-            const { data, error } = await supabase
-              .from('members')
-              .insert([memberPayload])
-              .select()
-              .single();
-            
-            if (error) throw error;
-            
-            if (data) {
-              setMembers([...members, data]);
-            }
             setNewMember({ name: "", pob: "", dob: "", phone: "", ig: "", quote: "", role: "Anggota", image_url: "" });
+            toast({ title: "Permintaan Dikirim", description: "Perubahan Anda sedang menunggu persetujuan Admin." });
+          } else {
+            if (editingMember) {
+              const { error } = await supabase
+                .from('members')
+                .update(memberPayload)
+                .eq('id', editingMember.id);
+              
+              if (error) throw error;
+              
+              setMembers(members.map(m => m.id === editingMember.id ? { ...m, ...memberPayload } : m));
+              setEditingMember(null);
+              setIsEditModalOpen(false);
+            } else {
+              const { data, error } = await supabase
+                .from('members')
+                .insert([memberPayload])
+                .select()
+                .single();
+              
+              if (error) throw error;
+              
+              if (data) {
+                setMembers([...members, data]);
+              }
+              setNewMember({ name: "", pob: "", dob: "", phone: "", ig: "", quote: "", role: "Anggota", image_url: "" });
+            }
           }
           
           setUploadProgress(100);
@@ -273,13 +296,24 @@ function AdminDashboard() {
       description: "Anda akan memperbarui Sejarah, Filosofi, dan Video Angkatan. Lanjutkan?",
       onConfirm: async () => {
         try {
-          const { error } = await supabase
-            .from('batch_info')
-            .upsert({ id: 1, ...batchContent });
-          
-          if (error) throw error;
-          
-          toast({ title: "Berhasil", description: "Konten angkatan telah diperbarui." });
+          if (currentUserRole === 'Member') {
+            const { error } = await supabase.from('requests').insert([{
+              table_name: 'batch_info',
+              action: 'UPDATE',
+              data: batchContent,
+              target_id: 1,
+              requested_by: user?.email
+            }]);
+            if (error) throw error;
+            toast({ title: "Permintaan Dikirim", description: "Pembaruan informasi angkatan menunggu persetujuan Admin." });
+          } else {
+            const { error } = await supabase
+              .from('batch_info')
+              .upsert({ id: 1, ...batchContent });
+            
+            if (error) throw error;
+            toast({ title: "Berhasil", description: "Konten angkatan telah diperbarui." });
+          }
         } catch(e) {
           console.error(e);
           toast({ title: "Error", description: "Gagal memperbarui konten angkatan.", variant: "destructive" });
@@ -400,13 +434,25 @@ function AdminDashboard() {
             drive_link: newAlbum.driveLink,
             created_at: new Date().toISOString()
           };
-          const { data, error } = await supabase.from('albums').insert([albumPayload]).select().single();
-          if (error) throw error;
-
-          if (data) {
-            setAlbumItems([...albumItems, data]);
+          if (currentUserRole === 'Member') {
+            const { error } = await supabase.from('requests').insert([{
+              table_name: 'albums',
+              action: 'CREATE',
+              data: albumPayload,
+              requested_by: user?.email
+            }]);
+            if (error) throw error;
             setNewAlbum({ title: "", driveLink: "", imageUrl: "" });
-            toast({ title: "Berhasil", description: "Album kenangan berhasil ditambahkan." });
+            toast({ title: "Permintaan Dikirim", description: "Pengajuan album baru menunggu persetujuan Admin." });
+          } else {
+            const { data, error } = await supabase.from('albums').insert([albumPayload]).select().single();
+            if (error) throw error;
+
+            if (data) {
+              setAlbumItems([...albumItems, data]);
+              setNewAlbum({ title: "", driveLink: "", imageUrl: "" });
+              toast({ title: "Berhasil", description: "Album kenangan berhasil ditambahkan." });
+            }
           }
         } catch (e) {
           console.error(e);
@@ -455,14 +501,26 @@ function AdminDashboard() {
             category: newKitab.category,
             file_url: newKitab.file_url
           };
-          const { data, error } = await supabase.from('kitab').insert([kitabPayload]).select().single();
-          if (error) throw error;
-          
-          if (data) {
-            setKitabs([...kitabs, data]);
+          if (currentUserRole === 'Member') {
+            const { error } = await supabase.from('requests').insert([{
+              table_name: 'kitab',
+              action: 'CREATE',
+              data: kitabPayload,
+              requested_by: user?.email
+            }]);
+            if (error) throw error;
+            setNewKitab({ title: "", author: "", category: "Fiqih", file_url: "" });
+            toast({ title: "Permintaan Dikirim", description: "Pengajuan kitab baru menunggu persetujuan Admin." });
+          } else {
+            const { data, error } = await supabase.from('kitab').insert([kitabPayload]).select().single();
+            if (error) throw error;
+            
+            if (data) {
+              setKitabs([...kitabs, data]);
+            }
+            setNewKitab({ title: "", author: "", category: "Fiqih", file_url: "" });
+            toast({ title: "Ditambahkan", description: "Kitab baru berhasil diunggah." });
           }
-          setNewKitab({ title: "", author: "", category: "Fiqih", file_url: "" });
-          toast({ title: "Ditambahkan", description: "Kitab baru berhasil diunggah." });
         } catch (e) {
           console.error(e);
           toast({ title: "Error", description: "Gagal mengunggah kitab.", variant: "destructive" });
@@ -528,6 +586,56 @@ function AdminDashboard() {
     });
   };
 
+  const handleApproveRequest = async (request: any) => {
+    try {
+      let error;
+      if (request.action === 'CREATE') {
+        ({ error } = await supabase.from(request.table_name).insert(request.data));
+      } else if (request.action === 'UPDATE') {
+        ({ error } = await supabase.from(request.table_name).update(request.data).eq('id', request.target_id));
+      } else if (request.action === 'DELETE') {
+        ({ error } = await supabase.from(request.table_name).delete().eq('id', request.target_id));
+      }
+
+      if (error) throw error;
+
+      await supabase.from('requests').update({ status: 'approved' }).eq('id', request.id);
+      setRequests(requests.filter(r => r.id !== request.id));
+      toast({ title: "Permintaan Disetujui", description: "Perubahan telah diterapkan ke database." });
+      
+      const { data: updated } = await supabase.from(request.table_name).select('*');
+      if (request.table_name === 'members') setMembers(updated || []);
+      if (request.table_name === 'kitab') setKitabs(updated || []);
+      if (request.table_name === 'albums') setAlbumItems(updated || []);
+      
+    } catch (err: any) {
+      console.error(err);
+      toast({ title: "Gagal Menyetujui", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    try {
+      await supabase.from('requests').update({ status: 'rejected' }).eq('id', requestId);
+      setRequests(requests.filter(r => r.id !== requestId));
+      toast({ title: "Permintaan Ditolak", description: "Perubahan tidak diterapkan." });
+    } catch (err: any) {
+      toast({ title: "Gagal Menolak", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteAdmin = async (adminId: string) => {
+    if (!confirm("Hapus akun akses ini?")) return;
+    try {
+      const { error } = await supabase.from('admins').delete().eq('id', adminId);
+      if (error) throw error;
+      setAdminRoles(adminRoles.filter(a => a.id !== adminId));
+      toast({ title: "Akun Dihapus" });
+    } catch (err: any) {
+      toast({ title: "Gagal Menghapus", description: err.message, variant: "destructive" });
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -545,8 +653,14 @@ function AdminDashboard() {
       <div className="container mx-auto px-6 py-20">
         <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h1 className="text-4xl md:text-6xl font-headline font-bold accent-glow">Konsol Admin</h1>
-            <p className="text-muted-foreground text-lg mt-2">Kelola warisan dan anggota De Seviore.</p>
+            <h1 className="text-4xl md:text-6xl font-headline font-bold accent-glow">
+              {currentUserRole === 'Admin' ? "Dashboard Admin" : "Dashboard Member"}
+            </h1>
+            <p className="text-muted-foreground text-lg mt-2">
+              {currentUserRole === 'Admin' 
+                ? "Kelola semua data dan setujui permintaan perubahan." 
+                : "Kontribusi data dan upload momen ke galeri."}
+            </p>
           </div>
         </header>
 
@@ -568,12 +682,22 @@ function AdminDashboard() {
               <BookOpen className="w-4 h-4 mr-2" /> Perpustakaan
             </TabsTrigger>
             <TabsTrigger value="access" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-              <Key className="w-4 h-4 mr-2" /> Akses Login
+              <Key className="w-4 h-4 mr-2" /> {currentUserRole === 'Admin' ? "Akses Login" : "Profil Saya"}
             </TabsTrigger>
             {currentUserRole === 'Admin' && (
-              <TabsTrigger value="monitoring" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-                <Activity className="w-4 h-4 mr-2" /> Monitoring
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="requests" className="data-[state=active]:bg-accent data-[state=active]:text-background relative">
+                  <Bell className="w-4 h-4 mr-2" /> Permintaan
+                  {requests.length > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                      {requests.length}
+                    </span>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="monitoring" className="data-[state=active]:bg-accent data-[state=active]:text-background">
+                  <Activity className="w-4 h-4 mr-2" /> Monitoring
+                </TabsTrigger>
+              </>
             )}
           </TabsList>
 
@@ -1042,6 +1166,7 @@ function AdminDashboard() {
                       <TableRow className="border-white/10 hover:bg-transparent">
                         <TableHead className="text-accent">User Email</TableHead>
                         <TableHead className="text-accent">Hak Akses / Peran</TableHead>
+                        {currentUserRole === 'Admin' && <TableHead className="text-accent text-right">Aksi</TableHead>}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1053,6 +1178,19 @@ function AdminDashboard() {
                               {a.role}
                             </span>
                           </TableCell>
+                          {currentUserRole === 'Admin' && (
+                            <TableCell className="text-right">
+                              <Button 
+                                size="icon" 
+                                variant="ghost" 
+                                onClick={() => handleDeleteAdmin(a.id)}
+                                disabled={a.email === user?.email}
+                                className="h-8 w-8 hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </TableCell>
+                          )}
                         </TableRow>
                       ))}
                       {adminRoles.length === 0 && (
@@ -1097,7 +1235,7 @@ function AdminDashboard() {
                       />
                     </div>
                     <Button onClick={handleAddAlbum} className="w-full bg-accent hover:bg-accent/80 text-background font-bold uppercase tracking-wider">
-                      Simpan dan Unggah Album
+                      {currentUserRole === 'Admin' ? "Simpan dan Unggah Album" : "Ajukan Unggah Album"}
                     </Button>
                   </div>
                   
@@ -1147,10 +1285,13 @@ function AdminDashboard() {
                     {albumItems.map((album) => (
                       <div key={album.id} className="relative aspect-[3/4] rounded-xl overflow-hidden border border-white/10 group bg-card shadow-lg">
                         <img src={album.image_url} alt={album.title} className="w-full h-full object-cover" />
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 transition-transform duration-300 group-hover:translate-y-0">
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 transition-transform duration-300 translate-y-full group-hover:translate-y-0 text-left">
                            <p className="text-[10px] font-bold text-white uppercase line-clamp-1 mb-2">
                              {album.title}
                            </p>
+                           <div className="text-[10px] text-accent mb-2 font-medium">
+                             Unduh & Lihat Album Kenangan
+                           </div>
                            <div className="flex gap-2">
                              <Button
                                size="icon"
@@ -1160,18 +1301,20 @@ function AdminDashboard() {
                              >
                                <Upload className="w-3 h-3" />
                              </Button>
-                             <Button
-                               size="icon"
-                               variant="destructive"
-                               onClick={() => {
-                                 if (confirm("Hapus album ini?")) {
-                                   handleDeleteAlbum(album.id);
-                                 }
-                               }}
-                               className="h-7 w-7 rounded-full"
-                             >
-                               <Trash2 className="w-3 h-3" />
-                             </Button>
+                             {currentUserRole === 'Admin' && (
+                               <Button
+                                 size="icon"
+                                 variant="destructive"
+                                 onClick={() => {
+                                   if (confirm("Hapus album ini?")) {
+                                     handleDeleteAlbum(album.id);
+                                   }
+                                 }}
+                                 className="h-7 w-7 rounded-full"
+                               >
+                                 <Trash2 className="w-3 h-3" />
+                               </Button>
+                             )}
                            </div>
                         </div>
                       </div>
@@ -1181,6 +1324,64 @@ function AdminDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {currentUserRole === 'Admin' && (
+            <TabsContent value="requests" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle>Permintaan Perubahan Data</CardTitle>
+                  <CardDescription>Daftar perubahan yang diajukan oleh Member yang memerlukan persetujuan Admin.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableCell className="font-bold uppercase tracking-wider text-xs">Halaman</TableCell>
+                        <TableCell className="font-bold uppercase tracking-wider text-xs">Aksi</TableCell>
+                        <TableCell className="font-bold uppercase tracking-wider text-xs">Oleh</TableCell>
+                        <TableCell className="font-bold uppercase tracking-wider text-xs text-right">Tindakan</TableCell>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {requests.map((req) => (
+                        <TableRow key={req.id}>
+                          <TableCell className="capitalize font-medium">{req.table_name}</TableCell>
+                          <TableCell>
+                            <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
+                              req.action === 'CREATE' ? 'bg-green-500/20 text-green-400' : 
+                              req.action === 'UPDATE' ? 'bg-blue-500/20 text-blue-400' : 
+                              'bg-red-500/20 text-red-400'
+                            }`}>
+                              {req.action}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-sm">{req.requested_by}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button size="sm" onClick={() => handleApproveRequest(req)} className="bg-green-600 hover:bg-green-700 h-8 px-3 text-white">
+                                <Check className="w-4 h-4 mr-1" /> Setujui
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleRejectRequest(req.id)} className="h-8 px-3">
+                                <XMark className="w-4 h-4 mr-1" /> Tolak
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {requests.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
+                            <FileCheck className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                            <p className="font-medium">Tidak ada permintaan pending saat ini.</p>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
           {currentUserRole === 'Admin' && (
             <TabsContent value="monitoring" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <UsageMonitor />
