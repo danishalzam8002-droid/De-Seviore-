@@ -11,6 +11,13 @@ export function useUser() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for mocked admin session since we're using dummy firebase config
+    if (typeof window !== "undefined" && localStorage.getItem("isAdmin") === "true") {
+      setUser({ email: "danishalzam8002@gmail.com", uid: "admin" } as User);
+      setLoading(false);
+      return;
+    }
+
     return onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);

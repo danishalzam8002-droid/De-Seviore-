@@ -2,8 +2,8 @@
   "placeholderImages": [
     {
       "id": "batch-logo",
-      "description": "Logo Resmi Angkatan De'Seviore",
-      "imageUrl": "https://picsum.photos/seed/deseviore-logo/400/400",
+      "description": "Logo Resmi Angkatan De Seviore",
+      "imageUrl": "/logo.png",
       "imageHint": "community logo"
     },
     {

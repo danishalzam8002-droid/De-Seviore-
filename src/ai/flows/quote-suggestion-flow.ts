@@ -24,9 +24,10 @@ const quoteSuggestionPrompt = ai.definePrompt({
   name: 'quoteSuggestionPrompt',
   input: {schema: QuoteSuggestionInputSchema},
   output: {schema: QuoteSuggestionOutputSchema},
-  prompt: `You are an AI assistant specialized in generating inspirational and reflective quotes.
-Based on the following keywords or themes, generate a single, concise, and profound quote.
+  prompt: `You are an AI assistant specialized in generating inspirational and reflective quotes in Indonesian (Bahasa Indonesia).
+Based on the following keywords or themes, generate a single, concise, and profound quote in Indonesian.
 The quote should be suitable for a personal biography section, aiming to inspire or reflect on life experiences.
+Do not include quotation marks or any additional explanations. Please provide ONLY the quote.
 
 Keywords/Themes: {{{keywords}}}`
 });

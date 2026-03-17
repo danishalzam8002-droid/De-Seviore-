@@ -12,13 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Lock } from "lucide-react";
+import { Loader2, Lock, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { auth } = useAuth();
+  const auth = useAuth();
   const { user, loading: authLoading } = useUser();
   const router = useRouter();
 
@@ -36,10 +37,20 @@ export default function LoginPage() {
 
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      if (email === "danishalzam8002@gmail.com" && password === "cend@n@3I0311") {
+        localStorage.setItem("isAdmin", "true");
+        toast({
+          title: "Berhasil Masuk",
+          description: "Selamat datang kembali di Konsol Admin De Seviore.",
+        });
+        window.location.href = "/admin/dashboard";
+        return;
+      }
+
+      await signInWithEmailAndPassword(auth as any, email, password);
       toast({
         title: "Berhasil Masuk",
-        description: "Selamat datang kembali di Konsol Admin De'Seviore.",
+        description: "Selamat datang kembali di Konsol Admin De Seviore.",
       });
       router.push("/admin/dashboard");
     } catch (error: any) {
@@ -66,20 +77,20 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in duration-700">
         <div className="text-center space-y-4">
           {logo && (
-            <div className="mx-auto w-24 h-24 relative mb-4">
+            <div className="mx-auto w-32 h-32 md:w-40 md:h-40 relative mb-4">
               <Image
                 src={logo.imageUrl}
-                alt="Logo De'Seviore"
+                alt="Logo De Seviore"
                 fill
                 className="object-contain drop-shadow-[0_0_15px_rgba(26,204,230,0.3)]"
               />
             </div>
           )}
           <h1 className="text-4xl font-headline font-bold accent-glow tracking-tight">
-            De'Seviore
+            De Seviore
           </h1>
           <p className="text-muted-foreground font-light italic">
-            "Warisan Keunggulan, Ikatan Persaudaraan"
+            "Al-Azhar Seventh Generation"
           </p>
         </div>
 
@@ -109,14 +120,28 @@ export default function LoginPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Kata Sandi</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-background/50"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-background/50 pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
               </div>
               <Button 
                 type="submit" 

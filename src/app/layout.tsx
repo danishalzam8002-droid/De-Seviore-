@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 
 export const metadata: Metadata = {
-  title: "De'Seviore - Website Resmi Angkatan",
+  title: "De Seviore - Website Resmi Angkatan",
   description: "Sejarah, Filosofi, dan Warisan angkatan kami.",
 };
 

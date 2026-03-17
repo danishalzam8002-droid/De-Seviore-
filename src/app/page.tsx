@@ -1,6 +1,8 @@
 
 "use client";
 
+import { useRef, useState, useEffect } from "react";
+import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -13,12 +15,81 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
+import { useUser, useFirestore } from "@/firebase";
+import { doc, getDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 
 export default function Home() {
+  const { user } = useUser();
+  const db = useFirestore();
+  const [batchInfo, setBatchInfo] = useState({
+    history: "Lahir dari mimpi bersama, De Seviore dengan cepat berkembang menjadi komunitas pemikir dan pencipta yang dinamis. Didirikan pada tahun 2021, angkatan kami telah melewati berbagai tantangan, mengubahnya menjadi tonggak pertumbuhan dan persahabatan.",
+    philosophy: 'Nama De Seviore melambangkan "Pelayan Kebijaksanaan." Kami percaya bahwa kepemimpinan sejati berakar pada pengabdian dan bahwa pengetahuan hanya berharga jika dibagikan.'
+  });
+  const [gallery, setGallery] = useState<any[]>([]);
   const logo = PlaceHolderImages.find(img => img.id === 'batch-logo');
-  const gallery = PlaceHolderImages.filter(img => img.id.startsWith('gallery-'));
-  const trailerVideoUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ";
+  const videos = [
+    { id: 1, url: "https://www.youtube.com/embed/ZVAhEWgkl1g?autoplay=1&mute=1&enablejsapi=1" },
+    { id: 2, url: "https://www.youtube.com/embed/PwHkXYqXN1A?autoplay=1&mute=1&enablejsapi=1" }
+  ];
+
+  const plugin = useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: true })
+  );
+
+  const [videoCarouselApi, setVideoCarouselApi] = useState<CarouselApi>();
+
+  useEffect(() => {
+    const fetchBatchInfo = async () => {
+      if (db) {
+        try {
+          const docSnap = await getDoc(doc(db, "batch", "info"));
+          if (docSnap.exists()) {
+            setBatchInfo(docSnap.data() as any);
+          }
+        } catch (error) {
+          console.error("Error fetching batch info:", error);
+        }
+      }
+    };
+    const fetchGallery = async () => {
+      if (db) {
+        try {
+          const q = query(collection(db, "gallery"), orderBy("createdAt", "desc"));
+          const snapshot = await getDocs(q);
+          const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setGallery(items);
+        } catch (error) {
+          console.error("Error fetching gallery:", error);
+        }
+      }
+    };
+
+    fetchBatchInfo();
+    fetchGallery();
+  }, [db]);
+
+  useEffect(() => {
+    if (!videoCarouselApi) return;
+
+    videoCarouselApi.on("select", () => {
+      // Pause all youtube iframes when sliding
+      const iframes = document.querySelectorAll(".video-iframe");
+      iframes.forEach((iframe) => {
+        if (iframe instanceof HTMLIFrameElement && iframe.contentWindow) {
+          iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        }
+      });
+      
+      // Auto-play the currently active slide's video
+      const activeIndex = videoCarouselApi.selectedScrollSnap();
+      const activeIframe = iframes[activeIndex];
+      if (activeIframe instanceof HTMLIFrameElement && activeIframe.contentWindow) {
+        activeIframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+      }
+    });
+  }, [videoCarouselApi]);
 
   return (
     <main className="pb-32">
@@ -37,36 +108,39 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
         </div>
         
-        <div className="relative z-10 text-center px-4 space-y-6">
+        <div className="relative z-10 text-center px-4 space-y-2">
           {logo && (
-            <div className="mx-auto w-32 h-32 md:w-48 md:h-48 relative mb-8 animate-in fade-in zoom-in duration-1000">
+            <div className="mx-auto w-48 h-48 md:w-64 md:h-64 relative mb-2 animate-in fade-in zoom-in duration-1000">
               <Image
                 src={logo.imageUrl}
-                alt="Logo De'Seviore"
+                alt="Logo De Seviore"
                 fill
                 className="object-contain drop-shadow-[0_0_20px_rgba(26,204,230,0.3)]"
               />
             </div>
           )}
-          <h1 className="text-5xl md:text-8xl font-headline font-bold accent-glow tracking-tight">
-            De'Seviore
+          <h1 className="font-headline font-bold accent-glow tracking-tight flex flex-col items-center gap-2">
+            <span className="text-3xl md:text-5xl font-normal opacity-90">
+              {user ? `Halo ${(user.displayName || user.email?.split('@')[0] || 'Admin').replace(/[0-9]/g, '')}, Selamat datang di` : 'Selamat datang di'}
+            </span>
+            <span className="text-5xl md:text-8xl">Seviore Space</span>
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto font-light italic">
-            "Warisan Keunggulan, Ikatan Persaudaraan"
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light italic mt-4">
+            Powered by : "Al-Azhar Seventh Generation"
           </p>
         </div>
       </section>
 
       {/* History & Philosophy */}
-      <section className="container mx-auto px-6 py-20 grid md:grid-cols-2 gap-12">
+      <section className="container mx-auto px-6 pb-6 pt-20 grid md:grid-cols-2 gap-12">
         <Card className="glass-card">
           <CardContent className="p-8 space-y-4">
             <div className="flex items-center gap-3 text-accent mb-4">
               <History className="w-8 h-8" />
               <h2 className="text-3xl font-headline font-bold">Sejarah Kami</h2>
             </div>
-            <p className="text-muted-foreground leading-relaxed text-lg">
-              Lahir dari mimpi bersama, De'Seviore dengan cepat berkembang menjadi komunitas pemikir dan pencipta yang dinamis. Didirikan pada tahun 2021, angkatan kami telah melewati berbagai tantangan, mengubahnya menjadi tonggak pertumbuhan dan persahabatan.
+            <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap">
+              {batchInfo.history}
             </p>
           </CardContent>
         </Card>
@@ -77,29 +151,87 @@ export default function Home() {
               <Shield className="w-8 h-8" />
               <h2 className="text-3xl font-headline font-bold">Filosofi</h2>
             </div>
-            <p className="text-muted-foreground leading-relaxed text-lg">
-              Nama De'Seviore melambangkan "Pelayan Kebijaksanaan." Kami percaya bahwa kepemimpinan sejati berakar pada pengabdian dan bahwa pengetahuan hanya berharga jika dibagikan.
+            <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap">
+              {batchInfo.philosophy}
             </p>
           </CardContent>
         </Card>
       </section>
 
+      {/* School Affiliation */}
+      <section className="container mx-auto px-6 py-6 flex justify-center">
+        <div className="glass-card flex flex-col items-center justify-center space-y-4 px-10 py-8 rounded-3xl w-fit shadow-xl border border-white/5 bg-background/30 backdrop-blur-md">
+          <p className="text-sm font-semibold text-muted-foreground capitalize tracking-widest text-center">
+            Student Of :
+          </p>
+          <div className="flex items-center justify-center gap-6 md:gap-12">
+            {/* Logo Yayasan (Kiri) */}
+            <div className="relative w-20 h-20 md:w-28 md:h-28 opacity-80 hover:opacity-100 transition-opacity duration-300">
+              <Image
+                src="/logo-yayasan.jpg"
+                alt="Logo Yayasan"
+                fill
+                className="object-contain drop-shadow-md rounded-xl"
+              />
+            </div>
+            
+            {/* Logo Pondok (Tengah) */}
+            <div className="relative w-24 h-24 md:w-32 md:h-32 opacity-90 hover:opacity-100 transition-opacity duration-300">
+              <Image
+                src="/school-logo.png"
+                alt="School Logo"
+                fill
+                className="object-contain drop-shadow-lg"
+              />
+            </div>
+            
+            {/* Logo MA (Kanan) */}
+            <div className="relative w-20 h-20 md:w-28 md:h-28 opacity-80 hover:opacity-100 transition-opacity duration-300">
+              <Image
+                src="/logo-ma.png"
+                alt="Logo MA"
+                fill
+                className="object-contain drop-shadow-md"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Video Trailer Section */}
-      <section className="container mx-auto px-6 py-20">
+      <section className="container mx-auto px-6 pb-20 pt-6">
         <div className="glass-card rounded-2xl overflow-hidden p-1 md:p-4">
           <div className="flex items-center gap-3 text-accent mb-8 p-4">
             <Play className="w-8 h-8 fill-accent" />
-            <h2 className="text-4xl font-headline font-bold">Trailer Angkatan</h2>
+            <h2 className="text-4xl font-headline font-bold">Kegiatan Kami</h2>
           </div>
-          <div className="relative aspect-video w-full rounded-xl overflow-hidden shadow-2xl border border-white/5">
-            <iframe
-              src={trailerVideoUrl}
-              title="De'Seviore Trailer"
-              className="absolute inset-0 w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
+          <Carousel 
+            setApi={setVideoCarouselApi}
+            plugins={[plugin.current]} 
+            className="w-full"
+            onMouseEnter={plugin.current.stop}
+            onMouseLeave={plugin.current.reset}
+          >
+            <CarouselContent>
+              {videos.map((video) => (
+                <CarouselItem key={video.id}>
+                  <div className="relative aspect-video w-full rounded-xl overflow-hidden shadow-2xl border border-white/5">
+                    <iframe
+                      src={video.url}
+                      title={`Video Kegiatan ${video.id}`}
+                      className="video-iframe absolute inset-0 w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            
+            {/* Absolute positioned glass buttons */}
+            <CarouselPrevious className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full border border-white/20 bg-black/30 backdrop-blur-md text-white hover:bg-white/20 hover:text-white transition-all z-10" />
+            <CarouselNext className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full border border-white/20 bg-black/30 backdrop-blur-md text-white hover:bg-white/20 hover:text-white transition-all z-10" />
+          </Carousel>
         </div>
       </section>
 
@@ -107,31 +239,58 @@ export default function Home() {
       <section className="container mx-auto px-6 py-20">
         <div className="flex items-center gap-3 text-accent mb-12">
           <Camera className="w-8 h-8" />
-          <h2 className="text-4xl font-headline font-bold">Momen Angkatan</h2>
+          <h2 className="text-4xl font-headline font-bold">Swipe The Moment!!</h2>
         </div>
         
         <Carousel opts={{ align: "start", loop: true }} className="w-full">
           <CarouselContent className="-ml-4">
-            {gallery.map((item) => (
+            {gallery.length > 0 ? gallery.map((item) => (
               <CarouselItem key={item.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                <div className="relative rounded-xl overflow-hidden group h-64 md:h-80">
+                <div className="relative rounded-xl overflow-hidden group h-64 md:h-80 border border-white/5">
                   <Image
                     src={item.imageUrl}
-                    alt={item.description}
+                    alt="Gallery Moment"
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                    <p className="text-white font-bold text-lg">{item.description}</p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                    <p className="text-white font-bold text-sm tracking-wide bg-accent/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10 italic">
+                      #{item.title || "SevioreMoment"}
+                    </p>
                   </div>
                 </div>
               </CarouselItem>
-            ))}
+            )) : (
+              [1, 2, 3].map((i) => (
+                <CarouselItem key={i} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="relative rounded-xl overflow-hidden h-64 md:h-80 bg-white/5 animate-pulse flex items-center justify-center">
+                    <Camera className="w-8 h-8 text-white/10" />
+                  </div>
+                </CarouselItem>
+              ))
+            )}
           </CarouselContent>
           <div className="flex justify-center gap-4 mt-8">
             <CarouselPrevious className="relative inset-0 translate-y-0 h-10 w-10 border-white/10" />
             <CarouselNext className="relative inset-0 translate-y-0 h-10 w-10 border-white/10" />
           </div>
+
+          {/* Link to Albums Page - Restricted to Admins */}
+          {user && (
+            <div className="mt-12 text-center animate-in fade-in zoom-in duration-700 delay-300">
+              <a 
+                href="/albums" 
+                className="group inline-flex flex-col items-center gap-2 text-muted-foreground hover:text-accent transition-all duration-300"
+              >
+                <div className="p-3 rounded-full border border-white/10 bg-white/5 group-hover:border-accent/30 group-hover:bg-accent/5">
+                  <Camera className="w-5 h-5 text-accent" />
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60 group-hover:opacity-100">
+                  Lihat Album Kenangan
+                </span>
+              </a>
+            </div>
+          )}
         </Carousel>
       </section>
 
@@ -144,6 +303,20 @@ export default function Home() {
           </blockquote>
         </div>
       </section>
+
+      {/* Footer Address */}
+      <footer className="py-8 bg-background border-t border-white/5 text-center mt-auto pb-40">
+        <a 
+          href="https://share.google/HFMJYuzcjlPPYzcM1" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-muted-foreground hover:text-accent transition-colors duration-300 flex flex-col items-center justify-center gap-2"
+        >
+          <span className="text-sm font-semibold tracking-wide uppercase text-center px-4">Pondok Pesantren Al-Azhar Plered Purwakarta</span>
+          <span className="text-xs text-muted-foreground max-w-sm text-center px-4">Gang Coklat, Kp. Warungkandang RT.19/RW.04, Ds. Sindangsari, Kec. Plered, Kabupaten Purwakarta, Jawa Barat</span>
+          <span className="text-xs opacity-70 mt-2 hover:underline">Lihat di Google Maps</span>
+        </a>
+      </footer>
     </main>
   );
 }
