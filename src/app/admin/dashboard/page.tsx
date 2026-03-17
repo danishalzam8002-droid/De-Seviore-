@@ -51,7 +51,8 @@ function AdminDashboard() {
   const [newAdmin, setNewAdmin] = useState({ email: "", password: "", role: "Member" });
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
   const [requests, setRequests] = useState<any[]>([]);
-  const currentUserRole = adminRoles.find(a => a.email === user?.email)?.role || 'Member';
+  const rawRole = adminRoles.find(a => a.email === user?.email)?.role;
+  const currentUserRole = (rawRole === 'Admin' || rawRole === 'Admin Utama' || rawRole === 'Admin Konten' || rawRole === 'Moderator') ? 'Admin' : 'Member';
 
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; title: string; description: string; onConfirm: () => void }>({
     open: false,
@@ -683,11 +684,11 @@ function AdminDashboard() {
             <TabsTrigger value="library" className="data-[state=active]:bg-accent data-[state=active]:text-background">
               <BookOpen className="w-4 h-4 mr-2" /> Perpustakaan
             </TabsTrigger>
-            <TabsTrigger value="access" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-              <Key className="w-4 h-4 mr-2" /> {currentUserRole === 'Admin' ? "Akses Login" : "Profil Saya"}
-            </TabsTrigger>
             {currentUserRole === 'Admin' && (
               <>
+                <TabsTrigger value="access" className="data-[state=active]:bg-accent data-[state=active]:text-background">
+                  <Key className="w-4 h-4 mr-2" /> {currentUserRole === 'Admin' ? "Akses Login" : "Profil Saya"}
+                </TabsTrigger>
                 <TabsTrigger value="requests" className="data-[state=active]:bg-accent data-[state=active]:text-background relative">
                   <Bell className="w-4 h-4 mr-2" /> Permintaan
                   {requests.length > 0 && (
@@ -1100,7 +1101,8 @@ function AdminDashboard() {
               </Card>
             </div>
           </TabsContent>
-          <TabsContent value="access" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {currentUserRole === 'Admin' && (
+            <TabsContent value="access" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid md:grid-cols-3 gap-8">
               <Card className="glass-card md:col-span-1 h-fit">
                 <CardHeader>
@@ -1135,9 +1137,8 @@ function AdminDashboard() {
                         <SelectValue placeholder="Pilih Peran" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Admin Utama">Admin Utama</SelectItem>
-                        <SelectItem value="Admin Konten">Admin Konten</SelectItem>
-                        <SelectItem value="Moderator">Moderator</SelectItem>
+                        <SelectItem value="Admin">Admin</SelectItem>
+                        <SelectItem value="Member">Member</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1208,6 +1209,7 @@ function AdminDashboard() {
               </Card>
             </div>
           </TabsContent>
+          )}
 
           <TabsContent value="albums" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Card className="glass-card">
