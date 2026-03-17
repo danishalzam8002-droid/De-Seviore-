@@ -61,6 +61,8 @@ function AdminDashboard() {
   });
 
   useEffect(() => {
+    if (authLoading || !user) return; // Wait for auth session to be ready
+
     const fetchAllData = async () => {
       try {
         // Fetch Kitab
@@ -106,7 +108,7 @@ function AdminDashboard() {
       }
     };
     fetchAllData();
-  }, []);
+  }, [user, authLoading]);
 
   const [batchContent, setBatchContent] = useState({
     history: "Didirikan pada tahun 2021, angkatan kami telah melewati berbagai tantangan...",
