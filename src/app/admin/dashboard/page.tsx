@@ -1382,6 +1382,7 @@ function AdminDashboard() {
               </Card>
             </TabsContent>
           )}
+
           {currentUserRole === 'Admin' && (
             <TabsContent value="monitoring" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <UsageMonitor />
