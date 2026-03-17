@@ -4,8 +4,8 @@ import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
-import { useFirestore, useUser } from "@/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { useUser } from "@/hooks/use-supabase-user";
+import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import {
   Carousel,
@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 
 function AlbumsPage() {
   const { user, loading: authLoading } = useUser();
-  const db = useFirestore();
   const router = useRouter();
   const [albums, setAlbums] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,11 +31,15 @@ function AlbumsPage() {
     }
 
     const fetchAlbums = async () => {
-      if (db && user) {
+      if (user) {
         try {
-          const q = query(collection(db, "albums"), orderBy("createdAt", "desc"));
-          const snapshot = await getDocs(q);
-          setAlbums(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+          const { data, error } = await supabase
+            .from('albums')
+            .select('*')
+            .order('created_at', { ascending: false });
+          
+          if (error) throw error;
+          setAlbums(data || []);
         } catch (error) {
           console.error("Error fetching albums:", error);
         } finally {
@@ -45,7 +48,7 @@ function AlbumsPage() {
       }
     };
     fetchAlbums();
-  }, [db, user, authLoading, router]);
+  }, [user, authLoading, router]);
 
   if (authLoading || !user) {
     return (
@@ -96,7 +99,7 @@ function AlbumsPage() {
                     <DialogTrigger asChild>
                       <div className="relative aspect-[4/3] md:aspect-video rounded-3xl overflow-hidden group cursor-pointer border border-white/10 shadow-2xl transition-all duration-500 hover:border-accent/40">
                         <Image
-                          src={album.imageUrl}
+                          src={album.image_url}
                           alt={album.title}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -126,7 +129,7 @@ function AlbumsPage() {
                         </div>
                         
                         <Button 
-                          onClick={() => window.open(album.driveLink, '_blank')}
+                          onClick={() => window.open(album.drive_link, '_blank')}
                           className="w-full h-16 rounded-2xl bg-accent hover:bg-accent/80 text-background font-bold text-lg uppercase tracking-widest group shadow-[0_0_20px_rgba(26,204,230,0.3)] transition-all hover:scale-[1.02]"
                         >
                           <span className="flex items-center gap-3">

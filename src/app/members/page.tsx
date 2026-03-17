@@ -17,34 +17,30 @@ import {
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
-import { useFirestore } from "@/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { supabase } from "@/lib/supabase";
 
 function MembersPage() {
-  const db = useFirestore();
   const [members, setMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMembers = async () => {
-      if (db) {
-        try {
-          const mCol = collection(db, "members");
-          const q = query(mCol, orderBy("name", "asc"));
-          const mSnap = await getDocs(q);
-          const membersList = mSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setMembers(membersList);
-        } catch (error) {
-          console.error("Error fetching members:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
+      try {
+        const { data, error } = await supabase
+          .from('members')
+          .select('*')
+          .order('name', { ascending: true });
+        
+        if (error) throw error;
+        setMembers(data || []);
+      } catch (error) {
+        console.error("Error fetching members:", error);
+      } finally {
         setIsLoading(false);
       }
     };
     fetchMembers();
-  }, [db]);
+  }, []);
 
   return (
     <main className="min-h-screen pb-32">
@@ -77,7 +73,7 @@ function MembersPage() {
                     <Card className="glass-card overflow-hidden group h-full cursor-pointer hover:border-accent/50 transition-colors">
                       <div className="relative h-96 overflow-hidden">
                         <Image
-                          src={member.imageUrl || "https://picsum.photos/seed/default/400/500"}
+                          src={member.image_url || "https://picsum.photos/seed/default/400/500"}
                           alt={member.name}
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-105"

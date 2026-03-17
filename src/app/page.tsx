@@ -17,12 +17,11 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { useUser, useFirestore } from "@/firebase";
-import { doc, getDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
+import { useUser } from "@/hooks/use-supabase-user";
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
   const { user } = useUser();
-  const db = useFirestore();
   const [batchInfo, setBatchInfo] = useState({
     history: "Lahir dari mimpi bersama, De Seviore dengan cepat berkembang menjadi komunitas pemikir dan pencipta yang dinamis. Didirikan pada tahun 2021, angkatan kami telah melewati berbagai tantangan, mengubahnya menjadi tonggak pertumbuhan dan persahabatan.",
     philosophy: 'Nama De Seviore melambangkan "Pelayan Kebijaksanaan." Kami percaya bahwa kepemimpinan sejati berakar pada pengabdian dan bahwa pengetahuan hanya berharga jika dibagikan.'
@@ -42,33 +41,44 @@ export default function Home() {
 
   useEffect(() => {
     const fetchBatchInfo = async () => {
-      if (db) {
-        try {
-          const docSnap = await getDoc(doc(db, "batch", "info"));
-          if (docSnap.exists()) {
-            setBatchInfo(docSnap.data() as any);
+      try {
+        const { data, error } = await supabase
+          .from('batch_info')
+          .select('*')
+          .single();
+        
+        if (error) {
+          if (error.code !== 'PGRST116') { // Ignore "no rows returned" error
+            console.error("Error fetching batch info:", error);
           }
-        } catch (error) {
-          console.error("Error fetching batch info:", error);
+          return;
         }
+        
+        if (data) {
+          setBatchInfo(data as any);
+        }
+      } catch (error) {
+        console.error("Error fetching batch info:", error);
       }
     };
+    
     const fetchGallery = async () => {
-      if (db) {
-        try {
-          const q = query(collection(db, "gallery"), orderBy("createdAt", "desc"));
-          const snapshot = await getDocs(q);
-          const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setGallery(items);
-        } catch (error) {
-          console.error("Error fetching gallery:", error);
-        }
+      try {
+        const { data, error } = await supabase
+          .from('gallery')
+          .select('*')
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        setGallery(data || []);
+      } catch (error) {
+        console.error("Error fetching gallery:", error);
       }
     };
 
     fetchBatchInfo();
     fetchGallery();
-  }, [db]);
+  }, []);
 
   useEffect(() => {
     if (!videoCarouselApi) return;
@@ -121,7 +131,7 @@ export default function Home() {
           )}
           <h1 className="font-headline font-bold accent-glow tracking-tight flex flex-col items-center gap-2">
             <span className="text-3xl md:text-5xl font-normal opacity-90">
-              {user ? `Halo ${(user.displayName || user.email?.split('@')[0] || 'Admin').replace(/[0-9]/g, '')}, Selamat datang di` : 'Selamat datang di'}
+              {user ? `Halo ${(user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin').replace(/[0-9]/g, '')}, Selamat datang di` : 'Selamat datang di'}
             </span>
             <span className="text-5xl md:text-8xl">Seviore Space</span>
           </h1>
@@ -248,7 +258,7 @@ export default function Home() {
               <CarouselItem key={item.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
                 <div className="relative rounded-xl overflow-hidden group h-64 md:h-80 border border-white/5">
                   <Image
-                    src={item.imageUrl}
+                    src={item.image_url}
                     alt="Gallery Moment"
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"

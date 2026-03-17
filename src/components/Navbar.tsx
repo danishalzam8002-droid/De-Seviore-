@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Users, Home, Settings, LogIn, LogOut, Building2, Info, BookOpen } from "lucide-react";
-import { useUser, useAuth } from "@/firebase";
-import { signOut } from "firebase/auth";
+import { useUser } from "@/hooks/use-supabase-user";
+import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -19,17 +19,11 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useUser();
-  const auth = useAuth();
-
   const handleLogout = async () => {
-    if (!auth) return;
     try {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("isAdmin");
-      }
-      if (auth) {
-        await signOut(auth as any);
-      }
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
       toast({
         title: "Keluar Berhasil",
         description: "Anda telah keluar dari sesi admin.",

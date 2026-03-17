@@ -5,49 +5,39 @@ import { Navbar } from "@/components/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { BookOpen, Search, Download, Loader2 } from "lucide-react";
-import { useFirestore } from "@/firebase";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { supabase } from "@/lib/supabase";
 
 type Kitab = {
   id: string;
   title: string;
   author: string;
   category: string;
-  fileUrl: string;
+  file_url: string;
 };
 
 export default function PerpustakaanPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [kitabs, setKitabs] = useState<Kitab[]>([]);
   const [loading, setLoading] = useState(true);
-  const db = useFirestore();
 
   useEffect(() => {
-    // If no db, just show dummy data for now or empty
-    if (!db) {
-      setKitabs([
-        { id: "1", title: "Kitab Safinatun Najah", author: "Syekh Salim bin Sumair", category: "Fiqih", fileUrl: "#" },
-        { id: "2", title: "Lumbung Hikmah", author: "Al-Azhar", category: "Tasawuf", fileUrl: "#" },
-      ]);
-      setLoading(false);
-      return;
-    }
-
-    const q = query(collection(db, "kitab"), orderBy("title", "asc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Kitab[];
-      setKitabs(data);
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching kitab:", error);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [db]);
+    const fetchKitabs = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('kitab')
+          .select('*')
+          .order('title', { ascending: true });
+        
+        if (error) throw error;
+        setKitabs(data || []);
+      } catch (error) {
+        console.error("Error fetching kitab:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchKitabs();
+  }, []);
 
   const filteredKitabs = kitabs.filter((kitab) => 
     kitab.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -105,7 +95,7 @@ export default function PerpustakaanPage() {
                   </div>
                   <div className="mt-auto">
                     <a 
-                      href={kitab.fileUrl} 
+                      href={kitab.file_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm font-semibold text-accent hover:text-white transition-colors duration-200"

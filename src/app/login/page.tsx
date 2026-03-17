@@ -4,8 +4,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useAuth, useUser } from "@/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { useUser } from "@/hooks/use-supabase-user";
+import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
   const { user, loading: authLoading } = useUser();
   const router = useRouter();
 
@@ -33,21 +32,16 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth) return;
 
     setIsLoading(true);
     try {
-      if (email === "danishalzam8002@gmail.com" && password === "cend@n@3I0311") {
-        localStorage.setItem("isAdmin", "true");
-        toast({
-          title: "Berhasil Masuk",
-          description: "Selamat datang kembali di Konsol Admin De Seviore.",
-        });
-        window.location.href = "/admin/dashboard";
-        return;
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      await signInWithEmailAndPassword(auth as any, email, password);
+      if (error) throw error;
+
       toast({
         title: "Berhasil Masuk",
         description: "Selamat datang kembali di Konsol Admin De Seviore.",
@@ -57,7 +51,7 @@ export default function LoginPage() {
       toast({
         variant: "destructive",
         title: "Gagal Masuk",
-        description: "Email atau kata sandi salah. Silakan coba lagi.",
+        description: error.message || "Email atau kata sandi salah. Silakan coba lagi.",
       });
     } finally {
       setIsLoading(false);

@@ -34,10 +34,11 @@ export function QuoteGenerator({ onQuoteGenerated }: QuoteGeneratorProps) {
         title: "Berhasil!",
         description: "Kutipan berhasil dibuat.",
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Generate Error Detail:", error);
       toast({
-        title: "Kesalahan",
-        description: "Gagal membuat kutipan. Silakan coba lagi.",
+        title: "Gagal Membuat Kutipan",
+        description: error.message || "Cek koneksi atau API Key Anda.",
         variant: "destructive",
       });
     } finally {
