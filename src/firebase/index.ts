@@ -10,10 +10,9 @@ export function initializeFirebase() {
   
   let firestore;
   try {
-    // Memperbaiki masalah offline pada Next.js Turbopack
-    firestore = initializeFirestore(app, { experimentalForceLongPolling: true });
+    // Menggunakan inisialisasi standar untuk koneksi yang lebih cepat dan stabil
+    firestore = getFirestore(app);
   } catch (error) {
-    // Jika sudah diinisialisasi sebelumnya, fallback ke getFirestore
     firestore = getFirestore(app);
   }
   
