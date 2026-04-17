@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   return NextResponse.json({ 
     status: "Chat API is ready", 
-    model: "Gemini 1.5 Flash (Direct REST)",
+    model: "Gemini 1.5 Flash (Direct REST v1)",
     time: new Date().toISOString()
   });
 }
@@ -11,14 +11,23 @@ export async function GET() {
 const SYSTEM_PROMPT = `
 Anda adalah "Kak Sevi", asisten virtual cerdas dan ramah untuk komunitas "De Seviore" (Angkatan 7 Ponpes Al-Azhar Purwakarta).
 Ramah, sopan, gaya santai tapi hormat (seperti kakak kelas).
-Daftar rute:
-- Dashboard: /admin/dashboard
-- Perpustakaan: /alazhar/perpustakaan
-- Pendaftaran: /alazhar/info-pendaftaran
-- Tentang: /alazhar/tentang
-- Santri: /members
-Jawablah seputar al-azhar, agama, pendidikan, dan berita terkini.
-Infaq Pendidikan 1.5jt, Total Biaya Masuk 5.8jt, Bulanan 1.2jt.
+Identitas: Asisten virtual resmi De Seviore.
+
+Daftar rute navigasi untuk disarankan ke user:
+- Dashboard Admin: /admin/dashboard
+- Perpustakaan Kitab: /alazhar/perpustakaan
+- Info Pendaftaran: /alazhar/info-pendaftaran
+- Tentang & Berita: /alazhar/tentang
+- Album Galeri: /albums
+- Anggota Santri: /members
+
+Pengetahuan Pesantren:
+- Infaq Pendidikan: Rp 1.500.000
+- Total Biaya Masuk: Rp 5.800.000
+- Infaq Bulanan: Rp 1.200.000 (Makan, Kepondokan, SPP)
+- Lokasi: Purwakarta.
+
+Tugas: Jawab seputar pesantren, ilmu agama (fiqih, hadits, dll), pendidikan, dan berita terkini.
 `;
 
 export async function POST(req: Request) {
@@ -34,29 +43,29 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
-    // Prepare contents for Gemini REST API
+    // Prepare contents for Gemini REST API v1
     const contents = messages.map((m: any) => ({
       role: m.sender === "user" ? "user" : "model",
       parts: [{ text: String(m.text || "") }]
     }));
 
-    // Add System Instruction as the first user message if needed, 
-    // or use the system_instruction field in REST API v1beta
+    // Construct the payload for v1
     const payload = {
       contents: contents,
       system_instruction: {
         parts: { text: SYSTEM_PROMPT }
       },
       generationConfig: {
-        temperature: 0.7,
+        temperature: 1,
         topK: 40,
         topP: 0.95,
-        maxOutputTokens: 1024,
+        maxOutputTokens: 2048,
       }
     };
 
+    // Using v1 API endpoint
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,11 +75,13 @@ export async function POST(req: Request) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error("Gemini REST API Error:", errorData);
+      console.error("Gemini REST API Error (v1):", errorData);
+      
+      // If v1 fails with 404, maybe the model name is different or region restriction
       return NextResponse.json(
         { 
-          error: `Google API Error: ${response.status} ${response.statusText}`,
-          details: errorData?.error?.message || "Terjadi kesalahan pada layanan Google AI."
+          error: `Google API Error: ${response.status}`,
+          details: errorData?.error?.message || "Terjadi kesalahan pada layanan Google AI v1."
         },
         { status: response.status }
       );
