@@ -63,31 +63,33 @@ function AnimatedBotIcon({ size = 24, className = "" }: { size?: number, classNa
             transform-origin: center;
             animation: eye-blink-snappy 4s ease-in-out infinite;
           }
-          @keyframes peek-bot {
-            0%, 5%, 95%, 100% { transform: translateY(40px) scale(0.8); opacity: 0; }
-            10%, 90% { transform: translateY(0) scale(1); opacity: 1; }
-            45%, 55% { transform: translateY(-5px) rotate(5deg); }
+          /* Main Bot: Peeks, looks left, looks right */
+          @keyframes peek-main {
+            0%, 10%, 90%, 100% { transform: translateY(50px) scale(0.8); opacity: 0; }
+            15%, 85% { transform: translateY(0) scale(1); opacity: 1; }
+            30%, 45% { transform: translateY(-5px) rotate(-5deg); } /* Looking at side bot 1 */
+            60%, 75% { transform: translateY(-3px) rotate(5deg); }  /* Looking at mini bot */
           }
-          @keyframes peek-bot-side {
-            0%, 20%, 80%, 100% { transform: translateX(20px) scale(0.6); opacity: 0; }
-            30%, 70% { transform: translateX(0) scale(0.85) rotate(-10deg); opacity: 1; }
-            50% { transform: translateX(-5px) scale(0.85) rotate(-15deg); }
+          /* Side Bot 1: Peeks and looks at main bot */
+          @keyframes peek-side-interaction {
+            0%, 25%, 75%, 100% { transform: translateX(30px) scale(0.6); opacity: 0; }
+            35%, 65% { transform: translateX(0) scale(0.9) rotate(-15deg); opacity: 1; }
+            45%, 55% { transform: translateX(5px) scale(0.9) rotate(-10deg); } /* Leaning towards main */
           }
-          @keyframes peek-bot-mini {
-            0%, 30%, 70%, 100% { transform: translateY(20px) scale(0.5); opacity: 0; }
-            40%, 60% { transform: translateY(0) scale(0.7) rotate(15deg); opacity: 1; }
-            50% { transform: translateY(-3px) scale(0.75) rotate(20deg); }
+          /* Mini Bot: Jumps in quickly when main bot is looking right */
+          @keyframes peek-mini-interaction {
+            0%, 55%, 95%, 100% { transform: translateY(30px) scale(0.5); opacity: 0; }
+            65%, 85% { transform: translateY(0) scale(0.8) rotate(10deg); opacity: 1; }
+            70%, 80% { transform: translateY(-8px) scale(0.9) rotate(20deg); } /* Excited jump */
           }
           .animate-peek-bot {
-            animation: peek-bot 8s ease-in-out infinite;
+            animation: peek-main 10s ease-in-out infinite;
           }
           .animate-peek-bot-side {
-            animation: peek-bot-side 9s ease-in-out infinite;
-            animation-delay: 1.5s;
+            animation: peek-side-interaction 10s ease-in-out infinite;
           }
           .animate-peek-bot-mini {
-            animation: peek-bot-mini 10s ease-in-out infinite;
-            animation-delay: 3s;
+            animation: peek-mini-interaction 10s ease-in-out infinite;
           }
         `}
       </style>
@@ -399,9 +401,9 @@ export function KakViorBot() {
         </div>
         <Button
           onClick={() => setIsOpen(true)}
-          className="h-20 w-20 rounded-full bg-accent hover:bg-accent/90 shadow-[0_0_30px_rgba(26,204,230,0.6)] transition-transform hover:scale-110 duration-500 animate-bounce flex items-center justify-center p-0"
+          className="h-15 w-15 rounded-full bg-accent hover:bg-accent/90 shadow-[0_0_25px_rgba(26,204,230,0.5)] transition-transform hover:scale-110 duration-500 animate-bounce flex items-center justify-center p-0 overflow-hidden"
         >
-          <MessageCircleQuestion size={44} className="text-background" />
+          <MessageCircleQuestion size={46} className="text-background" />
         </Button>
       </div>
 
