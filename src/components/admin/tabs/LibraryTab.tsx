@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trash2, Plus, BookOpen, ExternalLink } from "lucide-react";
+import { Trash2, Plus, BookOpen, ExternalLink, Search } from "lucide-react";
 import { Kitab } from "@/types";
 
 interface LibraryTabProps {
@@ -24,6 +24,7 @@ export function LibraryTab({
   const [newKitab, setNewKitab] = useState<Partial<Kitab>>({ title: "", author: "", category: "", file_url: "" });
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   const handleAdd = () => {
@@ -46,6 +47,12 @@ export function LibraryTab({
     setIsCustomCategory(false);
     setCustomCategory("");
   };
+
+  const filteredKitabs = kitabs.filter(kitab => 
+    kitab.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    kitab.author?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    kitab.category?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -152,8 +159,21 @@ export function LibraryTab({
 
         <Card className="glass-card md:col-span-2">
           <CardHeader>
-            <CardTitle>Daftar Koleksi Digital</CardTitle>
-            <CardDescription>Kelola pustaka kitab online.</CardDescription>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <CardTitle>Daftar Koleksi Digital</CardTitle>
+                <CardDescription>Kelola pustaka kitab online.</CardDescription>
+              </div>
+              <div className="relative w-full md:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Cari judul kitab..."
+                  className="pl-9 bg-background/30 border-white/10"
+                />
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <Table>
@@ -165,7 +185,7 @@ export function LibraryTab({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {kitabs.map((kitab) => (
+                {filteredKitabs.map((kitab) => (
                   <TableRow key={kitab.id}>
                     <TableCell>
                       <div>
