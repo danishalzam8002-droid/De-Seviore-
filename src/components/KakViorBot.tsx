@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, ReactNode } from "react";
-import { MessageCircle, X, Send, Bot, User, Mic, MicOff } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Mic, MicOff, MessageCircleQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -401,7 +401,7 @@ export function KakViorBot() {
           onClick={() => setIsOpen(true)}
           className="h-16 w-16 rounded-full bg-accent hover:bg-accent/90 shadow-[0_0_25px_rgba(26,204,230,0.5)] transition-transform hover:scale-110 duration-500 animate-bounce flex items-center justify-center p-0"
         >
-          <AnimatedBotIcon size={36} className="text-background" />
+          <MessageCircleQuestion size={36} className="text-background" />
         </Button>
       </div>
 
