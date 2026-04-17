@@ -531,23 +531,26 @@ function AdminDashboard() {
       } else if (request.action === 'DELETE') {
         ({ error } = await supabase.from(request.table_name).delete().eq('id', request.target_id));
       } else if (request.action === 'ACCESS_REQUEST') {
-        // 1. Call Edge Function for Automation (Creation + Email)
-        const { data: functionData, error: functionError } = await supabase.functions.invoke('handle-access-approval', {
-          body: {
+        // 1. Call Internal API for Automation (Creation + Email)
+        const response = await fetch('/api/admin/approve-access', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
             email: request.data.email,
             password: request.data.password,
             role: request.data.role,
             name: request.data.name,
             status: 'approved'
-          }
+          })
         });
 
-        if (functionError) throw functionError;
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Gagal memproses pendaftaran otomatis.");
         
         // 2. Prepare Notification (local toast)
         toast({ 
           title: "Akses Disetujui", 
-          description: `User ${request.data.email} telah dibuat dan notifikasi email dikirim.`,
+          description: `Akun ${request.data.email} telah dibuat secara otomatis dan email terkirim.`,
         });
       }
 
@@ -581,13 +584,15 @@ function AdminDashboard() {
       setRequests(requests.filter(r => r.id !== requestId));
       
       if (req?.action === 'ACCESS_REQUEST') {
-        // Call Edge Function for Rejection Email
-        await supabase.functions.invoke('handle-access-approval', {
-          body: {
+        // Call Internal API for Rejection Email
+        await fetch('/api/admin/approve-access', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
             email: req.data.email,
             name: req.data.name,
             status: 'rejected'
-          }
+          })
         });
         toast({ title: "Permintaan Ditolak", description: "Email penolakan telah dikirim ke pemohon." });
       } else {
