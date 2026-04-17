@@ -91,6 +91,22 @@ function AnimatedBotIcon({ size = 24, className = "" }: { size?: number, classNa
           .animate-peek-bot-mini {
             animation: peek-mini-interaction 10s ease-in-out infinite;
           }
+          @keyframes text-float-pop {
+            0%, 15%, 85%, 100% { transform: translateY(10px) scale(0); opacity: 0; }
+            20%, 80% { transform: translateY(0) scale(1); opacity: 1; }
+            45%, 55% { transform: translateY(-5px); }
+          }
+          .animate-bot-talk {
+            animation: text-float-pop 10s ease-in-out infinite;
+          }
+          .animate-bot-talk-side {
+            animation: text-float-pop 10s ease-in-out infinite;
+            animation-delay: 1.5s;
+          }
+          .animate-bot-talk-mini {
+            animation: text-float-pop 10s ease-in-out infinite;
+            animation-delay: 3s;
+          }
         `}
       </style>
 
@@ -382,16 +398,26 @@ export function KakViorBot() {
         <div className="relative w-full flex justify-end">
           {/* Main Bot */}
           <div className="absolute -top-12 right-12 animate-peek-bot pointer-events-none">
+            {/* Floating Thought/Text */}
+            <div className="absolute -top-6 -right-2 bg-accent text-background text-[8px] font-bold px-1.5 py-0.5 rounded-full animate-bot-talk shadow-lg">
+               AL-AZHAR?
+            </div>
             <AnimatedBotIcon size={48} className="text-accent drop-shadow-[0_0_10px_rgba(26,204,230,0.6)]" />
           </div>
           
           {/* Side Bot 1 */}
           <div className="absolute -top-6 right-36 animate-peek-bot-side pointer-events-none">
+            <div className="absolute -top-4 -right-1 bg-accent/80 text-background text-[7px] font-bold px-1 py-0.5 rounded-full animate-bot-talk-side shadow-md">
+               ??
+            </div>
             <AnimatedBotIcon size={36} className="text-accent/80 drop-shadow-[0_0_8px_rgba(26,204,230,0.4)]" />
           </div>
 
           {/* Side Bot 2 (Mini) */}
           <div className="absolute -top-10 right-2 animate-peek-bot-mini pointer-events-none">
+            <div className="absolute -top-4 -left-1 bg-accent/60 text-background text-[6px] font-bold px-1 py-0.5 rounded-full animate-bot-talk-mini shadow-sm">
+               ??
+            </div>
             <AnimatedBotIcon size={28} className="text-accent/60 drop-shadow-[0_0_6px_rgba(26,204,230,0.3)]" />
           </div>
 
