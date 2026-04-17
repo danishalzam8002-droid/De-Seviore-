@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   return NextResponse.json({ 
     status: "Chat API is ready", 
-    model: "Gemini 1.5 Flash (Direct REST v1)",
+    model: "Gemini 1.5 Flash (Direct REST v1beta - Fixed)",
     time: new Date().toISOString()
   });
 }
@@ -43,17 +43,17 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
-    // Prepare contents for Gemini REST API v1
+    // Prepare contents for Gemini REST API
     const contents = messages.map((m: any) => ({
       role: m.sender === "user" ? "user" : "model",
       parts: [{ text: String(m.text || "") }]
     }));
 
-    // Construct the payload for v1
+    // FIXED: system_instruction.parts MUST be an array []
     const payload = {
       contents: contents,
       system_instruction: {
-        parts: { text: SYSTEM_PROMPT }
+        parts: [{ text: SYSTEM_PROMPT }]
       },
       generationConfig: {
         temperature: 1,
@@ -63,9 +63,9 @@ export async function POST(req: Request) {
       }
     };
 
-    // Using v1 API endpoint
+    // Using v1beta as it has better support for system_instruction in Gemini 1.5
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,13 +75,38 @@ export async function POST(req: Request) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error("Gemini REST API Error (v1):", errorData);
+      console.error("Gemini REST API Error:", errorData);
       
-      // If v1 fails with 404, maybe the model name is different or region restriction
+      // Fallback: If system_instruction is still rejected, try without it by merging into contents
+      if (errorData?.error?.message?.includes("system_instruction")) {
+         const fallbackPayload = {
+           contents: [
+             { role: "user", parts: [{ text: `SYSTEM INSTRUCTION: ${SYSTEM_PROMPT}` }] },
+             { role: "model", parts: [{ text: "Siap, saya Kak Sevi. Ada yang bisa saya bantu?" }] },
+             ...contents
+           ],
+           generationConfig: payload.generationConfig
+         };
+         
+         const retryResponse = await fetch(
+           `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+           {
+             method: "POST",
+             headers: { "Content-Type": "application/json" },
+             body: JSON.stringify(fallbackPayload),
+           }
+         );
+         
+         if (retryResponse.ok) {
+           const retryData = await retryResponse.json();
+           return NextResponse.json({ text: retryData.candidates?.[0]?.content?.parts?.[0]?.text });
+         }
+      }
+
       return NextResponse.json(
         { 
           error: `Google API Error: ${response.status}`,
-          details: errorData?.error?.message || "Terjadi kesalahan pada layanan Google AI v1."
+          details: errorData?.error?.message || "Terjadi kesalahan pada layanan Google AI."
         },
         { status: response.status }
       );
