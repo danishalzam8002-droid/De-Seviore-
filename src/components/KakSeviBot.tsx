@@ -26,6 +26,7 @@ export function KakSeviBot() {
   ]);
   const [inputText, setInputText] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
@@ -98,9 +99,15 @@ export function KakSeviBot() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = (e?: React.FormEvent, customText?: string) => {
+  const handleSendMessage = async (e?: React.FormEvent, customText?: string) => {
     if (e) e.preventDefault();
     
+    // Auto-stop mic if user clicks send while listening
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    }
+
     const textToSend = customText || inputText;
     if (!textToSend.trim()) return;
 
@@ -110,111 +117,49 @@ export function KakSeviBot() {
       text: textToSend.trim(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     if (!customText) setInputText("");
+    setIsTyping(true);
 
-    // Simple Rule-Based AI response
-    setTimeout(() => {
-      let botResponse: string | ReactNode = "Maaf, Kak Sevi kurang paham maksudmu. Boleh tanya tentang Pendaftaran, Berita, atau Perpustakaan?";
-      const textVal = typeof userMessage.text === "string" ? userMessage.text : "";
-      const lowerInput = textVal.toLowerCase();
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: newMessages }),
+      });
 
-      if (lowerInput.includes("biaya") || lowerInput.includes("harga") || lowerInput.includes("bayar") || lowerInput.includes("rincian")) {
-        botResponse = (
-          <div className="space-y-4">
-            <p className="font-bold border-b border-accent/20 pb-2">RINCIAN BIAYA</p>
-            
-            <div>
-              <p className="font-bold text-accent mb-1">BIAYA MASUK DAN KELENGKAPAN</p>
-              <table className="w-full text-xs">
-                <tbody>
-                  <tr><td>INFAQ PENDIDIKAN</td><td className="text-right">Rp 1.500.000</td></tr>
-                  <tr><td>SEWA LEMARI</td><td className="text-right">Rp 300.000</td></tr>
-                  <tr><td>SEWA RANJANG</td><td className="text-right">Rp 300.000</td></tr>
-                  <tr><td>BELI KASUR</td><td className="text-right">Rp 500.000</td></tr>
-                  <tr><td>SERAGAM</td><td className="text-right">Rp 900.000</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div>
-              <p className="font-bold text-accent justify-between mb-1">INFAQ TAHUNAN</p>
-              <table className="w-full text-xs">
-                <tbody>
-                  <tr><td>INFAQ BANGUNAN</td><td className="text-right">Rp 1.500.000</td></tr>
-                  <tr><td>BUKU PELAJARAN 2 SEMESTER</td><td className="text-right">Rp 800.000</td></tr>
-                  <tr className="font-bold border-t border-accent/20"><td className="pt-1">TOTAL BIAYA MASUK</td><td className="text-right pt-1">Rp 5.800.000</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div>
-              <p className="font-bold text-accent mb-1">INFAQ BULANAN</p>
-              <table className="w-full text-xs">
-                <tbody>
-                  <tr><td>MAKAN</td><td className="text-right">Rp 700.000</td></tr>
-                  <tr><td>KEPONDOKAN</td><td className="text-right">Rp 300.000</td></tr>
-                  <tr><td>SPP</td><td className="text-right">Rp 200.000</td></tr>
-                  <tr className="font-bold border-t border-accent/20"><td className="pt-1">TOTAL BIAYA BULANAN</td><td className="text-right pt-1">Rp 1.200.000</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <p className="font-bold text-xs bg-accent/20 p-2 rounded-lg text-center">
-              FORMULIR PENDAFTARAN / REGISTRASI<br/>Rp 250.000
-            </p>
-
-            <a href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta#schedule" target="_blank" rel="noopener noreferrer" className="block text-center w-full mt-2 font-bold underline hover:text-accent transition-all text-xs">Lihat Jadwal & Promo di Web Resmi</a>
-          </div>
-        );
-      } else if (lowerInput.includes("alur") || lowerInput.includes("cara") || lowerInput.includes("step") || lowerInput.includes("daftar") || lowerInput.includes("pendaftaran")) {
-        botResponse = "Berikut alur pendaftaran Ponpes Al-Azhar Purwakarta:\n1. Isi formulir pendaftaran di web resmi dengan data lengkap.\n2. Jika ada biaya pendaftaran, lakukan pembayaran melalui Bank atau Minimarket.\n3. Proses seleksi dapat dicek secara real time.\n4. Hasil penerimaan bisa dicek online menggunakan nomor pendaftaran.\n5. Peserta Diterima wajib melakukan daftar ulang untuk konfirmasi dan memperoleh Nomor Kartu.";
-      } else if (lowerInput.includes("jadwal") || lowerInput.includes("kapan") || lowerInput.includes("gelombang")) {
-        botResponse = "Jadwal pendaftaran terbagi dua:\n- Gelombang 1: 1 Oktober 2026 s.d 13 Desember 2026\n- Gelombang 2: 15 Desember 2026 s.d 31 Juli 2027\nYuk! Jangan sampai ketinggalan.";
-      } else if (lowerInput.includes("berita") || lowerInput.includes("news") || lowerInput.includes("kegiatan") || lowerInput.includes("info")) {
-        botResponse = "Kamu bisa mengecek berita terbaru Al-Azhar di menu 'Tentang Al-Azhar'. Di sana Kak Sevi sering membagikan info kegiatan, prestasi santri, dan pengumuman terbaru lho!";
-      } else if (lowerInput.includes("perpus") || lowerInput.includes("kitab") || lowerInput.includes("buku") || lowerInput.includes("baca")) {
-        botResponse = "Di menu 'Perpustakaan', kita punya banyak koleksi kitab digital karya ulama. Kamu cukup ketik judul atau nama pengarang di kolom pencarian, lalu klik 'Akses Kitab' untuk membacanya secara online.";
-      } else if (lowerInput.includes("halo") || lowerInput.includes("hai") || lowerInput.includes("hi") || lowerInput.includes("assalam")) {
-        botResponse = "Wa'alaikumussalam! Hai juga! Yuk tanya seputar Pendaftaran, Biaya, Jadwal, atau fasilitas lainnya.";
-      }
-
-      // Navigation Command Detection
-      const navWords = ["buka", "ke", "halaman", "lihat", "tampilkan", "akses"];
-      const isNav = navWords.some(word => lowerInput.includes(word));
+      if (!response.ok) throw new Error("Gagal mengambil jawaban AI.");
       
-      let targetPath = "";
-      if (isNav) {
-        if (lowerInput.includes("dashboard") || lowerInput.includes("admin")) {
-          targetPath = "/admin/dashboard";
-        } else if (lowerInput.includes("perpus") || lowerInput.includes("kitab") || lowerInput.includes("baca")) {
-          targetPath = "/alazhar/perpustakaan";
-        } else if (lowerInput.includes("daftar") || lowerInput.includes("pendaftaran") || lowerInput.includes("registrasi")) {
-          targetPath = "/alazhar/info-pendaftaran";
-        } else if (lowerInput.includes("tentang") || lowerInput.includes("sejarah") || lowerInput.includes("profil") || lowerInput.includes("berita")) {
-          targetPath = "/alazhar/tentang";
-        } else if (lowerInput.includes("album") || lowerInput.includes("galeri") || lowerInput.includes("foto") || lowerInput.includes("video")) {
-          targetPath = "/albums";
-        } else if (lowerInput.includes("anggota") || lowerInput.includes("member") || lowerInput.includes("santri")) {
-          targetPath = "/members";
-        }
-
-        if (targetPath) {
-          botResponse = `Siap! Langsung Kak Sevi antar ya...`;
-          setTimeout(() => {
-            router.push(targetPath);
-            setIsOpen(false);
-          }, 600);
-        }
-      }
-
+      const data = await response.json();
+      
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: "bot",
-        text: botResponse,
+        text: data.text,
       };
       setMessages((prev) => [...prev, botMessage]);
-    }, 1000);
+
+      // Check for navigation commands in the bot's text
+      const lowerBotText = data.text.toLowerCase();
+      if (lowerBotText.includes("/admin/dashboard")) setTimeout(() => { router.push("/admin/dashboard"); setIsOpen(false); }, 1500);
+      else if (lowerBotText.includes("/alazhar/perpustakaan")) setTimeout(() => { router.push("/alazhar/perpustakaan"); setIsOpen(false); }, 1500);
+      else if (lowerBotText.includes("/alazhar/info-pendaftaran")) setTimeout(() => { router.push("/alazhar/info-pendaftaran"); setIsOpen(false); }, 1500);
+      else if (lowerBotText.includes("/alazhar/tentang")) setTimeout(() => { router.push("/alazhar/tentang"); setIsOpen(false); }, 1500);
+      else if (lowerBotText.includes("/albums")) setTimeout(() => { router.push("/albums"); setIsOpen(false); }, 1500);
+      else if (lowerBotText.includes("/members")) setTimeout(() => { router.push("/members"); setIsOpen(false); }, 1500);
+
+    } catch (error) {
+      console.error(error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        sender: "bot",
+        text: "Maaf Kak, sepertinya sedang ada kendala koneksi ke otak AI Kak Sevi. Coba lagi nanti ya!",
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const QuickOption = ({ text }: { text: string }) => (
@@ -286,6 +231,18 @@ export function KakSeviBot() {
                 </div>
               </div>
             ))}
+            {isTyping && (
+              <div className="flex gap-3 max-w-[85%]">
+                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center animate-bounce">
+                  <Bot size={14} className="text-accent" />
+                </div>
+                <div className="bg-accent/10 border border-accent/20 p-3 rounded-2xl rounded-tl-none flex gap-1">
+                  <span className="w-1.5 h-1.5 bg-accent/60 rounded-full animate-bounce"></span>
+                  <span className="w-1.5 h-1.5 bg-accent/60 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                  <span className="w-1.5 h-1.5 bg-accent/60 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                </div>
+              </div>
+            )}
             <div className="flex flex-col gap-2 mt-4 ml-11">
               <QuickOption text="Bagaimana alur pendaftarannya?" />
               <QuickOption text="Berapa biaya pendaftarannya?" />
@@ -322,10 +279,11 @@ export function KakSeviBot() {
               <Input
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder={isListening ? "Mendengarkan..." : "Ketik pertanyaanmu..."}
+                placeholder={isListening ? "Mendengarkan..." : (isTyping ? "Kak Sevi menjawab..." : "Ketik pertanyaanmu...")}
                 className="bg-background/80 border-white/20"
+                disabled={isTyping}
               />
-              <Button type="submit" size="icon" disabled={!inputText.trim() || isListening} className="bg-accent text-background hover:bg-accent/80 shrink-0">
+              <Button type="submit" size="icon" disabled={!inputText.trim() || isTyping} className="bg-accent text-background hover:bg-accent/80 shrink-0">
                 <Send size={18} />
               </Button>
             </form>

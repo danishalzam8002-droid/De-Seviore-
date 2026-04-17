@@ -5,6 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { BookOpen, Search, Download, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 
 type Kitab = {
@@ -81,30 +82,44 @@ export default function PerpustakaanPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredKitabs.map((kitab) => (
-              <Card key={kitab.id} className="glass-card border-white/10 hover:border-accent/50 transition-colors duration-300">
-                <CardContent className="p-6 flex flex-col h-full">
-                  <div className="mb-4">
-                    <span className="inline-block px-2 py-1 bg-accent/20 text-accent text-xs rounded-md shadow-sm mb-3">
-                      {kitab.category}
-                    </span>
-                    <h3 className="text-xl font-bold font-headline leading-tight mb-2">{kitab.title}</h3>
-                    <p className="text-muted-foreground text-sm flex items-center gap-2">
-                       {kitab.author}
-                    </p>
-                  </div>
-                  <div className="mt-auto">
-                    <a 
-                      href={kitab.file_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm font-semibold text-accent hover:text-white transition-colors duration-200"
-                    >
-                      <Download size={16} /> Akses Kitab
-                    </a>
-                  </div>
-                </CardContent>
-              </Card>
+            {filteredKitabs.map((kitab, index) => (
+              <motion.div
+                key={kitab.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ 
+                  y: -5,
+                  scale: 1.02,
+                  boxShadow: "0 20px 40px rgba(26, 204, 230, 0.15)"
+                }}
+              >
+                <Card className="glass-card h-full border-white/10 hover:border-accent/50 transition-colors duration-300 overflow-hidden relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <CardContent className="p-6 flex flex-col h-full relative z-10">
+                    <div className="mb-4">
+                      <span className="inline-block px-2 py-1 bg-accent/20 text-accent text-[10px] font-bold uppercase tracking-wider rounded-md shadow-sm mb-3">
+                        {kitab.category}
+                      </span>
+                      <h3 className="text-xl font-bold font-headline leading-tight mb-2 group-hover:text-accent transition-colors">{kitab.title}</h3>
+                      <p className="text-muted-foreground text-sm italic">
+                         {kitab.author}
+                      </p>
+                    </div>
+                    <div className="mt-auto pt-4 border-t border-white/5">
+                      <a 
+                        href={kitab.file_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm font-bold text-accent hover:text-white transition-all duration-200 group/link"
+                      >
+                        <Download size={16} className="group-hover/link:translate-y-0.5 transition-transform" /> 
+                        <span className="uppercase tracking-widest text-[10px]">Akses Kitab Digital</span>
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         )}
