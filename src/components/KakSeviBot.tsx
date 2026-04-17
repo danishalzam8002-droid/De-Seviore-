@@ -49,21 +49,36 @@ export function KakSeviBot() {
 
     const recognition = new SpeechRecognition();
     recognition.lang = "id-ID";
-    recognition.interimResults = false;
+    recognition.interimResults = true;
+    recognition.continuous = true;
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
       setIsListening(true);
-      toast({
-        title: "Mendengarkan...",
-        description: "Silakan bicara sekarang.",
-      });
     };
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInputText(transcript);
-      setIsListening(false);
+      let interimTranscript = "";
+      let finalTranscript = "";
+
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+        }
+      }
+
+      if (finalTranscript) {
+        setInputText(prev => prev + finalTranscript);
+      } else if (interimTranscript) {
+        // We show the interim transcript temporarily
+        setInputText(prev => {
+          // If the last part of prev is not what we're hearing, we can try to append or replace
+          // Simplest is to just update it
+          return interimTranscript;
+        });
+      }
     };
 
     recognition.onerror = (event: any) => {
@@ -291,7 +306,17 @@ export function KakSeviBot() {
           </div>
 
           {/* Input Area */}
-          <div className="p-4 border-t border-white/10 bg-background/50">
+          <div className="p-4 border-t border-white/10 bg-background/50 relative">
+            {isListening && (
+              <div className="absolute -top-8 left-4 right-4 flex items-center gap-2 animate-in slide-in-from-bottom-2">
+                 <div className="flex gap-1">
+                    <span className="w-1 h-3 bg-accent animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-1 h-3 bg-accent animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-1 h-3 bg-accent animate-bounce"></span>
+                 </div>
+                 <span className="text-[10px] text-accent font-bold uppercase tracking-wider">Kak Sevi sedang mendengarkan...</span>
+              </div>
+            )}
             <form onSubmit={handleSendMessage} className="flex gap-2">
               <Button 
                 type="button" 

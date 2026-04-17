@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Trash2, Plus, BookOpen, ExternalLink, Search } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Kitab } from "@/types";
 
 interface LibraryTabProps {
@@ -185,29 +186,57 @@ export function LibraryTab({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredKitabs.map((kitab) => (
-                  <TableRow key={kitab.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-bold">{kitab.title}</p>
-                        <p className="text-xs text-muted-foreground">{kitab.author}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>{kitab.category}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" asChild>
-                          <a href={kitab.file_url} target="_blank" rel="noreferrer">
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => onDelete(kitab.id!)}>
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                <AnimatePresence>
+                  {filteredKitabs.map((kitab, index) => (
+                    <motion.tr 
+                      key={kitab.id || index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ 
+                        scale: 1.01, 
+                        backgroundColor: "rgba(26, 204, 230, 0.05)",
+                        boxShadow: "0 0 20px rgba(26, 204, 230, 0.1)"
+                      }}
+                      className="group border-b border-white/5 transition-colors cursor-default"
+                    >
+                      <TableCell className="py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                            <BookOpen className="w-4 h-4 text-accent" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-white group-hover:text-accent transition-colors">{kitab.title}</p>
+                            <p className="text-xs text-muted-foreground italic">{kitab.author || "Tanpa Pengarang"}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-wider text-muted-foreground group-hover:border-accent/30 group-hover:text-accent transition-all">
+                          {kitab.category}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon" asChild className="hover:bg-accent/20 hover:text-accent">
+                            <a href={kitab.file_url} target="_blank" rel="noreferrer">
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => onDelete(kitab.id!)}
+                            className="hover:bg-destructive/20 hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
               </TableBody>
             </Table>
           </CardContent>
