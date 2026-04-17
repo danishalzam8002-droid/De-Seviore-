@@ -28,11 +28,11 @@ export function LibraryTab({
 
   const handleAdd = () => {
     const newErrors: Record<string, boolean> = {};
-    if (!newKitab.title) newErrors.title = true;
-    if (!newKitab.file_url) newErrors.file_url = true;
+    if (!newKitab.title?.trim()) newErrors.title = true;
+    if (!newKitab.file_url?.trim()) newErrors.file_url = true;
     
     const categoryToVerify = isCustomCategory ? customCategory : newKitab.category;
-    if (!categoryToVerify) newErrors.category = true;
+    if (!categoryToVerify?.trim()) newErrors.category = true;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);

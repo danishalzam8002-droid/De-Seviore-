@@ -32,8 +32,8 @@ export function AccessTab({
 
   const handleCreate = () => {
     const newErrors: Record<string, boolean> = {};
-    if (!newAdmin.email) newErrors.email = true;
-    if (!newAdmin.password) newErrors.password = true;
+    if (!newAdmin.email?.trim()) newErrors.email = true;
+    if (!newAdmin.password?.trim()) newErrors.password = true;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);

@@ -38,7 +38,7 @@ export function GalleryTab({
 
   const handleUpload = () => {
     const newErrors: Record<string, boolean> = {};
-    if (!galleryTitle) newErrors.title = true;
+    if (!galleryTitle?.trim()) newErrors.title = true;
     if (!selectedFile) newErrors.file = true;
 
     if (Object.keys(newErrors).length > 0) {

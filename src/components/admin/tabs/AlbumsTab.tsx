@@ -28,9 +28,9 @@ export function AlbumsTab({
 
   const handleAdd = () => {
     const newErrors: Record<string, boolean> = {};
-    if (!newAlbum.title) newErrors.title = true;
-    if (!newAlbum.drive_link) newErrors.drive_link = true;
-    if (!newAlbum.image_url) newErrors.image_url = true;
+    if (!newAlbum.title?.trim()) newErrors.title = true;
+    if (!newAlbum.drive_link?.trim()) newErrors.drive_link = true;
+    if (!newAlbum.image_url?.trim()) newErrors.image_url = true;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);

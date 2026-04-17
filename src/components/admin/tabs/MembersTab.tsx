@@ -46,7 +46,7 @@ export function MembersTab({
   const handleSave = () => {
     const memberData = editingMember || newMember;
     
-    if (!memberData.name) {
+    if (!memberData.name?.trim()) {
       setErrors({ name: true });
       return;
     }
@@ -164,7 +164,16 @@ export function MembersTab({
       </div>
 
       {/* Edit Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+      <Dialog 
+        open={isEditModalOpen} 
+        onOpenChange={(open) => {
+          setIsEditModalOpen(open);
+          if (!open) {
+            setEditingMember(null);
+            setErrors({});
+          }
+        }}
+      >
         <DialogContent className="glass-card border-white/20 sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Edit Profil Anggota</DialogTitle>
