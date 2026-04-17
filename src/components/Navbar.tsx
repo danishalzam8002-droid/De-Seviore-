@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -58,22 +59,54 @@ export function Navbar() {
              pathname.startsWith("/alazhar") ? "text-accent" : ""
           )}>Al-Azhar</span>
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="top" sideOffset={16} align="center" className="border-white/10 bg-background/80 backdrop-blur-xl mb-2">
-          <DropdownMenuItem asChild className="focus:bg-white/10">
-            <Link href="/alazhar/info-pendaftaran" className="cursor-pointer w-full flex items-center gap-2">
-              <Info size={16} /> Info Pendaftaran
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild className="focus:bg-white/10">
-            <Link href="/alazhar/tentang" className="cursor-pointer w-full flex items-center gap-2">
-              <Building2 size={16} /> Tentang Al-Azhar
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild className="focus:bg-white/10">
-            <Link href="/alazhar/perpustakaan" className="cursor-pointer w-full flex items-center gap-2">
-              <BookOpen size={16} /> Perpustakaan
-            </Link>
-          </DropdownMenuItem>
+        <DropdownMenuContent 
+          side="top" 
+          sideOffset={16} 
+          align="center" 
+          className="border-white/10 bg-background/80 backdrop-blur-xl mb-2 p-2 min-w-[200px] overflow-visible"
+        >
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1,
+                },
+              },
+            }}
+            className="flex flex-col gap-1"
+          >
+            {[
+              { href: "/alazhar/info-pendaftaran", icon: <Info size={16} />, title: "Info Pendaftaran", desc: "Alur & Biaya" },
+              { href: "/alazhar/tentang", icon: <Building2 size={16} />, title: "Tentang Al-Azhar", desc: "Sejarah & Visi" },
+              { href: "/alazhar/perpustakaan", icon: <BookOpen size={16} />, title: "Perpustakaan", desc: "Koleksi Kitab" },
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                variants={{
+                  hidden: { opacity: 0, scale: 0.5, y: 20 },
+                  visible: { opacity: 1, scale: 1, y: 0 },
+                }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <DropdownMenuItem asChild className="focus:bg-accent/20 focus:text-accent p-0 rounded-xl overflow-hidden">
+                  <Link 
+                    href={item.href} 
+                    className="cursor-pointer w-full flex items-center gap-3 p-3 transition-all duration-300 group"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-background transition-colors">
+                      {item.icon}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold">{item.title}</span>
+                      <span className="text-[10px] opacity-60 font-medium">{item.desc}</span>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+              </motion.div>
+            ))}
+          </motion.div>
         </DropdownMenuContent>
       </DropdownMenu>
 
