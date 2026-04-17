@@ -422,7 +422,7 @@ export function KakViorBot() {
           </div>
 
           <div className="bg-background/95 backdrop-blur-md border border-accent/40 text-accent px-4 py-2 rounded-2xl rounded-br-sm text-sm font-semibold shadow-[0_0_15px_rgba(26,204,230,0.2)] animate-pulse whitespace-nowrap z-10 transition-transform hover:scale-105 duration-300">
-            Bingung??, tanya sama kak vior
+            Bingung?? tanya sama kak vior
           </div>
         </div>
         <Button
