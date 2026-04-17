@@ -350,14 +350,14 @@ export function KakViorBot() {
     <>
       {/* Floating Button Area */}
       <div className={cn("fixed bottom-24 md:bottom-12 right-6 md:right-12 z-50 flex flex-col items-end gap-2", isOpen && "hidden")}>
-        <div className="bg-background/90 backdrop-blur-sm border border-accent/40 text-accent px-4 py-2 rounded-2xl rounded-br-sm text-sm font-medium shadow-[0_0_15px_rgba(26,204,230,0.2)] animate-pulse whitespace-nowrap">
+        <div className="bg-background/95 backdrop-blur-md border-[1.5px] border-accent/50 text-accent px-6 py-3 rounded-2xl rounded-br-sm text-base font-bold shadow-[0_0_20px_rgba(26,204,230,0.3)] animate-pulse whitespace-nowrap">
           Bingung?? Yuk tanya Kak Vior
         </div>
         <Button
           onClick={() => setIsOpen(true)}
-          className="h-14 w-14 rounded-full bg-accent hover:bg-accent/80 shadow-[0_0_20px_rgba(26,204,230,0.4)] transition-transform hover:scale-110 duration-500 animate-bounce"
+          className="h-16 w-16 rounded-full bg-accent hover:bg-accent/90 shadow-[0_0_25px_rgba(26,204,230,0.5)] transition-transform hover:scale-110 duration-500 animate-bounce flex items-center justify-center p-0"
         >
-          <MessageCircle size={28} className="text-background" />
+          <AnimatedBotIcon size={36} className="text-background" />
         </Button>
       </div>
 
