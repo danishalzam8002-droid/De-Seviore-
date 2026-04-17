@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
 };
 
-import { KakSeviBotClient } from "@/components/KakSeviBotClient";
+import { KakViorBotClient } from "@/components/KakViorBotClient";
 
 export default function RootLayout({
   children,
@@ -49,7 +49,7 @@ export default function RootLayout({
     <html lang="id" className="dark">
       <body className={`${playfair.variable} ${ptSans.variable} font-body antialiased bg-background text-foreground min-h-screen`}>
         {children}
-        <KakSeviBotClient />
+        <KakViorBotClient />
         <Toaster />
       </body>
     </html>

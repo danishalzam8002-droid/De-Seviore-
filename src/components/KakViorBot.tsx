@@ -14,14 +14,14 @@ type Message = {
   text: string | ReactNode;
 };
 
-export function KakSeviBot() {
+export function KakViorBot() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       sender: "bot",
-      text: "Halo! Aku Kak Sevi, asisten virtual De Seviore. Ada yang bisa kubantu terkait Pendaftaran, Berita Al-Azhar, atau Perpustakaan?",
+      text: "Halo! Aku Kak Vior, asisten virtual De Seviore. Ada yang bisa kubantu terkait Pendaftaran, Berita Al-Azhar, atau Perpustakaan?",
     },
   ]);
   const [inputText, setInputText] = useState("");
@@ -138,7 +138,7 @@ export function KakSeviBot() {
 
     // Simple Rule-Based AI response (Restored)
     setTimeout(() => {
-      let botResponse: string | ReactNode = "Maaf, Kak Sevi kurang paham maksudmu. Boleh tanya tentang Pendaftaran, Berita Al-Azhar, atau Perpustakaan?";
+      let botResponse: string | ReactNode = "Maaf, Kak Vior kurang paham maksudmu. Boleh tanya tentang Pendaftaran, Berita Al-Azhar, atau Perpustakaan?";
       const textVal = typeof userMessage.text === "string" ? userMessage.text : "";
       const lowerInput = textVal.toLowerCase();
 
@@ -195,7 +195,7 @@ export function KakSeviBot() {
       } else if (lowerInput.includes("jadwal") || lowerInput.includes("kapan") || lowerInput.includes("gelombang")) {
         botResponse = "Jadwal pendaftaran terbagi dua:\n- Gelombang 1: 1 Oktober 2026 s.d 13 Desember 2026\n- Gelombang 2: 15 Desember 2026 s.d 31 Juli 2027\nYuk! Jangan sampai ketinggalan.";
       } else if (lowerInput.includes("berita") || lowerInput.includes("news") || lowerInput.includes("kegiatan") || lowerInput.includes("info")) {
-        botResponse = "Kamu bisa mengecek berita terbaru Al-Azhar di menu 'Tentang Al-Azhar'. Di sana Kak Sevi sering membagikan info kegiatan, prestasi santri, dan pengumuman terbaru lho!";
+        botResponse = "Kamu bisa mengecek berita terbaru Al-Azhar di menu 'Tentang Al-Azhar'. Di sana Kak Vior sering membagikan info kegiatan, prestasi santri, dan pengumuman terbaru lho!";
       } else if (lowerInput.includes("perpus") || lowerInput.includes("kitab") || lowerInput.includes("buku") || lowerInput.includes("baca")) {
         botResponse = "Di menu 'Perpustakaan', kita punya banyak koleksi kitab digital karya ulama. Kamu cukup ketik judul atau nama pengarang di kolom pencarian, lalu klik 'Akses Kitab' untuk membacanya secara online.";
       } else if (lowerInput.includes("halo") || lowerInput.includes("hai") || lowerInput.includes("hi") || lowerInput.includes("assalam")) {
@@ -216,7 +216,7 @@ export function KakSeviBot() {
         else if (lowerInput.includes("anggota") || lowerInput.includes("member") || lowerInput.includes("santri")) targetPath = "/members";
 
         if (targetPath) {
-          botResponse = `Siap! Langsung Kak Sevi antar ya...`;
+          botResponse = `Siap! Langsung Kak Vior antar ya...`;
           setTimeout(() => {
             router.push(targetPath);
             setIsOpen(false);
@@ -248,7 +248,7 @@ export function KakSeviBot() {
       {/* Floating Button Area */}
       <div className={cn("fixed bottom-24 md:bottom-12 right-6 md:right-12 z-50 flex flex-col items-end gap-2", isOpen && "hidden")}>
         <div className="bg-background/90 backdrop-blur-sm border border-accent/40 text-accent px-4 py-2 rounded-2xl rounded-br-sm text-sm font-medium shadow-[0_0_15px_rgba(26,204,230,0.2)] animate-pulse whitespace-nowrap">
-          Bingung?? Yuk tanya Kak Sevi
+          Bingung?? Yuk tanya Kak Vior
         </div>
         <Button
           onClick={() => setIsOpen(true)}
@@ -268,7 +268,7 @@ export function KakSeviBot() {
                 <Bot size={24} className="text-background" />
               </div>
               <div>
-                <h3 className="font-bold text-accent">Kak Sevi</h3>
+                <h3 className="font-bold text-accent">Kak Vior</h3>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Asisten Virtual Al-Azhar</p>
               </div>
             </div>
@@ -332,7 +332,7 @@ export function KakSeviBot() {
                     <span className="w-1 h-3 bg-accent animate-bounce [animation-delay:-0.15s]"></span>
                     <span className="w-1 h-3 bg-accent animate-bounce"></span>
                  </div>
-                 <span className="text-[10px] text-accent font-bold uppercase tracking-wider">Kak Sevi sedang mendengarkan...</span>
+                 <span className="text-[10px] text-accent font-bold uppercase tracking-wider">Kak Vior sedang mendengarkan...</span>
               </div>
             )}
             <form onSubmit={handleSendMessage} className="flex gap-2">
@@ -351,7 +351,7 @@ export function KakSeviBot() {
               <Input
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder={isListening ? "Mendengarkan..." : (isTyping ? "Kak Sevi menjawab..." : "Ketik pertanyaanmu...")}
+                placeholder={isListening ? "Mendengarkan..." : (isTyping ? "Kak Vior menjawab..." : "Ketik pertanyaanmu...")}
                 className="bg-background/80 border-white/20"
                 disabled={isTyping}
               />
