@@ -381,29 +381,29 @@ export function KakViorBot() {
         {/* Peeking Robots Group */}
         <div className="relative w-full flex justify-end">
           {/* Main Bot */}
-          <div className="absolute -top-14 right-14 animate-peek-bot pointer-events-none">
-            <AnimatedBotIcon size={56} className="text-accent drop-shadow-[0_0_12px_rgba(26,204,230,0.6)]" />
+          <div className="absolute -top-12 right-12 animate-peek-bot pointer-events-none">
+            <AnimatedBotIcon size={48} className="text-accent drop-shadow-[0_0_10px_rgba(26,204,230,0.6)]" />
           </div>
           
           {/* Side Bot 1 */}
-          <div className="absolute -top-8 right-44 animate-peek-bot-side pointer-events-none">
-            <AnimatedBotIcon size={44} className="text-accent/80 drop-shadow-[0_0_10px_rgba(26,204,230,0.4)]" />
+          <div className="absolute -top-6 right-36 animate-peek-bot-side pointer-events-none">
+            <AnimatedBotIcon size={36} className="text-accent/80 drop-shadow-[0_0_8px_rgba(26,204,230,0.4)]" />
           </div>
 
           {/* Side Bot 2 (Mini) */}
-          <div className="absolute -top-12 right-2 animate-peek-bot-mini pointer-events-none">
-            <AnimatedBotIcon size={36} className="text-accent/60 drop-shadow-[0_0_8px_rgba(26,204,230,0.3)]" />
+          <div className="absolute -top-10 right-2 animate-peek-bot-mini pointer-events-none">
+            <AnimatedBotIcon size={28} className="text-accent/60 drop-shadow-[0_0_6px_rgba(26,204,230,0.3)]" />
           </div>
 
-          <div className="bg-background/95 backdrop-blur-md border-[1.5px] border-accent/50 text-accent px-6 py-3 rounded-2xl rounded-br-sm text-base font-bold shadow-[0_0_20px_rgba(26,204,230,0.3)] animate-pulse whitespace-nowrap z-10 transition-transform hover:scale-105 duration-300">
-            Bingung?? Yuk tanya Kak Vior
+          <div className="bg-background/95 backdrop-blur-md border border-accent/40 text-accent px-4 py-2 rounded-2xl rounded-br-sm text-sm font-semibold shadow-[0_0_15px_rgba(26,204,230,0.2)] animate-pulse whitespace-nowrap z-10 transition-transform hover:scale-105 duration-300">
+            Bingung? Tanya Kak Seviore
           </div>
         </div>
         <Button
           onClick={() => setIsOpen(true)}
-          className="h-15 w-15 rounded-full bg-accent hover:bg-accent/90 shadow-[0_0_25px_rgba(26,204,230,0.5)] transition-transform hover:scale-110 duration-500 animate-bounce flex items-center justify-center p-0 overflow-hidden"
+          className="h-14 w-14 rounded-full bg-accent hover:bg-accent/90 shadow-[0_0_20px_rgba(26,204,230,0.4)] transition-transform hover:scale-110 duration-500 animate-bounce flex items-center justify-center p-0 overflow-hidden"
         >
-          <MessageCircleQuestion size={46} className="text-background" />
+          <MessageCircleQuestion size={32} className="text-background" />
         </Button>
       </div>
 
