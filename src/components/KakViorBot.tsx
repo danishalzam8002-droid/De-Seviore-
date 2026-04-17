@@ -107,6 +107,14 @@ function AnimatedBotIcon({ size = 24, className = "" }: { size?: number, classNa
             animation: text-float-pop 10s ease-in-out infinite;
             animation-delay: 3s;
           }
+          @keyframes menu-pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          .animate-menu-pop {
+            animation: menu-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+          }
         `}
       </style>
 
@@ -381,10 +389,11 @@ export function KakViorBot() {
     }, 1000);
   };
 
-  const QuickOption = ({ text }: { text: string }) => (
+  const QuickOption = ({ text, delay }: { text: string, delay: string }) => (
     <button
       onClick={() => handleSendMessage(undefined, text)}
-      className="text-xs text-left px-3 py-2 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg transition-colors border border-accent/20"
+      style={{ animationDelay: delay }}
+      className="text-[10px] text-left px-3 py-2 bg-accent/10 hover:bg-accent/20 text-accent rounded-xl transition-all border border-accent/20 hover:scale-105 active:scale-95 animate-menu-pop flex-shrink-0 max-w-fit shadow-sm"
     >
       {text}
     </button>
@@ -491,10 +500,10 @@ export function KakViorBot() {
                 </div>
               </div>
             )}
-            <div className="flex flex-col gap-2 mt-4 ml-11">
-              <QuickOption text="Bagaimana alur pendaftarannya?" />
-              <QuickOption text="Berapa biaya pendaftarannya?" />
-              <QuickOption text="Kapan jadwal pendaftarannya?" />
+            <div className="flex flex-wrap gap-2 mt-4 ml-11">
+              <QuickOption text="Bagaimana alur pendaftarannya?" delay="0.1s" />
+              <QuickOption text="Berapa biaya pendaftarannya?" delay="0.2s" />
+              <QuickOption text="Kapan jadwal pendaftarannya?" delay="0.3s" />
             </div>
             <div ref={messagesEndRef} />
           </div>
