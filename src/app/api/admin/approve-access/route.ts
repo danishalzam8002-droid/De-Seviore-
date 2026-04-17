@@ -42,9 +42,10 @@ export async function POST(req: Request) {
       }
 
       // 3. Send Success Email via Resend HTTP API
-      if (resendApiKey) {
+      if (resendApiKey && resendApiKey !== 'placeholder') {
         try {
-          await fetch('https://api.resend.com/emails', {
+          console.log(`Sending approval email to: ${email}`);
+          const resendRes = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${resendApiKey}`,
@@ -65,18 +66,27 @@ export async function POST(req: Request) {
               `
             }),
           });
+          
+          if (resendRes.ok) {
+            console.log("Approval email sent successfully.");
+          } else {
+            const errBody = await resendRes.json();
+            console.error("Resend API Error:", errBody);
+          }
         } catch (emailErr) {
           console.error("Email Sending Error:", emailErr);
-          // Don't fail the whole request if only email fails
         }
+      } else {
+        console.warn("RESEND_API_KEY is missing or placeholder. Skipping email.");
       }
 
       return NextResponse.json({ message: 'Approved and Account Created' });
     } else {
       // Logic for Rejection Email
-      if (resendApiKey) {
+      if (resendApiKey && resendApiKey !== 'placeholder') {
         try {
-          await fetch('https://api.resend.com/emails', {
+          console.log(`Sending rejection email to: ${email}`);
+          const resendRes = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${resendApiKey}`,
@@ -91,14 +101,23 @@ export async function POST(req: Request) {
                   <h2 style="color: #ff4444;">Halo, ${name}</h2>
                   <p>Mohon maaf, pengajuan akses Anda untuk website De Seviore saat ini <strong>BELUM DAPAT DISETUJUI</strong>.</p>
                   <p>Silakan hubungi Admin Utama jika Anda merasa ada kesalahan data.</p>
-                  <p style="margin-top: 20px; font-size: 12px; color: #666;">Terima kasih atas minat Anda bergabung sebagai pengelola.</p>
+                  <p style="margin-top: 20px; font-size: 12px; color: #666;">Teria kasih atas minat Anda bergabung sebagai pengelola.</p>
                 </div>
               `
             }),
           });
+
+          if (resendRes.ok) {
+            console.log("Rejection email sent successfully.");
+          } else {
+            const errBody = await resendRes.json();
+            console.error("Resend API Error:", errBody);
+          }
         } catch (emailErr) {
           console.error("Email Sending Error:", emailErr);
         }
+      } else {
+        console.warn("RESEND_API_KEY is missing or placeholder. Skipping email.");
       }
 
       return NextResponse.json({ message: 'Rejected' });
