@@ -17,6 +17,7 @@ interface LibraryTabProps {
   onDelete: (id: string) => void;
 }
 
+// UI Enhancement: Added premium hover and transition effects for better user interaction
 export function LibraryTab({ 
   kitabs, 
   onAdd, 
@@ -195,11 +196,12 @@ export function LibraryTab({
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: index * 0.05 }}
                       whileHover={{ 
-                        scale: 1.01, 
-                        backgroundColor: "rgba(26, 204, 230, 0.05)",
-                        boxShadow: "0 0 20px rgba(26, 204, 230, 0.1)"
+                        scale: 1.015, 
+                        backgroundColor: "rgba(26, 204, 230, 0.08)",
+                        boxShadow: "0 0 25px rgba(26, 204, 230, 0.15)",
+                        borderColor: "rgba(26, 204, 230, 0.4)"
                       }}
-                      className="group border-b border-white/5 transition-colors cursor-default"
+                      className="group border-b border-white/5 transition-all duration-300 cursor-default relative overflow-hidden"
                     >
                       <TableCell className="py-4">
                         <div className="flex items-center gap-3">

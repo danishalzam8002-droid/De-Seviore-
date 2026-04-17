@@ -59,25 +59,14 @@ export function KakSeviBot() {
 
     recognition.onresult = (event: any) => {
       let interimTranscript = "";
-      let finalTranscript = "";
-
       for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
+          setInputText(transcript);
         } else {
-          interimTranscript += event.results[i][0].transcript;
+          interimTranscript = transcript;
+          setInputText(interimTranscript);
         }
-      }
-
-      if (finalTranscript) {
-        setInputText(prev => prev + finalTranscript);
-      } else if (interimTranscript) {
-        // We show the interim transcript temporarily
-        setInputText(prev => {
-          // If the last part of prev is not what we're hearing, we can try to append or replace
-          // Simplest is to just update it
-          return interimTranscript;
-        });
       }
     };
 
@@ -324,11 +313,11 @@ export function KakSeviBot() {
                 size="icon" 
                 onClick={startSpeechToText}
                 className={cn(
-                  "shrink-0 border-white/20 hover:border-accent/40 transition-colors",
-                  isListening && "bg-accent/20 text-accent animate-pulse border-accent"
+                  "shrink-0 border-white/20 hover:border-accent/40 transition-all duration-300",
+                  isListening && "bg-accent text-background animate-pulse shadow-[0_0_15px_rgba(26,204,230,0.6)] border-accent"
                 )}
               >
-                {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+                {isListening ? <MicOff size={18} className="animate-bounce" /> : <Mic size={18} />}
               </Button>
               <Input
                 value={inputText}
