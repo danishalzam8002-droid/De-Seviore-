@@ -27,55 +27,80 @@ function AnimatedBotIcon({ size = 24, className = "" }: { size?: number, classNa
       <style>
         {`
           @keyframes wave {
-            0%, 100% { transform: rotate(0deg); }
-            20% { transform: rotate(-20deg); }
-            40% { transform: rotate(10deg); }
-            60% { transform: rotate(-15deg); }
-            80% { transform: rotate(5deg); }
+            0%, 90%, 100% { transform: rotate(0deg); }
+            92% { transform: rotate(-25deg); }
+            94% { transform: rotate(15deg); }
+            96% { transform: rotate(-20deg); }
+            98% { transform: rotate(5deg); }
           }
-          @keyframes body-tilt {
+          @keyframes body-float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-1px) rotate(1deg); }
+            25% { transform: translateY(-1.5px) rotate(1.5deg); }
+            75% { transform: translateY(0.5px) rotate(-1deg); }
+          }
+          @keyframes eye-saccade {
+            0%, 40%, 80%, 100% { transform: translate(0, 0); }
+            45% { transform: translate(1.5px, -0.5px); }
+            50% { transform: translate(1.5px, -0.5px); }
+            85% { transform: translate(-1px, 0.5px); }
+            90% { transform: translate(-1px, 0.5px); }
+          }
+          @keyframes eye-blink-snappy {
+            0%, 48%, 52%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0); }
           }
           .bot-arm {
             transform-origin: 18px 14px;
-            animation: wave 3s ease-in-out infinite;
-            animation-delay: 1s;
+            animation: wave 6s ease-in-out infinite;
           }
           .bot-body {
-            animation: body-tilt 4s ease-in-out infinite;
+            animation: body-float 5s ease-in-out infinite;
+          }
+          .bot-eye-group {
+            animation: eye-saccade 7s step-end infinite;
+          }
+          .bot-eye {
+            transform-origin: center;
+            animation: eye-blink-snappy 4s ease-in-out infinite;
           }
         `}
       </style>
 
       <g className="bot-body">
         {/* Antenna */}
-        <path d="M12 6V3M12 3H15M12 3H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M12 6V3M12 3H15M12 3H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="12" cy="3" r="1.5" fill="currentColor" className="animate-pulse" />
         
         {/* Head Shell */}
-        <rect x="4" y="6" width="16" height="11" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
+        <rect x="4" y="6" width="16" height="11" rx="3" stroke="currentColor" strokeWidth="1.5" />
         
-        {/* Visor Area */}
-        <rect x="6" y="8.5" width="12" height="4.5" rx="1" fill="currentColor" fillOpacity="0.2" />
+        {/* visor backdrop */}
+        <rect x="6" y="8" width="12" height="6" rx="1.5" fill="currentColor" fillOpacity="0.15" />
         
-        {/* Animated Eyes */}
-        <g>
-          <circle cx="9.5" cy="10.8" r="1.2" fill="currentColor">
-            <animate attributeName="cx" values="9.5;10.5;9.5;8.5;9.5" dur="4s" repeatCount="indefinite" />
-            <animate attributeName="cy" values="10.8;10.8;10.3;10.8;10.8" dur="4s" repeatCount="indefinite" />
-          </circle>
-          <circle cx="14.5" cy="10.8" r="1.2" fill="currentColor">
-            <animate attributeName="cx" values="14.5;15.5;14.5;13.5;14.5" dur="4s" repeatCount="indefinite" />
-            <animate attributeName="cy" values="10.8;10.8;10.3;10.8;10.8" dur="4s" repeatCount="indefinite" />
-          </circle>
+        {/* Eyes Group with Saccades */}
+        <g className="bot-eye-group">
+          <g className="bot-eye">
+            <circle cx="9.5" cy="11" r="1.8" fill="currentColor">
+              <animate attributeName="r" values="1.8;2.2;1.8" dur="5s" repeatCount="indefinite" />
+            </circle>
+            {/* Pupil Glint */}
+            <circle cx="10" cy="10.5" r="0.5" fill="white" fillOpacity="0.8" />
+          </g>
+          <g className="bot-eye">
+            <circle cx="14.5" cy="11" r="1.8" fill="currentColor">
+              <animate attributeName="r" values="1.8;2.2;1.8" dur="5s" repeatCount="indefinite" />
+            </circle>
+            {/* Pupil Glint */}
+            <circle cx="15" cy="10.5" r="0.5" fill="white" fillOpacity="0.8" />
+          </g>
         </g>
+        
+        {/* Cute Mouth/Light */}
+        <circle cx="12" cy="14.5" r="0.8" fill="currentColor" fillOpacity="0.6">
+           <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" />
+        </circle>
 
-        {/* Blinking Overlay */}
-        <rect x="8" y="9.5" width="8" height="2.5" fill="none">
-          <animate attributeName="fill" values="none;currentColor;none" dur="5s" begin="2s" repeatCount="indefinite" />
-        </rect>
-
-        {/* Body/Torso */}
+        {/* Torso */}
         <path d="M7 17C7 17 6 21 12 21C18 21 17 17 17 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </g>
       
@@ -86,6 +111,7 @@ function AnimatedBotIcon({ size = 24, className = "" }: { size?: number, classNa
         stroke="currentColor" 
         strokeWidth="1.5" 
         strokeLinecap="round" 
+        strokeLinejoin="round"
       />
     </svg>
   );
