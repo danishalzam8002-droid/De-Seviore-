@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Users, Home, Settings, LogIn, LogOut, Building2, Info, BookOpen } from "lucide-react";
+import { Users, Home, Settings, LogIn, Building2, Info, BookOpen } from "lucide-react";
 import { useUser } from "@/hooks/use-supabase-user";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
@@ -20,20 +20,6 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useUser();
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      toast({
-        title: "Keluar Berhasil",
-        description: "Anda telah keluar dari sesi admin.",
-      });
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Logout error", error);
-    }
-  };
 
   return (
     <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full glass-card border-white/20 flex items-center gap-8">
@@ -136,16 +122,8 @@ export function Navbar() {
         </Link>
       )}
 
-      {/* 5. Auth (Keluar / Masuk) */}
-      {user ? (
-        <button
-          onClick={handleLogout}
-          className="flex flex-col items-center gap-1 text-muted-foreground hover:text-destructive transition-colors duration-200"
-        >
-          <LogOut size={20} />
-          <span className="text-[10px] font-bold uppercase tracking-widest">Keluar</span>
-        </button>
-      ) : (
+      {/* 5. Auth (Masuk) - Hanya jika belum login */}
+      {!user && (
         <Link
           href="/login"
           className={cn(

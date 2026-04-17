@@ -20,7 +20,7 @@ import { Plus, Pencil, Trash2, Save, X, Image as ImageIcon, Users, BookOpen, Vid
 import { QuoteGenerator } from "@/components/QuoteGenerator";
 import { UsageMonitor } from "@/components/admin/UsageMonitor";
 import { toast } from "@/hooks/use-toast";
-import { Activity, Bell, FileCheck, Check, X as XMark, LayoutDashboard } from "lucide-react";
+import { Activity, Bell, FileCheck, Check, X as XMark, LayoutDashboard, LogOut } from "lucide-react";
 import { Member, Kitab, Album, GalleryItem, AdminRole, AdminRequest } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -109,6 +109,20 @@ function AdminDashboard() {
     };
     fetchAllData();
   }, [user, authLoading]);
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Keluar Berhasil",
+        description: "Anda telah keluar dari sesi admin.",
+      });
+      router.push("/");
+    } catch (error) {
+      console.error("Logout error", error);
+    }
+  };
 
   const [batchContent, setBatchContent] = useState({
     history: "Didirikan pada tahun 2021, angkatan kami telah melewati berbagai tantangan...",
@@ -612,6 +626,17 @@ function AdminDashboard() {
               <span className="font-bold uppercase tracking-widest">{currentUserRole}</span>
             </div>
           </div>
+          
+          <Button 
+            variant="outline" 
+            onClick={handleLogout}
+            className="group border-white/10 bg-white/5 hover:bg-destructive hover:text-white transition-all duration-300 rounded-xl px-4 py-6"
+          >
+            <div className="flex flex-col items-center gap-1">
+              <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-bold uppercase tracking-widest">Keluar Akun</span>
+            </div>
+          </Button>
         </motion.header>
 
         <motion.div
