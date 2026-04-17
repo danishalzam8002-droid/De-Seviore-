@@ -63,6 +63,14 @@ function AnimatedBotIcon({ size = 24, className = "" }: { size?: number, classNa
             transform-origin: center;
             animation: eye-blink-snappy 4s ease-in-out infinite;
           }
+          @keyframes peek-bot {
+            0%, 5%, 95%, 100% { transform: translateY(40px) scale(0.8); opacity: 0; }
+            10%, 90% { transform: translateY(0) scale(1); opacity: 1; }
+            45%, 55% { transform: translateY(-5px) rotate(5deg); }
+          }
+          .animate-peek-bot {
+            animation: peek-bot 8s ease-in-out infinite;
+          }
         `}
       </style>
 
@@ -350,8 +358,14 @@ export function KakViorBot() {
     <>
       {/* Floating Button Area */}
       <div className={cn("fixed bottom-24 md:bottom-12 right-6 md:right-12 z-50 flex flex-col items-end gap-2", isOpen && "hidden")}>
-        <div className="bg-background/95 backdrop-blur-md border-[1.5px] border-accent/50 text-accent px-6 py-3 rounded-2xl rounded-br-sm text-base font-bold shadow-[0_0_20px_rgba(26,204,230,0.3)] animate-pulse whitespace-nowrap">
-          Bingung?? Yuk tanya Kak Vior
+        {/* Peeking Robot Animation */}
+        <div className="relative w-full flex justify-end">
+          <div className="absolute -top-12 right-8 animate-peek-bot pointer-events-none">
+            <AnimatedBotIcon size={40} className="text-accent drop-shadow-[0_0_8px_rgba(26,204,230,0.5)]" />
+          </div>
+          <div className="bg-background/95 backdrop-blur-md border-[1.5px] border-accent/50 text-accent px-6 py-3 rounded-2xl rounded-br-sm text-base font-bold shadow-[0_0_20px_rgba(26,204,230,0.3)] animate-pulse whitespace-nowrap z-10">
+            Bingung?? Yuk tanya Kak Vior
+          </div>
         </div>
         <Button
           onClick={() => setIsOpen(true)}
