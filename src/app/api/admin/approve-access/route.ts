@@ -4,7 +4,17 @@ import { createAdminClient } from "@/lib/supabase-admin";
 export async function POST(req: Request) {
   try {
     const { email, password, role, status, name } = await req.json();
+    
+    // Check for required environment variables
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const resendApiKey = process.env.RESEND_API_KEY;
+
+    if (!serviceRoleKey || serviceRoleKey === 'placeholder') {
+      return NextResponse.json({ 
+        error: "Konfigurasi SUPABASE_SERVICE_ROLE_KEY tidak ditemukan di .env.local atau di environment Vercel. Silakan tambahkan 'service_role' key dari dashboard Supabase." 
+      }, { status: 500 });
+    }
+
     const supabaseAdmin = createAdminClient();
 
     if (status === 'approved') {
