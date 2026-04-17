@@ -556,7 +556,9 @@ function AdminDashboard() {
 
       if (error) throw error;
 
-      await supabase.from('requests').delete().eq('id', request.id);
+      const { error: deleteError } = await supabase.from('requests').delete().eq('id', request.id);
+      if (deleteError) throw deleteError;
+      
       setRequests(requests.filter(r => r.id !== request.id));
       
       if (request.action !== 'ACCESS_REQUEST') {
@@ -582,7 +584,9 @@ function AdminDashboard() {
       const { data: req } = await supabase.from('requests').select('*').eq('id', requestId).single();
       
       // 2. Delete from database
-      await supabase.from('requests').delete().eq('id', requestId);
+      const { error: deleteError } = await supabase.from('requests').delete().eq('id', requestId);
+      if (deleteError) throw deleteError;
+      
       setRequests(requests.filter(r => r.id !== requestId));
       
       if (req?.action === 'ACCESS_REQUEST') {

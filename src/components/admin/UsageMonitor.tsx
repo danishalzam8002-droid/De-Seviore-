@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Database, Cloud, Zap, ExternalLink, RefreshCw } from 'lucide-react';
+import { Database, Cloud, Zap, ExternalLink, RefreshCw, Mail, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface UsageData {
@@ -22,6 +22,11 @@ interface UsageData {
   cloudinary: {
     estimatedItems: number;
     limitCredits: number;
+  };
+  resend: {
+    isConfigured: boolean;
+    monthlyLimit: number;
+    fromEmail: string;
   };
   vercel: {
     bandwidthLimitGB: number;
@@ -86,7 +91,7 @@ export function UsageMonitor() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Supabase Card */}
         <Card className="glass-card hover:border-accent/40 transition-all duration-300">
           <CardHeader className="pb-2">
@@ -149,11 +154,53 @@ export function UsageMonitor() {
               <Progress value={cloudinaryProgress} className="h-1.5 bg-accent/20" />
             </div>
             <p className="text-[10px] text-muted-foreground leading-relaxed italic">
-              Berdasarkan jumlah media yang terdaftar di database. Cek dashboard Cloudinary untuk data transformasi yang lebih akurat.
+              Berdasarkan jumlah media yang terdaftar di database.
             </p>
             <Button variant="ghost" size="sm" className="w-full text-[10px] text-blue-400 hover:text-blue-300" asChild>
               <a href="https://cloudinary.com/console" target="_blank" rel="noreferrer">
                 Go to Cloudinary <ExternalLink className="w-3 h-3 ml-1" />
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Resend Card */}
+        <Card className="glass-card hover:border-accent/40 transition-all duration-300 border-accent/20">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div className="p-2 bg-accent/10 rounded-lg">
+                <Mail className="w-5 h-5 text-accent" />
+              </div>
+              <Badge variant="outline" className="text-[10px] uppercase tracking-wider border-accent/30 text-accent">
+                Resend
+              </Badge>
+            </div>
+            <CardTitle className="mt-4">Email Service</CardTitle>
+            <CardDescription>Transactional Email</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10">
+              {data.resend.isConfigured ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-500" />
+              )}
+              <div className="flex-1">
+                <div className="text-[10px] text-muted-foreground uppercase">Status API</div>
+                <div className="text-sm font-semibold">{data.resend.isConfigured ? 'Terkoneksi' : 'Belum Konfigurasi'}</div>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-[10px] text-muted-foreground uppercase">Limit Bulanan</div>
+              <div className="text-sm font-bold text-white">{data.resend.monthlyLimit} Email</div>
+            </div>
+            <p className="text-[10px] text-muted-foreground italic">
+              Menggunakan email pengirim: <br />
+              <span className="text-accent">{data.resend.fromEmail}</span>
+            </p>
+            <Button variant="ghost" size="sm" className="w-full text-[10px] text-accent hover:bg-accent/10" asChild>
+              <a href="https://resend.com/emails" target="_blank" rel="noreferrer">
+                Log Email Resend <ExternalLink className="w-3 h-3 ml-1" />
               </a>
             </Button>
           </CardContent>
@@ -184,15 +231,9 @@ export function UsageMonitor() {
                 <div className="text-sm font-semibold">6,000</div>
               </div>
             </div>
-            <div className="p-3 bg-white/5 rounded-lg border border-white/10 space-y-1">
-              <div className="text-[10px] font-medium text-amber-400 flex items-center">
-                <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mr-2"></span>
-                Peringatan Free Tier
-              </div>
-              <p className="text-[10px] text-muted-foreground">
-                Vercel akan menjeda proyek jika bandwidth melebihi 100GB/bulan.
-              </p>
-            </div>
+            <p className="text-[10px] text-muted-foreground italic">
+              Vercel menjeda proyek jika bandwidth melebihi 100GB/bulan.
+            </p>
             <Button variant="ghost" size="sm" className="w-full text-[10px] text-white hover:bg-white/10" asChild>
               <a href="https://vercel.com/dashboard" target="_blank" rel="noreferrer">
                 Go to Vercel <ExternalLink className="w-3 h-3 ml-1" />

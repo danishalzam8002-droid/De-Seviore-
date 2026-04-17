@@ -39,6 +39,11 @@ export async function GET() {
         estimatedItems: totalMediaCount,
         limitCredits: 25,
       },
+      resend: {
+        isConfigured: !!process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 'placeholder',
+        monthlyLimit: 3000,
+        fromEmail: 'onboarding@resend.dev'
+      },
       vercel: {
         bandwidthLimitGB: 100,
         buildMinutesLimit: 6000,

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Trash2, Plus, ImageIcon, Loader2 } from "lucide-react";
 import { optimizeCloudinary } from "@/lib/utils";
 import { GalleryItem } from "@/types";
@@ -24,6 +25,7 @@ export function GalleryTab({
   isUploading, 
   uploadProgress 
 }: GalleryTabProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [galleryTitle, setGalleryTitle] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
@@ -50,94 +52,107 @@ export function GalleryTab({
     onUpload(selectedFile!, galleryTitle);
     setGalleryTitle("");
     setSelectedFile(null);
+    setIsDialogOpen(false);
   };
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="grid md:grid-cols-3 gap-8">
-        <Card className="glass-card md:col-span-1 h-fit">
-          <CardHeader>
-            <CardTitle>Unggah Momen</CardTitle>
-            <CardDescription>Bagikan foto kegiatan ke galeri publik.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      <Card className="glass-card">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <div>
+            <CardTitle>Koleksi Galeri</CardTitle>
+            <CardDescription>Kelola momen-momen berharga yang sudah diunggah.</CardDescription>
+          </div>
+          <Button onClick={() => setIsDialogOpen(true)} className="bg-accent text-background font-bold hover:bg-accent/80">
+            <Plus className="w-4 h-4 mr-2" /> Unggah Momen
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {galleryItems.map((item, index) => (
+              <div 
+                key={item.id} 
+                className="relative group rounded-xl overflow-hidden border border-white/10 aspect-square animate-in zoom-in-50 duration-300"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <img 
+                  src={optimizeCloudinary(item.image_url, 400)} 
+                  alt={item.title} 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 text-center">
+                  <p className="text-[10px] uppercase font-bold tracking-widest mb-2 line-clamp-2">{item.title}</p>
+                  <Button 
+                    variant="destructive" 
+                    size="icon" 
+                    className="h-8 w-8 hover:scale-110 transition-transform"
+                    onClick={() => onDelete(item.id!)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {galleryItems.length === 0 && (
+              <div className="col-span-full py-20 flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed border-white/5 rounded-2xl">
+                <ImageIcon className="w-12 h-12 mb-4 opacity-20" />
+                <p className="italic">Belum ada foto dalam koleksi</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="glass-card border-white/10 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-headline font-bold text-accent uppercase tracking-wider">Unggah Momen Baru</DialogTitle>
+            <DialogDescription className="text-muted-foreground">Pilih foto terbaik untuk dibagikan ke galeri publik.</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
+              <Label className="text-[10px] uppercase font-bold text-accent/70">Judul Momen</Label>
               <Input
                 value={galleryTitle}
                 onChange={(e) => {
                   setGalleryTitle(e.target.value);
                   if (errors.title) setErrors({ ...errors, title: false });
                 }}
-                placeholder="Momen Seviore..."
-                className={`bg-background/50 ${errors.title ? 'border-red-500 ring-1 ring-red-500' : ''}`}
+                placeholder="Misal: Reuni Akbar 2024..."
+                className={`bg-white/5 border-white/10 ${errors.title ? 'border-red-500' : ''}`}
               />
-              {errors.title && <p className="text-red-500 text-xs font-bold mt-1 animate-pulse">wajib di isi</p>}
             </div>
             <div className="space-y-2">
+              <Label className="text-[10px] uppercase font-bold text-accent/70">Pilih Foto</Label>
               <Input 
                 type="file" 
                 onChange={handleFileChange}
                 accept="image/*"
-                className={`bg-background/50 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-accent file:text-background hover:file:bg-accent/80 ${errors.file ? 'border-red-500 ring-1 ring-red-500' : ''}`}
+                className={`bg-white/5 border-white/10 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-accent file:text-background hover:file:bg-accent/80 ${errors.file ? 'border-red-500' : ''}`}
               />
-              {errors.file && <p className="text-red-500 text-xs font-bold mt-1 animate-pulse">wajib di isi</p>}
             </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsDialogOpen(false)}>Batal</Button>
             <Button 
               onClick={handleUpload} 
-              className="w-full bg-accent text-background hover:bg-accent/80 shadow-[0_0_15px_rgba(26,204,230,0.2)]"
+              disabled={isUploading}
+              className="bg-accent text-background font-bold tracking-widest px-8 shadow-[0_0_15px_rgba(26,204,230,0.2)]"
             >
               {isUploading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Mengunggah {uploadProgress}%
+                  UNGGAH {uploadProgress}%
                 </>
               ) : (
-                <>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Terbitkan ke Galeri
-                </>
+                "PUBLIKASIKAN"
               )}
             </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-card md:col-span-2">
-          <CardHeader>
-            <CardTitle>Koleksi Galeri</CardTitle>
-            <CardDescription>Kelola momen yang sudah diunggah.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {galleryItems.map((item) => (
-                <div key={item.id} className="relative group rounded-xl overflow-hidden border border-white/10 aspect-square">
-                  <img 
-                    src={optimizeCloudinary(item.image_url, 400)} 
-                    alt={item.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                  />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 text-center">
-                    <p className="text-xs font-medium mb-2">{item.title}</p>
-                    <Button 
-                      variant="destructive" 
-                      size="icon" 
-                      className="h-8 w-8"
-                      onClick={() => onDelete(item.id!)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              {galleryItems.length === 0 && (
-                <div className="col-span-full py-12 flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed border-white/5 rounded-2xl">
-                  <ImageIcon className="w-12 h-12 mb-4 opacity-20" />
-                  <p>Belum ada foto di galeri</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
