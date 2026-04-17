@@ -25,6 +25,7 @@ export function KakSeviBot() {
     },
   ]);
   const [inputText, setInputText] = useState("");
+  const [committedText, setCommittedText] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -60,14 +61,23 @@ export function KakSeviBot() {
 
     recognition.onresult = (event: any) => {
       let interimTranscript = "";
+      let finalTranscript = "";
+
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          setInputText(transcript);
+          finalTranscript += transcript;
         } else {
-          interimTranscript = transcript;
-          setInputText(interimTranscript);
+          interimTranscript += transcript;
         }
+      }
+
+      if (finalTranscript) {
+        setCommittedText(prev => (prev.trim() + " " + finalTranscript).trim());
+        setInputText(prev => (prev.trim() + " " + finalTranscript).trim());
+      } else {
+        // Show committed + current interim
+        setInputText((committedText.trim() + " " + interimTranscript).trim());
       }
     };
 
@@ -119,7 +129,10 @@ export function KakSeviBot() {
 
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
-    if (!customText) setInputText("");
+    if (!customText) {
+      setInputText("");
+      setCommittedText("");
+    }
     setIsTyping(true);
 
     try {
