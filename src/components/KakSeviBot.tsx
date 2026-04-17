@@ -148,7 +148,10 @@ export function KakSeviBot() {
         body: JSON.stringify({ messages: sanitizedMessages }),
       });
 
-      if (!response.ok) throw new Error("Gagal mengambil jawaban AI.");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.details || errorData.error || "Gagal mengambil jawaban AI.");
+      }
       
       const data = await response.json();
       
@@ -168,12 +171,12 @@ export function KakSeviBot() {
       else if (lowerBotText.includes("/albums")) setTimeout(() => { router.push("/albums"); setIsOpen(false); }, 1500);
       else if (lowerBotText.includes("/members")) setTimeout(() => { router.push("/members"); setIsOpen(false); }, 1500);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: "bot",
-        text: "Maaf Kak, sepertinya sedang ada kendala koneksi ke otak AI Kak Sevi. Coba lagi nanti ya!",
+        text: `Maaf Kak, sepertinya sedang ada kendala koneksi: ${error.message}. Coba lagi nanti ya!`,
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
