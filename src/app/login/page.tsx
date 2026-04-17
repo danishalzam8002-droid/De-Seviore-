@@ -250,18 +250,6 @@ export default function LoginPage() {
                     className="bg-white/5 border-white/10" 
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="req-role" className="text-[10px] uppercase font-bold text-accent/70">Role yang Diminati</Label>
-                  <Select value={requestData.role} onValueChange={v => setRequestData({...requestData, role: v})}>
-                    <SelectTrigger className="bg-white/5 border-white/10">
-                      <SelectValue placeholder="Pilih Role" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background border-white/10">
-                      <SelectItem value="Member">Member (Upload Galeri)</SelectItem>
-                      <SelectItem value="Admin">Admin (Kelola Data)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
                 <Button type="submit" className="w-full bg-accent text-background font-bold tracking-widest mt-6" disabled={isSubmittingRequest}>
                   {isSubmittingRequest ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : "AJUKAN AKSES"}
                 </Button>

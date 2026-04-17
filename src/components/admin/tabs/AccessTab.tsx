@@ -93,6 +93,7 @@ export function AccessTab({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Admin Utama">Admin Utama</SelectItem>
+                  <SelectItem value="Admin">Admin</SelectItem>
                   <SelectItem value="Member">Member</SelectItem>
                 </SelectContent>
               </Select>
@@ -141,8 +142,9 @@ export function AccessTab({
                         <SelectTrigger className="h-7 w-[130px] text-[10px] bg-accent/10 border-accent/20 text-accent font-bold uppercase tracking-wider">
                           <SelectValue placeholder={admin.role} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-background border-white/10">
                           <SelectItem value="Admin Utama">Admin Utama</SelectItem>
+                          <SelectItem value="Admin">Admin</SelectItem>
                           <SelectItem value="Member">Member</SelectItem>
                         </SelectContent>
                       </Select>
