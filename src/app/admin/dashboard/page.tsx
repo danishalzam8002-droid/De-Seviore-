@@ -531,23 +531,23 @@ function AdminDashboard() {
       } else if (request.action === 'DELETE') {
         ({ error } = await supabase.from(request.table_name).delete().eq('id', request.target_id));
       } else if (request.action === 'ACCESS_REQUEST') {
-        // 1. Add to admins table
-        const { error: adminError } = await supabase.from('admins').insert([{
-          email: request.data.email,
-          role: request.data.role
-        }]);
+        // 1. Call Edge Function for Automation (Creation + Email)
+        const { data: functionData, error: functionError } = await supabase.functions.invoke('handle-access-approval', {
+          body: {
+            email: request.data.email,
+            password: request.data.password,
+            role: request.data.role,
+            name: request.data.name,
+            status: 'approved'
+          }
+        });
+
+        if (functionError) throw functionError;
         
-        if (adminError) throw adminError;
-        
-        // 2. Clear error for the common logic below
-        error = null;
-        
-        // 3. Prepare Notification
-        sendNotificationEmail(request.data.email, 'approved');
-        
+        // 2. Prepare Notification (local toast)
         toast({ 
           title: "Akses Disetujui", 
-          description: `User ${request.data.email} telah ditambahkan ke daftar akses.`,
+          description: `User ${request.data.email} telah dibuat dan notifikasi email dikirim.`,
         });
       }
 
@@ -581,8 +581,15 @@ function AdminDashboard() {
       setRequests(requests.filter(r => r.id !== requestId));
       
       if (req?.action === 'ACCESS_REQUEST') {
-        sendNotificationEmail(req.data.email, 'rejected');
-        toast({ title: "Permintaan Ditolak", description: "Notifikasi penolakan telah dikirim." });
+        // Call Edge Function for Rejection Email
+        await supabase.functions.invoke('handle-access-approval', {
+          body: {
+            email: req.data.email,
+            name: req.data.name,
+            status: 'rejected'
+          }
+        });
+        toast({ title: "Permintaan Ditolak", description: "Email penolakan telah dikirim ke pemohon." });
       } else {
         toast({ title: "Permintaan Ditolak", description: "Perubahan tidak diterapkan." });
       }
@@ -592,14 +599,8 @@ function AdminDashboard() {
   };
 
   const sendNotificationEmail = async (email: string, status: 'approved' | 'rejected') => {
-    console.log(`Sending ${status} email to ${email}`);
-    // NOTE: This requires a backend and API Key (e.g. Resend)
-    toast({
-      title: "Email Notifikasi",
-      description: status === 'approved' 
-        ? `Konfirmasi persetujuan telah disiapkan untuk ${email}.` 
-        : `Konfirmasi penolakan telah disiapkan untuk ${email}.`,
-    });
+    // This is now handled by the Edge Function
+    console.log(`Notification trigger for ${email} as ${status}`);
   };
 
   const handleUpdateAdmin = async (id: string, newRole: string) => {
