@@ -24,57 +24,69 @@ function AnimatedBotIcon({ size = 24, className = "" }: { size?: number, classNa
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Head Shell */}
-      <rect x="3" y="6" width="18" height="13" rx="3" stroke="currentColor" strokeWidth="2" />
-      <path d="M12 6V3M12 3H15M12 3H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <rect x="7" y="19" width="2" height="2" fill="currentColor" />
-      <rect x="15" y="19" width="2" height="2" fill="currentColor" />
-      
-      {/* Visor Area */}
-      <rect x="6" y="9" width="12" height="5" rx="1" fill="currentColor" fillOpacity="0.2" />
-      
-      {/* Animated Eyes */}
-      <g className="animate-bot-eyes">
-        <circle cx="9" cy="11.5" r="1.5" fill="currentColor">
-          <animate 
-            attributeName="cy" 
-            values="11.5;11.5;10.5;11.5;11.5" 
-            dur="4s" 
-            repeatCount="indefinite" 
-          />
-          <animate 
-            attributeName="cx" 
-            values="9;10;9;8;9" 
-            dur="4s" 
-            repeatCount="indefinite" 
-          />
-        </circle>
-        <circle cx="15" cy="11.5" r="1.5" fill="currentColor">
-          <animate 
-            attributeName="cy" 
-            values="11.5;11.5;10.5;11.5;11.5" 
-            dur="4s" 
-            repeatCount="indefinite" 
-          />
-          <animate 
-            attributeName="cx" 
-            values="15;16;15;14;15" 
-            dur="4s" 
-            repeatCount="indefinite" 
-          />
-        </circle>
+      <style>
+        {`
+          @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            20% { transform: rotate(-20deg); }
+            40% { transform: rotate(10deg); }
+            60% { transform: rotate(-15deg); }
+            80% { transform: rotate(5deg); }
+          }
+          @keyframes body-tilt {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-1px) rotate(1deg); }
+          }
+          .bot-arm {
+            transform-origin: 18px 14px;
+            animation: wave 3s ease-in-out infinite;
+            animation-delay: 1s;
+          }
+          .bot-body {
+            animation: body-tilt 4s ease-in-out infinite;
+          }
+        `}
+      </style>
+
+      <g className="bot-body">
+        {/* Antenna */}
+        <path d="M12 6V3M12 3H15M12 3H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        
+        {/* Head Shell */}
+        <rect x="4" y="6" width="16" height="11" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
+        
+        {/* Visor Area */}
+        <rect x="6" y="8.5" width="12" height="4.5" rx="1" fill="currentColor" fillOpacity="0.2" />
+        
+        {/* Animated Eyes */}
+        <g>
+          <circle cx="9.5" cy="10.8" r="1.2" fill="currentColor">
+            <animate attributeName="cx" values="9.5;10.5;9.5;8.5;9.5" dur="4s" repeatCount="indefinite" />
+            <animate attributeName="cy" values="10.8;10.8;10.3;10.8;10.8" dur="4s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="14.5" cy="10.8" r="1.2" fill="currentColor">
+            <animate attributeName="cx" values="14.5;15.5;14.5;13.5;14.5" dur="4s" repeatCount="indefinite" />
+            <animate attributeName="cy" values="10.8;10.8;10.3;10.8;10.8" dur="4s" repeatCount="indefinite" />
+          </circle>
+        </g>
+
+        {/* Blinking Overlay */}
+        <rect x="8" y="9.5" width="8" height="2.5" fill="none">
+          <animate attributeName="fill" values="none;currentColor;none" dur="5s" begin="2s" repeatCount="indefinite" />
+        </rect>
+
+        {/* Body/Torso */}
+        <path d="M7 17C7 17 6 21 12 21C18 21 17 17 17 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </g>
       
-      {/* Blinking Overlay */}
-      <rect x="7.5" y="10" width="9" height="3" fill="none" className="animate-bot-blink">
-        <animate 
-          attributeName="fill" 
-          values="none;currentColor;none" 
-          dur="5s" 
-          begin="2s"
-          repeatCount="indefinite" 
-        />
-      </rect>
+      {/* Waving Arm */}
+      <path 
+        className="bot-arm" 
+        d="M18 14L21 11C21.5 10.5 22.5 10.5 22.5 11.5C22.5 12.5 21.5 13 21 13.5L18 16" 
+        stroke="currentColor" 
+        strokeWidth="1.5" 
+        strokeLinecap="round" 
+      />
     </svg>
   );
 }
