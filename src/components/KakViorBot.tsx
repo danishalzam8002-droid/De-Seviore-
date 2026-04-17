@@ -21,7 +21,7 @@ export function KakViorBot() {
     {
       id: "1",
       sender: "bot",
-      text: "Halo! Aku Kak Vior, asisten virtual De Seviore. Ada yang bisa kubantu terkait Pendaftaran, Berita Al-Azhar, atau Perpustakaan?",
+      text: "Halo! Aku Kak Vior, santri virtual De Seviore. Ada yang bisa kubantu terkait Pendaftaran, Berita Al-Azhar, atau Perpustakaan?",
     },
   ]);
   const [inputText, setInputText] = useState("");
@@ -269,7 +269,7 @@ export function KakViorBot() {
               </div>
               <div>
                 <h3 className="font-bold text-accent">Kak Vior</h3>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Asisten Virtual Al-Azhar</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Santri Virtual Al-Azhar</p>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-white">
