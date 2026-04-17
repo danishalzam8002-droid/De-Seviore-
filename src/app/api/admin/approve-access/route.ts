@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { createAdminClient } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   try {
     const { email, password, role, status, name } = await req.json();
     const resendApiKey = process.env.RESEND_API_KEY;
+    const supabaseAdmin = createAdminClient();
 
     if (status === 'approved') {
       // 1. Create Auth User (Admin Level)
