@@ -43,22 +43,12 @@ function AdminDashboard() {
   const [members, setMembers] = useState<any[]>([]);
   const [galleryItems, setGalleryItems] = useState<any[]>([]);
   const [albumItems, setAlbumItems] = useState<any[]>([]);
-  const [galleryTitle, setGalleryTitle] = useState("");
-  const [newAlbum, setNewAlbum] = useState({ title: "", driveLink: "", imageUrl: "" });
-  const [editingMember, setEditingMember] = useState<any>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [newMember, setNewMember] = useState({ name: "", pob: "", dob: "", phone: "", ig: "", quote: "", role: "Anggota", image_url: "" });
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [selectedMemberFile, setSelectedMemberFile] = useState<File | null>(null);
-  const [memberPreviewUrl, setMemberPreviewUrl] = useState<string>("");
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success'>('idle');
 
   const [kitabs, setKitabs] = useState<any[]>([]);
-  const [newKitab, setNewKitab] = useState({ title: "", author: "", category: "Fiqih", file_url: "" });
-
   const [adminRoles, setAdminRoles] = useState<any[]>([]);
-  const [newAdmin, setNewAdmin] = useState({ email: "", password: "", role: "Member" });
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
   const [requests, setRequests] = useState<any[]>([]);
   const currentUserRole = adminRoles.find(a => a.email === user?.email)?.role || 'Member';
@@ -170,8 +160,6 @@ function AdminDashboard() {
   };
 
   const resetMemberStates = () => {
-    setSelectedMemberFile(null);
-    setMemberPreviewUrl("");
     setIsUploading(false);
     setUploadProgress(0);
     setUploadStatus('idle');
@@ -190,14 +178,15 @@ function AdminDashboard() {
     }
   };
 
-  const handleSaveMember = async () => {
+  const handleSaveMember = async (memberData: any) => {
     setConfirmModal({
       open: true,
       title: "Konfirmasi Simpan",
-      description: `Apakah Anda yakin ingin menyimpan dan mengunggah data anggota "${editingMember ? editingMember.name : newMember.name}" ke database?`,
+      description: `Apakah Anda yakin ingin menyimpan dan mengunggah data anggota "${memberData.name}" ke database?`,
       onConfirm: async () => {
         try {
-          let imageUrl = editingMember ? editingMember.image_url : newMember.image_url;
+          let imageUrl = memberData.image_url;
+          const selectedMemberFile = memberData._file;
 
           // 1. Handle image upload if a file was selected
           if (selectedMemberFile) {
@@ -235,41 +224,36 @@ function AdminDashboard() {
 
           // 2. Save member data to Supabase
           const memberPayload = {
-            name: editingMember ? editingMember.name : newMember.name,
-            pob: editingMember ? editingMember.pob : newMember.pob,
-            dob: editingMember ? editingMember.dob : newMember.dob,
-            phone: editingMember ? editingMember.phone : newMember.phone,
-            ig: editingMember ? editingMember.ig : newMember.ig,
-            quote: editingMember ? editingMember.quote : newMember.quote,
-            role: editingMember ? editingMember.role : newMember.role,
+            name: memberData.name,
+            pob: memberData.pob,
+            dob: memberData.dob,
+            phone: memberData.phone,
+            ig: memberData.ig,
+            quote: memberData.quote,
+            role: memberData.role,
             image_url: imageUrl
           };
 
           if (currentUserRole === 'Member') {
             const { error } = await supabase.from('requests').insert([{
               table_name: 'members',
-              action: editingMember ? 'UPDATE' : 'CREATE',
+              action: memberData.id ? 'UPDATE' : 'CREATE',
               data: memberPayload,
-              target_id: editingMember?.id || null,
+              target_id: memberData.id || null,
               requested_by: user?.email
             }]);
             if (error) throw error;
-            setEditingMember(null);
-            setIsEditModalOpen(false);
-            setNewMember({ name: "", pob: "", dob: "", phone: "", ig: "", quote: "", role: "Anggota", image_url: "" });
             toast({ title: "Permintaan Dikirim", description: "Perubahan Anda sedang menunggu persetujuan Admin." });
           } else {
-            if (editingMember) {
+            if (memberData.id) {
               const { error } = await supabase
                 .from('members')
                 .update(memberPayload)
-                .eq('id', editingMember.id);
+                .eq('id', memberData.id);
               
               if (error) throw error;
               
-              setMembers(members.map(m => m.id === editingMember.id ? { ...m, ...memberPayload } : m));
-              setEditingMember(null);
-              setIsEditModalOpen(false);
+              setMembers(members.map(m => m.id === memberData.id ? { ...m, ...memberPayload } : m));
             } else {
               const { data, error } = await supabase
                 .from('members')
@@ -282,7 +266,6 @@ function AdminDashboard() {
               if (data) {
                 setMembers([...members, data]);
               }
-              setNewMember({ name: "", pob: "", dob: "", phone: "", ig: "", quote: "", role: "Anggota", image_url: "" });
             }
           }
           
@@ -334,45 +317,7 @@ function AdminDashboard() {
     });
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'member' | 'gallery' = 'member') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (type === 'member') {
-      setSelectedMemberFile(file);
-      const preview = URL.createObjectURL(file);
-      setMemberPreviewUrl(preview);
-      toast({ title: "Foto Dipilih", description: "Foto profil siap untuk diunggah saat Anda menyimpan." });
-      return;
-    }
-
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-    if (!cloudName || !uploadPreset) {
-      toast({ title: "Konfigurasi Error", description: "Cloudinary belum dikonfigurasi dengan benar.", variant: "destructive" });
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", uploadPreset);
-    const folder = type === 'gallery' ? 'gallery' : 'albums';
-    formData.append("folder", folder);
-
-    if (type === 'gallery') {
-      setConfirmModal({
-        open: true,
-        title: "Unggah Momen",
-        description: `Anda akan mengunggah foto "${file.name}" dengan judul "${galleryTitle || "Momen Seviore"}" ke Galeri Publik. Lanjutkan?`,
-        onConfirm: () => startUpload(formData, type)
-      });
-    } else {
-      startUpload(formData, type as any);
-    }
-  };
-
-  const startUpload = async (formData: FormData, type: 'member' | 'gallery' | 'album' = 'member') => {
+  const startUpload = async (formData: FormData, type: 'gallery' | 'album' = 'gallery') => {
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     try {
       setIsUploading(true);
@@ -392,32 +337,19 @@ function AdminDashboard() {
       
       setUploadProgress(100);
 
-      if (type === 'member') {
-        if (editingMember) {
-          setEditingMember({ ...editingMember, image_url: downloadURL });
-        } else {
-          setNewMember({ ...newMember, image_url: downloadURL });
-        }
-        toast({ title: "Berhasil", description: "Foto profil berhasil diunggah." });
-      } else      if (type === 'gallery') {
-        // Add to gallery collection
+      if (type === 'gallery') {
         const newItem = { 
           image_url: downloadURL, 
-          title: galleryTitle || "Momen Seviore",
+          title: "Momen Seviore",
           created_at: new Date().toISOString()
         };
-        const { data, error } = await supabase.from('gallery').insert([newItem]).select().single();
+        const { data: insertedData, error } = await supabase.from('gallery').insert([newItem]).select().single();
         if (error) throw error;
         
-        if (data) {
-          setGalleryItems([...galleryItems, data]);
-          setGalleryTitle(""); // Clear title after upload
+        if (insertedData) {
+          setGalleryItems([...galleryItems, insertedData]);
           toast({ title: "Berhasil", description: "Gambar ditambahkan ke galeri." });
         }
-      }
- else if ((type as string) === 'album') {
-        setNewAlbum(prev => ({ ...prev, imageUrl: downloadURL }));
-        toast({ title: "Berhasil", description: "Cover album berhasil diunggah." });
       }
     } catch (error) {
       console.error("Upload error:", error);
@@ -428,41 +360,35 @@ function AdminDashboard() {
     }
   };
 
-  const handleAddAlbum = async () => {
-    if (!newAlbum.title || !newAlbum.imageUrl || !newAlbum.driveLink) {
-      toast({ title: "Peringatan", description: "Mohon lengkapi semua data album.", variant: "destructive" });
-      return;
-    }
+  const handleAddAlbum = async (albumPayload: any) => {
 
     setConfirmModal({
       open: true,
       title: "Konfirmasi Album",
-      description: `Apakah Anda yakin ingin menambahkan album "${newAlbum.title}" ke koleksi?`,
+      description: `Apakah Anda yakin ingin menambahkan album "${albumPayload.title}" ke koleksi?`,
       onConfirm: async () => {
         try {
-          const albumPayload = {
-            title: newAlbum.title,
-            image_url: newAlbum.imageUrl,
-            drive_link: newAlbum.driveLink,
+          const formattedAlbum = {
+            title: albumPayload.title,
+            image_url: albumPayload.image_url,
+            drive_link: albumPayload.drive_link,
             created_at: new Date().toISOString()
           };
           if (currentUserRole === 'Member') {
             const { error } = await supabase.from('requests').insert([{
               table_name: 'albums',
               action: 'CREATE',
-              data: albumPayload,
+              data: formattedAlbum,
               requested_by: user?.email
             }]);
             if (error) throw error;
-            setNewAlbum({ title: "", driveLink: "", imageUrl: "" });
             toast({ title: "Permintaan Dikirim", description: "Pengajuan album baru menunggu persetujuan Admin." });
           } else {
-            const { data, error } = await supabase.from('albums').insert([albumPayload]).select().single();
+            const { data, error } = await supabase.from('albums').insert([formattedAlbum]).select().single();
             if (error) throw error;
 
             if (data) {
               setAlbumItems([...albumItems, data]);
-              setNewAlbum({ title: "", driveLink: "", imageUrl: "" });
               toast({ title: "Berhasil", description: "Album kenangan berhasil ditambahkan." });
             }
           }
@@ -496,23 +422,13 @@ function AdminDashboard() {
     }
   };
 
-  const handleSaveKitab = async () => {
-    if (!newKitab.title || !newKitab.file_url) {
-      toast({ title: "Gagal", description: "Judul dan Tautan File wajib diisi.", variant: "destructive" });
-      return;
-    }
+  const handleSaveKitab = async (kitabPayload: any) => {
     setConfirmModal({
       open: true,
       title: "Tambah Kitab",
-      description: `Ingin mengunggah kitab "${newKitab.title}" ke perpustakaan digital?`,
+      description: `Ingin mengunggah kitab "${kitabPayload.title}" ke perpustakaan digital?`,
       onConfirm: async () => {
         try {
-          const kitabPayload = {
-            title: newKitab.title,
-            author: newKitab.author,
-            category: newKitab.category,
-            file_url: newKitab.file_url
-          };
           if (currentUserRole === 'Member') {
             const { error } = await supabase.from('requests').insert([{
               table_name: 'kitab',
@@ -521,7 +437,6 @@ function AdminDashboard() {
               requested_by: user?.email
             }]);
             if (error) throw error;
-            setNewKitab({ title: "", author: "", category: "Fiqih", file_url: "" });
             toast({ title: "Permintaan Dikirim", description: "Pengajuan kitab baru menunggu persetujuan Admin." });
           } else {
             const { data, error } = await supabase.from('kitab').insert([kitabPayload]).select().single();
@@ -530,7 +445,6 @@ function AdminDashboard() {
             if (data) {
               setKitabs([...kitabs, data]);
             }
-            setNewKitab({ title: "", author: "", category: "Fiqih", file_url: "" });
             toast({ title: "Ditambahkan", description: "Kitab baru berhasil diunggah." });
           }
         } catch (e) {
@@ -552,23 +466,19 @@ function AdminDashboard() {
     }
   };
 
-  const handleCreateAdmin = async () => {
-    if (!newAdmin.email || !newAdmin.password) {
-      toast({ title: "Gagal", description: "Email dan kata sandi wajib diisi.", variant: "destructive" });
-      return;
-    }
+  const handleCreateAdmin = async (adminData: any) => {
 
     setConfirmModal({
       open: true,
       title: "Tambah Akses Admin",
-      description: `Apakah Anda yakin ingin memberikan hak akses admin kepada "${newAdmin.email}"?`,
+      description: `Apakah Anda yakin ingin memberikan hak akses admin kepada "${adminData.email}"?`,
       onConfirm: async () => {
         setIsCreatingAdmin(true);
         try {
           // 1. Create User in Supabase Auth
           const { data: authData, error: authError } = await supabase.auth.signUp({
-            email: newAdmin.email,
-            password: newAdmin.password,
+            email: adminData.email,
+            password: adminData.password,
           });
 
           if (authError) throw authError;
@@ -576,7 +486,7 @@ function AdminDashboard() {
           // 2. Store Role in Supabase
           const { data: roleData, error: roleError } = await supabase
             .from('admins')
-            .insert([{ email: newAdmin.email, role: newAdmin.role }])
+            .insert([{ email: adminData.email, role: adminData.role }])
             .select()
             .single();
           
@@ -586,7 +496,6 @@ function AdminDashboard() {
             setAdminRoles([...adminRoles, roleData]);
           }
 
-          setNewAdmin({ email: "", password: "", role: "Member" });
           toast({ title: "Akses Ditambahkan", description: "Admin baru berhasil didaftarkan." });
         } catch (error: any) {
           console.error(error);
@@ -803,12 +712,11 @@ function AdminDashboard() {
           <TabsContent value="gallery">
             <GalleryTab 
               galleryItems={galleryItems}
-              onUpload={(file, title) => {
+              onUpload={(file) => {
                 const formData = new FormData();
                 formData.append("file", file);
                 formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
                 formData.append("folder", "gallery");
-                setGalleryTitle(title);
                 startUpload(formData, 'gallery');
               }}
               onDelete={handleDeleteGallery}
@@ -820,10 +728,7 @@ function AdminDashboard() {
           <TabsContent value="albums">
             <AlbumsTab 
               albums={albumItems}
-              onAdd={(album) => {
-                setNewAlbum({ title: album.title!, driveLink: album.drive_link!, imageUrl: album.image_url! });
-                handleAddAlbum();
-              }}
+              onAdd={handleAddAlbum}
               onDelete={handleDeleteAlbum}
               isUploading={isUploading}
               uploadProgress={uploadProgress}
@@ -833,10 +738,7 @@ function AdminDashboard() {
           <TabsContent value="library">
             <LibraryTab 
               kitabs={kitabs}
-              onAdd={(kitab) => {
-                setNewKitab(kitab as any);
-                handleSaveKitab();
-              }}
+              onAdd={handleSaveKitab}
               onDelete={handleDeleteKitab}
             />
           </TabsContent>
@@ -846,10 +748,7 @@ function AdminDashboard() {
               <TabsContent value="access">
                 <AccessTab 
                   admins={adminRoles}
-                  onAddAdmin={(admin) => {
-                    setNewAdmin(admin);
-                    handleCreateAdmin();
-                  }}
+                  onAddAdmin={handleCreateAdmin}
                   onDeleteAdmin={handleDeleteAdmin}
                   onUpdateAdmin={handleUpdateAdmin}
                   currentUserEmail={user?.email}
@@ -872,191 +771,7 @@ function AdminDashboard() {
           )}
         </Tabs>
       </motion.div>
-    </div>
-      {/* Progress Upload Modal */}
-      <AlertDialog open={(isUploading && selectedMemberFile !== null) || uploadStatus === 'success'}>
-        <AlertDialogContent className="glass-card border-accent/20 max-w-sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              {uploadStatus === 'success' ? (
-                <CheckCircle2 className="w-5 h-5 text-green-400" />
-              ) : (
-                <Loader2 className="w-5 h-5 animate-spin text-accent" />
-              )}
-              {uploadStatus === 'success' ? "Unggah Berhasil" : "Mengunggah Data"}
-            </AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div className="space-y-4 pt-4 text-center">
-                <div className="relative w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-accent/20">
-                  {memberPreviewUrl && <img src={memberPreviewUrl} className="w-full h-full object-cover" alt="Uploading" />}
-                  {uploadStatus === 'success' ? (
-                    <div className="absolute inset-0 bg-green-500/40 flex items-center justify-center text-white">
-                      <CheckCircle2 className="w-12 h-12" />
-                    </div>
-                  ) : (
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-bold text-2xl">
-                      {Math.round(uploadProgress)}%
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-white">
-                    {uploadStatus === 'success' ? "Hapus modal untuk melihat hasil." : "Sedang memproses foto dan data..."}
-                  </span>
-                  <span className="text-xs text-muted-foreground italic">
-                    {uploadStatus === 'success' ? "Data sudah terbit di Intrada Page." : "Mohon jangan tutup halaman ini."}
-                  </span>
-                </div>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          {uploadStatus === 'success' && (
-            <AlertDialogFooter>
-              <Button 
-                onClick={resetMemberStates}
-                className="w-full bg-accent hover:bg-accent/80 text-background font-bold"
-              >
-                Selesai
-              </Button>
-            </AlertDialogFooter>
-          )}
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 max-w-2xl overflow-y-auto max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-headline font-bold text-accent uppercase tracking-wider">Edit Profil Anggota</DialogTitle>
-            <DialogDescription className="text-muted-foreground">Perbarui informasi biografi dan foto profil.</DialogDescription>
-          </DialogHeader>
-          
-          {editingMember && (
-            <div className="space-y-6 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Nama Lengkap</Label>
-                  <Input
-                    value={editingMember.name}
-                    onChange={(e) => setEditingMember({ ...editingMember, name: e.target.value })}
-                    className="bg-background/50"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Peran</Label>
-                  <Select
-                    value={editingMember.role || "Anggota"}
-                    onValueChange={(value) => setEditingMember({ ...editingMember, role: value })}
-                  >
-                    <SelectTrigger className="bg-background/50">
-                      <SelectValue placeholder="Pilih Peran" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Anggota">Anggota</SelectItem>
-                      <SelectItem value="Ketua">Ketua</SelectItem>
-                      <SelectItem value="Pengajar">Pengajar</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Tempat Lahir</Label>
-                  <Input
-                    value={editingMember.pob}
-                    onChange={(e) => setEditingMember({ ...editingMember, pob: e.target.value })}
-                    className="bg-background/50"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Tanggal Lahir</Label>
-                  <Input
-                    type="date"
-                    value={editingMember.dob}
-                    onChange={(e) => setEditingMember({ ...editingMember, dob: e.target.value })}
-                    className="bg-background/50"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Telepon</Label>
-                  <Input
-                    value={editingMember.phone}
-                    onChange={(e) => setEditingMember({ ...editingMember, phone: e.target.value })}
-                    className="bg-background/50"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Username Instagram</Label>
-                  <Input
-                    value={editingMember.ig}
-                    onChange={(e) => setEditingMember({ ...editingMember, ig: e.target.value })}
-                    placeholder="@username"
-                    className="bg-background/50"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2 pt-4 border-t border-white/10">
-                <Label>Foto Profil</Label>
-                <div className="flex items-center gap-4">
-                   <div className="relative group/editimg">
-                      <img 
-                        src={memberPreviewUrl || editingMember.image_url} 
-                        alt="Profile Preview" 
-                        className="w-20 h-20 rounded-full object-cover border-2 border-accent/20" 
-                      />
-                    </div>
-                  <div className="flex-1 space-y-2">
-                    <Label htmlFor="edit-image-upload" className="cursor-pointer">
-                      <div className="flex items-center justify-center gap-2 border border-dashed border-white/20 p-4 rounded-md hover:bg-white/5 transition-colors">
-                        <Upload className="w-4 h-4 text-accent" />
-                        <span className="text-sm font-medium">
-                          {selectedMemberFile ? selectedMemberFile.name : "Ganti Foto Profil"}
-                        </span>
-                      </div>
-                    </Label>
-                    <Input
-                      id="edit-image-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e, 'member')}
-                      disabled={isUploading}
-                      className="hidden"
-                    />
-                    <p className="text-[10px] text-muted-foreground italic">Foto akan diunggah saat Anda menekan tombol Simpan di bawah.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2 pt-4 border-t border-white/10">
-                <Label>Kutipan Pribadi ('Kata-kata')</Label>
-                <QuoteGenerator onQuoteGenerated={(quote) => {
-                  console.log("Setting auto-quote (edit):", quote);
-                  setEditingMember({ ...editingMember, quote });
-                }} />
-                <Textarea
-                  value={editingMember.quote}
-                  onChange={(e) => setEditingMember({ ...editingMember, quote: e.target.value })}
-                  className="bg-background/50 h-24 mt-2"
-                />
-              </div>
-            </div>
-          )}
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => { setIsEditModalOpen(false); setEditingMember(null); }} className="border-white/10">
-              Batal
-            </Button>
-            <Button onClick={handleSaveMember} disabled={isUploading} className="bg-accent text-background font-bold uppercase tracking-wider">
-              {isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-              Simpan Perubahan
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      </div>
 
       <AlertDialog open={confirmModal.open} onOpenChange={(open) => setConfirmModal(prev => ({ ...prev, open }))}>
         <AlertDialogContent className="bg-background/95 backdrop-blur-xl border-white/10 rounded-3xl">
