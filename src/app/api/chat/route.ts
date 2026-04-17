@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   return NextResponse.json({ 
     status: "Chat API is ready", 
-    model: "Gemini 1.5 Flash (Direct REST v1beta - Fixed)",
+    model: "Gemini 1.5 Flash (Direct REST v1 - Final)",
     time: new Date().toISOString()
   });
 }
@@ -43,13 +43,13 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
-    // Prepare contents for Gemini REST API
+    // Prepare contents for Gemini REST API v1 (Stable)
     const contents = messages.map((m: any) => ({
       role: m.sender === "user" ? "user" : "model",
       parts: [{ text: String(m.text || "") }]
     }));
 
-    // FIXED: system_instruction.parts MUST be an array []
+    // Construct the payload for v1 with proper array structure
     const payload = {
       contents: contents,
       system_instruction: {
@@ -63,9 +63,9 @@ export async function POST(req: Request) {
       }
     };
 
-    // Using v1beta as it has better support for system_instruction in Gemini 1.5
+    // Using v1 (Production) - It supports system_instruction for Gemini 1.5
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,38 +75,36 @@ export async function POST(req: Request) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error("Gemini REST API Error:", errorData);
+      console.error("Gemini REST API Error (v1):", errorData);
       
-      // Fallback: If system_instruction is still rejected, try without it by merging into contents
-      if (errorData?.error?.message?.includes("system_instruction")) {
-         const fallbackPayload = {
-           contents: [
-             { role: "user", parts: [{ text: `SYSTEM INSTRUCTION: ${SYSTEM_PROMPT}` }] },
-             { role: "model", parts: [{ text: "Siap, saya Kak Sevi. Ada yang bisa saya bantu?" }] },
-             ...contents
-           ],
-           generationConfig: payload.generationConfig
-         };
-         
-         const retryResponse = await fetch(
-           `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-           {
-             method: "POST",
-             headers: { "Content-Type": "application/json" },
-             body: JSON.stringify(fallbackPayload),
-           }
-         );
-         
-         if (retryResponse.ok) {
-           const retryData = await retryResponse.json();
-           return NextResponse.json({ text: retryData.candidates?.[0]?.content?.parts?.[0]?.text });
-         }
+      // Secondary Fallback: If still rejected, move system prompt to chat history
+      const fallbackPayload = {
+        contents: [
+          { role: "user", parts: [{ text: `INSTRUKSI SISTEM: ${SYSTEM_PROMPT}\n\nUser akan bertanya di bawah ini.` }] },
+          { role: "model", parts: [{ text: "Siap, saya Kak Sevi. Apa yang bisa saya bantu?" }] },
+          ...contents
+        ],
+        generationConfig: payload.generationConfig
+      };
+      
+      const retryResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(fallbackPayload),
+        }
+      );
+      
+      if (retryResponse.ok) {
+        const retryData = await retryResponse.json();
+        return NextResponse.json({ text: retryData.candidates?.[0]?.content?.parts?.[0]?.text });
       }
 
       return NextResponse.json(
         { 
           error: `Google API Error: ${response.status}`,
-          details: errorData?.error?.message || "Terjadi kesalahan pada layanan Google AI."
+          details: errorData?.error?.message || "Terjadi kesalahan pada layanan Google AI v1."
         },
         { status: response.status }
       );
