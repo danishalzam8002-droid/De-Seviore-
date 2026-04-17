@@ -176,7 +176,50 @@ export function KakViorBot() {
     {
       id: "1",
       sender: "bot",
-      text: "Halo! Aku Kak Vior, santri virtual De Seviore. Ada yang bisa kubantu terkait Pendaftaran, Berita Al-Azhar, atau Perpustakaan?",
+      text: (
+        <div className="space-y-3">
+          <p>Halo! Aku <b>Kak Vior</b>, santri virtual De Seviore. Selamat datang! ✨</p>
+          <p className="text-[11px] text-white/60 mb-2">Pilih menu di bawah untuk bantuan cepat:</p>
+          <div className="grid grid-cols-1 gap-2">
+            <button 
+              onClick={() => handleSendMessage(undefined, "Tanya tentang Pendaftaran")}
+              className="group flex items-center gap-3 bg-accent/20 hover:bg-accent/30 border border-accent/30 p-2.5 rounded-xl transition-all hover:translate-x-1 animate-menu-pop [animation-delay:0.2s] text-left"
+            >
+              <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-background group-hover:scale-110 transition-transform">
+                <Send size={16} />
+              </div>
+              <div>
+                <p className="font-bold text-xs text-accent">INFO PENDAFTARAN</p>
+                <p className="text-[9px] text-white/60">Alur, Biaya, & Syarat</p>
+              </div>
+            </button>
+            <button 
+              onClick={() => handleSendMessage(undefined, "Buka Berita Al-Azhar")}
+              className="group flex items-center gap-3 bg-accent/20 hover:bg-accent/30 border border-accent/30 p-2.5 rounded-xl transition-all hover:translate-x-1 animate-menu-pop [animation-delay:0.3s] text-left"
+            >
+              <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-background group-hover:scale-110 transition-transform">
+                <Bot size={16} />
+              </div>
+              <div>
+                <p className="font-bold text-xs text-accent">BERITA AL-AZHAR</p>
+                <p className="text-[9px] text-white/60">Info Kegiatan & Prestasi</p>
+              </div>
+            </button>
+            <button 
+              onClick={() => handleSendMessage(undefined, "Akses Perpustakaan")}
+              className="group flex items-center gap-3 bg-accent/20 hover:bg-accent/30 border border-accent/30 p-2.5 rounded-xl transition-all hover:translate-x-1 animate-menu-pop [animation-delay:0.4s] text-left"
+            >
+              <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-background group-hover:scale-110 transition-transform">
+                <MessageCircle size={16} />
+              </div>
+              <div>
+                <p className="font-bold text-xs text-accent">PERPUSTAKAAN</p>
+                <p className="text-[9px] text-white/60">Baca Kitab Digital</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      ),
     },
   ]);
   const [inputText, setInputText] = useState("");
