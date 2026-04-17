@@ -109,7 +109,7 @@ export function KakSeviBot() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async (e?: React.FormEvent, customText?: string) => {
+  const handleSendMessage = (e?: React.FormEvent, customText?: string) => {
     if (e) e.preventDefault();
     
     // Auto-stop mic if user clicks send while listening
@@ -127,61 +127,111 @@ export function KakSeviBot() {
       text: textToSend.trim(),
     };
 
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
+    setMessages((prev) => [...prev, userMessage]);
+    
     if (!customText) {
       setInputText("");
       setCommittedText("");
     }
+    
     setIsTyping(true);
 
-    try {
-      // Sanitize messages: Ensure all 'text' fields are strictly strings
-      const sanitizedMessages = newMessages.map(m => ({
-        ...m,
-        text: typeof m.text === "string" ? m.text : "Element Visual"
-      }));
+    // Simple Rule-Based AI response (Restored)
+    setTimeout(() => {
+      let botResponse: string | ReactNode = "Maaf, Kak Sevi kurang paham maksudmu. Boleh tanya tentang Pendaftaran, Berita Al-Azhar, atau Perpustakaan?";
+      const textVal = typeof userMessage.text === "string" ? userMessage.text : "";
+      const lowerInput = textVal.toLowerCase();
 
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: sanitizedMessages }),
-      });
+      if (lowerInput.includes("biaya") || lowerInput.includes("harga") || lowerInput.includes("bayar") || lowerInput.includes("rincian")) {
+        botResponse = (
+          <div className="space-y-4">
+            <p className="font-bold border-b border-accent/20 pb-2 text-white">RINCIAN BIAYA</p>
+            
+            <div>
+              <p className="font-bold text-accent mb-1">BIAYA MASUK DAN KELENGKAPAN</p>
+              <table className="w-full text-xs text-white/80">
+                <tbody>
+                  <tr><td>INFAQ PENDIDIKAN</td><td className="text-right">Rp 1.500.000</td></tr>
+                  <tr><td>SEWA LEMARI</td><td className="text-right">Rp 300.000</td></tr>
+                  <tr><td>SEWA RANJANG</td><td className="text-right">Rp 300.000</td></tr>
+                  <tr><td>BELI KASUR</td><td className="text-right">Rp 500.000</td></tr>
+                  <tr><td>SERAGAM</td><td className="text-right">Rp 900.000</td></tr>
+                </tbody>
+              </table>
+            </div>
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.details || errorData.error || "Gagal mengambil jawaban AI.");
+            <div>
+              <p className="font-bold text-accent justify-between mb-1">INFAQ TAHUNAN</p>
+              <table className="w-full text-xs text-white/80">
+                <tbody>
+                  <tr><td>INFAQ BANGUNAN</td><td className="text-right">Rp 1.500.000</td></tr>
+                  <tr><td>BUKU PELAJARAN 2 SEMESTER</td><td className="text-right">Rp 800.000</td></tr>
+                  <tr className="font-bold border-t border-accent/20"><td className="pt-1 text-white">TOTAL BIAYA MASUK</td><td className="text-right pt-1 text-white">Rp 5.800.000</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div>
+              <p className="font-bold text-accent mb-1">INFAQ BULANAN</p>
+              <table className="w-full text-xs text-white/80">
+                <tbody>
+                  <tr><td>MAKAN</td><td className="text-right">Rp 700.000</td></tr>
+                  <tr><td>KEPONDOKAN</td><td className="text-right">Rp 300.000</td></tr>
+                  <tr><td>SPP</td><td className="text-right">Rp 200.000</td></tr>
+                  <tr className="font-bold border-t border-accent/20"><td className="pt-1 text-white">TOTAL BIAYA BULANAN</td><td className="text-right pt-1 text-white">Rp 1.200.000</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p className="font-bold text-[10px] bg-accent/20 p-2 rounded-lg text-center text-accent">
+              FORMULIR PENDAFTARAN / REGISTRASI<br/>Rp 250.000
+            </p>
+
+            <a href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta#schedule" target="_blank" rel="noopener noreferrer" className="block text-center w-full mt-2 font-bold underline hover:text-accent transition-all text-[10px] text-white/60">Lihat Jadwal & Promo di Web Resmi</a>
+          </div>
+        );
+      } else if (lowerInput.includes("alur") || lowerInput.includes("cara") || lowerInput.includes("step") || lowerInput.includes("daftar") || lowerInput.includes("pendaftaran")) {
+        botResponse = "Berikut alur pendaftaran Ponpes Al-Azhar Purwakarta:\n1. Isi formulir pendaftaran di web resmi dengan data lengkap.\n2. Jika ada biaya pendaftaran, lakukan pembayaran melalui Bank atau Minimarket.\n3. Proses seleksi dapat dicek secara real time.\n4. Hasil penerimaan bisa dicek online menggunakan nomor pendaftaran.\n5. Peserta Diterima wajib melakukan daftar ulang untuk konfirmasi dan memperoleh Nomor Kartu.";
+      } else if (lowerInput.includes("jadwal") || lowerInput.includes("kapan") || lowerInput.includes("gelombang")) {
+        botResponse = "Jadwal pendaftaran terbagi dua:\n- Gelombang 1: 1 Oktober 2026 s.d 13 Desember 2026\n- Gelombang 2: 15 Desember 2026 s.d 31 Juli 2027\nYuk! Jangan sampai ketinggalan.";
+      } else if (lowerInput.includes("berita") || lowerInput.includes("news") || lowerInput.includes("kegiatan") || lowerInput.includes("info")) {
+        botResponse = "Kamu bisa mengecek berita terbaru Al-Azhar di menu 'Tentang Al-Azhar'. Di sana Kak Sevi sering membagikan info kegiatan, prestasi santri, dan pengumuman terbaru lho!";
+      } else if (lowerInput.includes("perpus") || lowerInput.includes("kitab") || lowerInput.includes("buku") || lowerInput.includes("baca")) {
+        botResponse = "Di menu 'Perpustakaan', kita punya banyak koleksi kitab digital karya ulama. Kamu cukup ketik judul atau nama pengarang di kolom pencarian, lalu klik 'Akses Kitab' untuk membacanya secara online.";
+      } else if (lowerInput.includes("halo") || lowerInput.includes("hai") || lowerInput.includes("hi") || lowerInput.includes("assalam")) {
+        botResponse = "Wa'alaikumussalam! Hai juga! Yuk tanya seputar Pendaftaran, Biaya, Jadwal, atau fasilitas lainnya.";
       }
+
+      // Navigation Command Detection
+      const navWords = ["buka", "ke", "halaman", "lihat", "tampilkan", "akses"];
+      const isNav = navWords.some(word => lowerInput.includes(word));
       
-      const data = await response.json();
-      
+      let targetPath = "";
+      if (isNav) {
+        if (lowerInput.includes("dashboard") || lowerInput.includes("admin")) targetPath = "/admin/dashboard";
+        else if (lowerInput.includes("perpus") || lowerInput.includes("kitab") || lowerInput.includes("baca")) targetPath = "/alazhar/perpustakaan";
+        else if (lowerInput.includes("daftar") || lowerInput.includes("pendaftaran") || lowerInput.includes("registrasi")) targetPath = "/alazhar/info-pendaftaran";
+        else if (lowerInput.includes("tentang") || lowerInput.includes("sejarah") || lowerInput.includes("profil") || lowerInput.includes("berita")) targetPath = "/alazhar/tentang";
+        else if (lowerInput.includes("album") || lowerInput.includes("galeri") || lowerInput.includes("foto") || lowerInput.includes("video")) targetPath = "/albums";
+        else if (lowerInput.includes("anggota") || lowerInput.includes("member") || lowerInput.includes("santri")) targetPath = "/members";
+
+        if (targetPath) {
+          botResponse = `Siap! Langsung Kak Sevi antar ya...`;
+          setTimeout(() => {
+            router.push(targetPath);
+            setIsOpen(false);
+          }, 800);
+        }
+      }
+
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: "bot",
-        text: data.text,
+        text: botResponse,
       };
       setMessages((prev) => [...prev, botMessage]);
-
-      // Check for navigation commands in the bot's text
-      const lowerBotText = data.text.toLowerCase();
-      if (lowerBotText.includes("/admin/dashboard")) setTimeout(() => { router.push("/admin/dashboard"); setIsOpen(false); }, 1500);
-      else if (lowerBotText.includes("/alazhar/perpustakaan")) setTimeout(() => { router.push("/alazhar/perpustakaan"); setIsOpen(false); }, 1500);
-      else if (lowerBotText.includes("/alazhar/info-pendaftaran")) setTimeout(() => { router.push("/alazhar/info-pendaftaran"); setIsOpen(false); }, 1500);
-      else if (lowerBotText.includes("/alazhar/tentang")) setTimeout(() => { router.push("/alazhar/tentang"); setIsOpen(false); }, 1500);
-      else if (lowerBotText.includes("/albums")) setTimeout(() => { router.push("/albums"); setIsOpen(false); }, 1500);
-      else if (lowerBotText.includes("/members")) setTimeout(() => { router.push("/members"); setIsOpen(false); }, 1500);
-
-    } catch (error: any) {
-      console.error(error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        sender: "bot",
-        text: `Maaf Kak, sepertinya sedang ada kendala koneksi: ${error.message}. Coba lagi nanti ya!`,
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
       setIsTyping(false);
-    }
+    }, 1000);
   };
 
   const QuickOption = ({ text }: { text: string }) => (
