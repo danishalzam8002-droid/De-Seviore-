@@ -68,8 +68,26 @@ function AnimatedBotIcon({ size = 24, className = "" }: { size?: number, classNa
             10%, 90% { transform: translateY(0) scale(1); opacity: 1; }
             45%, 55% { transform: translateY(-5px) rotate(5deg); }
           }
+          @keyframes peek-bot-side {
+            0%, 20%, 80%, 100% { transform: translateX(20px) scale(0.6); opacity: 0; }
+            30%, 70% { transform: translateX(0) scale(0.85) rotate(-10deg); opacity: 1; }
+            50% { transform: translateX(-5px) scale(0.85) rotate(-15deg); }
+          }
+          @keyframes peek-bot-mini {
+            0%, 30%, 70%, 100% { transform: translateY(20px) scale(0.5); opacity: 0; }
+            40%, 60% { transform: translateY(0) scale(0.7) rotate(15deg); opacity: 1; }
+            50% { transform: translateY(-3px) scale(0.75) rotate(20deg); }
+          }
           .animate-peek-bot {
             animation: peek-bot 8s ease-in-out infinite;
+          }
+          .animate-peek-bot-side {
+            animation: peek-bot-side 9s ease-in-out infinite;
+            animation-delay: 1.5s;
+          }
+          .animate-peek-bot-mini {
+            animation: peek-bot-mini 10s ease-in-out infinite;
+            animation-delay: 3s;
           }
         `}
       </style>
@@ -358,12 +376,24 @@ export function KakViorBot() {
     <>
       {/* Floating Button Area */}
       <div className={cn("fixed bottom-24 md:bottom-12 right-6 md:right-12 z-50 flex flex-col items-end gap-2", isOpen && "hidden")}>
-        {/* Peeking Robot Animation */}
+        {/* Peeking Robots Group */}
         <div className="relative w-full flex justify-end">
-          <div className="absolute -top-12 right-8 animate-peek-bot pointer-events-none">
-            <AnimatedBotIcon size={40} className="text-accent drop-shadow-[0_0_8px_rgba(26,204,230,0.5)]" />
+          {/* Main Bot */}
+          <div className="absolute -top-12 right-12 animate-peek-bot pointer-events-none">
+            <AnimatedBotIcon size={44} className="text-accent drop-shadow-[0_0_10px_rgba(26,204,230,0.6)]" />
           </div>
-          <div className="bg-background/95 backdrop-blur-md border-[1.5px] border-accent/50 text-accent px-6 py-3 rounded-2xl rounded-br-sm text-base font-bold shadow-[0_0_20px_rgba(26,204,230,0.3)] animate-pulse whitespace-nowrap z-10">
+          
+          {/* Side Bot 1 */}
+          <div className="absolute -top-6 right-36 animate-peek-bot-side pointer-events-none">
+            <AnimatedBotIcon size={32} className="text-accent/80 drop-shadow-[0_0_8px_rgba(26,204,230,0.4)]" />
+          </div>
+
+          {/* Side Bot 2 (Mini) */}
+          <div className="absolute -top-10 right-2 animate-peek-bot-mini pointer-events-none">
+            <AnimatedBotIcon size={28} className="text-accent/60 drop-shadow-[0_0_6px_rgba(26,204,230,0.3)]" />
+          </div>
+
+          <div className="bg-background/95 backdrop-blur-md border-[1.5px] border-accent/50 text-accent px-6 py-3 rounded-2xl rounded-br-sm text-base font-bold shadow-[0_0_20px_rgba(26,204,230,0.3)] animate-pulse whitespace-nowrap z-10 transition-transform hover:scale-105 duration-300">
             Bingung?? Yuk tanya Kak Vior
           </div>
         </div>
