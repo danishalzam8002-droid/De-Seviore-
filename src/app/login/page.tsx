@@ -13,8 +13,9 @@ import { Label } from "@/components/ui/label";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
+import { Loader2, Lock, Eye, EyeOff, UserPlus, Clock, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -34,12 +35,59 @@ export default function LoginPage() {
     role: "Member"
   });
   const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
+  const [requestStatus, setRequestStatus] = useState<'idle' | 'pending' | 'approved' | 'rejected' | 'account_exists'>('idle');
+  const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
     if (user && !authLoading) {
       router.push("/admin/dashboard");
     }
   }, [user, authLoading, router]);
+
+  // Check localStorage for previous requests on mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("pending-request-email");
+    if (savedEmail) {
+      checkExistingRequest(savedEmail);
+    }
+  }, []);
+
+  const checkExistingRequest = async (requestedEmail: string) => {
+    try {
+      // 1. Check if account already exists in admins table
+      const { data: adminData } = await supabase
+        .from('admins')
+        .select('role')
+        .eq('email', requestedEmail)
+        .single();
+      
+      if (adminData) {
+        setRequestStatus('account_exists');
+        setStatusMessage(`Akun sudah aktif sebagai ${adminData.role}. Silakan login.`);
+        return;
+      }
+
+      // 2. Check for pending request
+      const { data: reqData } = await supabase
+        .from('requests')
+        .select('status')
+        .eq('requested_by', requestedEmail)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (reqData) {
+        setRequestStatus(reqData.status as any);
+        if (reqData.status === 'pending') {
+          setStatusMessage("Permintaan Anda sedang ditinjau oleh Admin Utama.");
+        } else if (reqData.status === 'rejected') {
+          setStatusMessage("Maaf, permintaan akses Anda tidak dapat kami setujui saat ini.");
+        }
+      }
+    } catch (err) {
+      console.error("Status check error:", err);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +139,11 @@ export default function LoginPage() {
       }]);
 
       if (error) throw error;
+
+      // Store in localStorage for persistence across refersh
+      localStorage.setItem("pending-request-email", requestData.email);
+      setRequestStatus('pending');
+      setStatusMessage("Permintaan Anda sedang ditinjau oleh Admin Utama.");
 
       toast({
         title: "Permintaan Dikirim",
@@ -211,49 +264,97 @@ export default function LoginPage() {
               <DialogHeader>
                 <DialogTitle className="text-2xl font-headline font-bold text-accent uppercase tracking-wider">Permintaan Akses</DialogTitle>
                 <DialogDescription className="text-muted-foreground text-xs">
-                  Isi data di bawah untuk mengajukan akun pengelola konten De Seviore.
+                  {requestStatus === 'idle' 
+                    ? "Isi data di bawah untuk mengajukan akun pengelola konten De Seviore."
+                    : "Status permintaan akses Anda."}
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleRequestAccess} className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="req-name" className="text-[10px] uppercase font-bold text-accent/70">Nama Lengkap</Label>
-                  <Input 
-                    id="req-name" 
-                    value={requestData.name} 
-                    onChange={e => setRequestData({...requestData, name: e.target.value})}
-                    placeholder="Contoh: Ahmad Seviore"
-                    required 
-                    className="bg-white/5 border-white/10" 
-                  />
+
+              {requestStatus !== 'idle' ? (
+                <div className="space-y-6 py-8">
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    {requestStatus === 'pending' && <Clock className="w-12 h-12 text-amber-500 animate-pulse" />}
+                    {requestStatus === 'approved' && <CheckCircle2 className="w-12 h-12 text-emerald-500" />}
+                    {requestStatus === 'rejected' && <AlertCircle className="w-12 h-12 text-red-500" />}
+                    {requestStatus === 'account_exists' && <UserPlus className="w-12 h-12 text-accent" />}
+                    
+                    <div className="space-y-1">
+                      <h3 className="font-bold text-lg uppercase tracking-tight">
+                        {requestStatus === 'pending' ? "Sedang Ditinjau" : 
+                         requestStatus === 'approved' ? "Akses Disetujui" :
+                         requestStatus === 'rejected' ? "Permintaan Ditolak" : "Akun Sudah Aktif"}
+                      </h3>
+                      <p className="text-xs text-muted-foreground px-4">
+                        {statusMessage}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-white/10"
+                      onClick={() => {
+                        const saved = localStorage.getItem("pending-request-email");
+                        if (saved) checkExistingRequest(saved);
+                      }}
+                    >
+                      <RefreshCw size={14} className="mr-2" /> Segarkan Status
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full text-[10px] uppercase opacity-50"
+                      onClick={() => {
+                        localStorage.removeItem("pending-request-email");
+                        setRequestStatus('idle');
+                      }}
+                    >
+                      Gunakan Email Lain
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="req-email" className="text-[10px] uppercase font-bold text-accent/70">Akun Google (Gmail)</Label>
-                  <Input 
-                    id="req-email" 
-                    type="email"
-                    value={requestData.email} 
-                    onChange={e => setRequestData({...requestData, email: e.target.value})}
-                    placeholder="nama@gmail.com"
-                    required 
-                    className="bg-white/5 border-white/10" 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="req-pass" className="text-[10px] uppercase font-bold text-accent/70">Kata Sandi Diinginkan</Label>
-                  <Input 
-                    id="req-pass" 
-                    type="password"
-                    value={requestData.password} 
-                    onChange={e => setRequestData({...requestData, password: e.target.value})}
-                    placeholder="Min. 6 karakter"
-                    required 
-                    className="bg-white/5 border-white/10" 
-                  />
-                </div>
-                <Button type="submit" className="w-full bg-accent text-background font-bold tracking-widest mt-6" disabled={isSubmittingRequest}>
-                  {isSubmittingRequest ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : "AJUKAN AKSES"}
-                </Button>
-              </form>
+              ) : (
+                <form onSubmit={handleRequestAccess} className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="req-name" className="text-[10px] uppercase font-bold text-accent/70">Nama Lengkap</Label>
+                    <Input 
+                      id="req-name" 
+                      value={requestData.name} 
+                      onChange={e => setRequestData({...requestData, name: e.target.value})}
+                      placeholder="Contoh: Ahmad Seviore"
+                      required 
+                      className="bg-white/5 border-white/10" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="req-email" className="text-[10px] uppercase font-bold text-accent/70">Akun Google (Gmail)</Label>
+                    <Input 
+                      id="req-email" 
+                      type="email"
+                      value={requestData.email} 
+                      onChange={e => setRequestData({...requestData, email: e.target.value})}
+                      placeholder="nama@gmail.com"
+                      required 
+                      className="bg-white/5 border-white/10" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="req-pass" className="text-[10px] uppercase font-bold text-accent/70">Kata Sandi Diinginkan</Label>
+                    <Input 
+                      id="req-pass" 
+                      type="password"
+                      value={requestData.password} 
+                      onChange={e => setRequestData({...requestData, password: e.target.value})}
+                      placeholder="Min. 6 karakter"
+                      required 
+                      className="bg-white/5 border-white/10" 
+                    />
+                  </div>
+                  <Button type="submit" className="w-full bg-accent text-background font-bold tracking-widest mt-6" disabled={isSubmittingRequest}>
+                    {isSubmittingRequest ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : "AJUKAN AKSES"}
+                  </Button>
+                </form>
+              )}
             </DialogContent>
           </Dialog>
           
