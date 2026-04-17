@@ -12,7 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Lock, Eye, EyeOff } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Loader2, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -23,6 +25,15 @@ export default function LoginPage() {
   const router = useRouter();
 
   const logo = PlaceHolderImages.find(img => img.id === 'batch-logo');
+
+  const [isRequestOpen, setIsRequestOpen] = useState(false);
+  const [requestData, setRequestData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "Member"
+  });
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -55,6 +66,46 @@ export default function LoginPage() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRequestAccess = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!requestData.email.includes("@gmail.com")) {
+      toast({
+        title: "Gunakan Akun Google",
+        description: "Mohon gunakan alamat email Gmail untuk mendaftar.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmittingRequest(true);
+    try {
+      const { error } = await supabase.from('requests').insert([{
+        table_name: 'admins',
+        action: 'ACCESS_REQUEST',
+        data: requestData,
+        requested_by: requestData.email,
+        status: 'pending'
+      }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Permintaan Dikirim",
+        description: "Akses login Anda sedang ditinjau oleh Admin Utama. Harap tunggu konfirmasi.",
+      });
+      setIsRequestOpen(false);
+      setRequestData({ name: "", email: "", password: "", role: "Member" });
+    } catch (e: any) {
+      toast({
+        title: "Gagal Mengambil Akses",
+        description: e.message || "Terjadi kesalahan saat mengirim permintaan.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingRequest(false);
     }
   };
 
@@ -149,8 +200,76 @@ export default function LoginPage() {
           </CardContent>
         </Card>
         
-        <div className="text-center">
-          <Button variant="link" onClick={() => router.push("/")} className="text-muted-foreground hover:text-accent text-xs uppercase tracking-widest">
+        <div className="flex flex-col items-center gap-2">
+          <Dialog open={isRequestOpen} onOpenChange={setIsRequestOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" className="text-accent text-xs font-bold uppercase tracking-widest gap-2">
+                <UserPlus size={14} /> Minta Akses Admin Baru
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 rounded-3xl max-w-sm">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-headline font-bold text-accent uppercase tracking-wider">Permintaan Akses</DialogTitle>
+                <DialogDescription className="text-muted-foreground text-xs">
+                  Isi data di bawah untuk mengajukan akun pengelola konten De Seviore.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleRequestAccess} className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="req-name" className="text-[10px] uppercase font-bold text-accent/70">Nama Lengkap</Label>
+                  <Input 
+                    id="req-name" 
+                    value={requestData.name} 
+                    onChange={e => setRequestData({...requestData, name: e.target.value})}
+                    placeholder="Contoh: Ahmad Seviore"
+                    required 
+                    className="bg-white/5 border-white/10" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="req-email" className="text-[10px] uppercase font-bold text-accent/70">Akun Google (Gmail)</Label>
+                  <Input 
+                    id="req-email" 
+                    type="email"
+                    value={requestData.email} 
+                    onChange={e => setRequestData({...requestData, email: e.target.value})}
+                    placeholder="nama@gmail.com"
+                    required 
+                    className="bg-white/5 border-white/10" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="req-pass" className="text-[10px] uppercase font-bold text-accent/70">Kata Sandi Diinginkan</Label>
+                  <Input 
+                    id="req-pass" 
+                    type="password"
+                    value={requestData.password} 
+                    onChange={e => setRequestData({...requestData, password: e.target.value})}
+                    placeholder="Min. 6 karakter"
+                    required 
+                    className="bg-white/5 border-white/10" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="req-role" className="text-[10px] uppercase font-bold text-accent/70">Role yang Diminati</Label>
+                  <Select value={requestData.role} onValueChange={v => setRequestData({...requestData, role: v})}>
+                    <SelectTrigger className="bg-white/5 border-white/10">
+                      <SelectValue placeholder="Pilih Role" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-white/10">
+                      <SelectItem value="Member">Member (Upload Galeri)</SelectItem>
+                      <SelectItem value="Admin">Admin (Kelola Data)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button type="submit" className="w-full bg-accent text-background font-bold tracking-widest mt-6" disabled={isSubmittingRequest}>
+                  {isSubmittingRequest ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : "AJUKAN AKSES"}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+          
+          <Button variant="link" onClick={() => router.push("/")} className="text-muted-foreground hover:text-accent text-[10px] uppercase tracking-[0.2em]">
             Kembali ke Beranda
           </Button>
         </div>

@@ -42,7 +42,7 @@ export interface AdminRole {
 export interface AdminRequest {
   id: string;
   table_name: string;
-  action: 'CREATE' | 'UPDATE' | 'DELETE';
+  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'ACCESS_REQUEST';
   data: any;
   target_id: string | null;
   requested_by: string;

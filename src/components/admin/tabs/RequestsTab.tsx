@@ -4,7 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Check, X, Bell } from "lucide-react";
+import { Check, X, Bell, UserPlus, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { AdminRequest } from "@/types";
 
 interface RequestsTabProps {
@@ -36,24 +42,58 @@ export function RequestsTab({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Tabel</TableHead>
-                <TableHead>Aksi</TableHead>
-                <TableHead>Pemohon</TableHead>
-                <TableHead>Aksi</TableHead>
+                <TableHead className="w-[100px]">Aksi</TableHead>
+                <TableHead>Pemohon / Detail</TableHead>
+                <TableHead className="w-[80px]">Data</TableHead>
+                <TableHead className="w-[100px] text-right">Kontrol</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {requests.map((req) => (
                 <TableRow key={req.id}>
-                  <TableCell className="font-medium uppercase text-[10px] tracking-wider">{req.table_name}</TableCell>
                   <TableCell>
-                    <Badge variant={req.action === 'DELETE' ? 'destructive' : req.action === 'CREATE' ? 'default' : 'secondary'}>
-                      {req.action}
+                    <Badge variant={
+                      req.action === 'DELETE' ? 'destructive' : 
+                      req.action === 'CREATE' ? 'default' : 
+                      req.action === 'ACCESS_REQUEST' ? 'outline' : 'secondary'
+                    } className={req.action === 'ACCESS_REQUEST' ? 'bg-accent/10 text-accent border-accent/20' : ''}>
+                      {req.action === 'ACCESS_REQUEST' ? (
+                        <div className="flex items-center gap-1">
+                          <UserPlus size={10} /> AKSES
+                        </div>
+                      ) : req.action}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-xs">{req.requested_by}</TableCell>
+                  <TableCell className="text-xs">
+                    <div className="flex flex-col">
+                      <span className="font-bold">{req.action === 'ACCESS_REQUEST' ? req.data.name : req.requested_by}</span>
+                      <span className="text-[10px] opacity-60 italic">{req.action === 'ACCESS_REQUEST' ? req.data.email : req.table_name}</span>
+                    </div>
+                  </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
+                    {req.action === 'ACCESS_REQUEST' ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-accent/60 hover:text-accent">
+                               <Info size={16} />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-background border-white/10 p-3 max-w-[200px] text-[10px]">
+                            <p className="text-accent font-bold mb-1 uppercase tracking-widest">Detail Calon Admin:</p>
+                            <p>Nama: {req.data.name}</p>
+                            <p>Email: {req.data.email}</p>
+                            <p className="mt-2 text-red-400">Password: {req.data.password}</p>
+                            <p className="mt-2 italic text-white/40">Gunakan data ini untuk membuat akun di Supabase Auth.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                       <span className="text-[8px] opacity-40">Detail pada data...</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
                       <Button 
                         size="sm" 
                         variant="ghost" 

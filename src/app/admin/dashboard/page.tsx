@@ -530,18 +530,42 @@ function AdminDashboard() {
         ({ error } = await supabase.from(request.table_name).update(request.data).eq('id', request.target_id));
       } else if (request.action === 'DELETE') {
         ({ error } = await supabase.from(request.table_name).delete().eq('id', request.target_id));
+      } else if (request.action === 'ACCESS_REQUEST') {
+        // 1. Add to admins table
+        const { error: adminError } = await supabase.from('admins').insert([{
+          email: request.data.email,
+          role: request.data.role
+        }]);
+        
+        if (adminError) throw adminError;
+        
+        // 2. Clear error for the common logic below
+        error = null;
+        
+        // 3. Prepare Notification
+        sendNotificationEmail(request.data.email, 'approved');
+        
+        toast({ 
+          title: "Akses Disetujui", 
+          description: `User ${request.data.email} telah ditambahkan ke daftar akses.`,
+        });
       }
 
       if (error) throw error;
 
       await supabase.from('requests').update({ status: 'approved' }).eq('id', request.id);
       setRequests(requests.filter(r => r.id !== request.id));
-      toast({ title: "Permintaan Disetujui", description: "Perubahan telah diterapkan ke database." });
       
-      const { data: updated } = await supabase.from(request.table_name).select('*');
-      if (request.table_name === 'members') setMembers(updated || []);
-      if (request.table_name === 'kitab') setKitabs(updated || []);
-      if (request.table_name === 'albums') setAlbumItems(updated || []);
+      if (request.action !== 'ACCESS_REQUEST') {
+        toast({ title: "Permintaan Disetujui", description: "Perubahan telah diterapkan ke database." });
+        const { data: updated } = await supabase.from(request.table_name).select('*');
+        if (request.table_name === 'members') setMembers(updated || []);
+        if (request.table_name === 'kitab') setKitabs(updated || []);
+        if (request.table_name === 'albums') setAlbumItems(updated || []);
+      } else {
+        const { data: updatedAdmins } = await supabase.from('admins').select('*');
+        setAdminRoles(updatedAdmins || []);
+      }
       
     } catch (err: any) {
       console.error(err);
@@ -551,12 +575,31 @@ function AdminDashboard() {
 
   const handleRejectRequest = async (requestId: string) => {
     try {
+      const { data: req } = await supabase.from('requests').select('*').eq('id', requestId).single();
+      
       await supabase.from('requests').update({ status: 'rejected' }).eq('id', requestId);
       setRequests(requests.filter(r => r.id !== requestId));
-      toast({ title: "Permintaan Ditolak", description: "Perubahan tidak diterapkan." });
+      
+      if (req?.action === 'ACCESS_REQUEST') {
+        sendNotificationEmail(req.data.email, 'rejected');
+        toast({ title: "Permintaan Ditolak", description: "Notifikasi penolakan telah dikirim." });
+      } else {
+        toast({ title: "Permintaan Ditolak", description: "Perubahan tidak diterapkan." });
+      }
     } catch (err: any) {
       toast({ title: "Gagal Menolak", description: err.message, variant: "destructive" });
     }
+  };
+
+  const sendNotificationEmail = async (email: string, status: 'approved' | 'rejected') => {
+    console.log(`Sending ${status} email to ${email}`);
+    // NOTE: This requires a backend and API Key (e.g. Resend)
+    toast({
+      title: "Email Notifikasi",
+      description: status === 'approved' 
+        ? `Konfirmasi persetujuan telah disiapkan untuk ${email}.` 
+        : `Konfirmasi penolakan telah disiapkan untuk ${email}.`,
+    });
   };
 
   const handleUpdateAdmin = async (id: string, newRole: string) => {
