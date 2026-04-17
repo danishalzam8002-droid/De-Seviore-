@@ -1,7 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY || "");
+const apiKey = process.env.GOOGLE_GENAI_API_KEY;
+const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 const SYSTEM_PROMPT = `
 Anda adalah "Kak Sevi", asisten virtual cerdas dan ramah untuk komunitas "De Seviore" (Angkatan 7 Ponpes Al-Azhar Purwakarta).
@@ -29,8 +30,20 @@ Aturan Khusus:
 
 export async function POST(req: Request) {
   try {
+    if (!genAI) {
+      console.error("GOOGLE_GENAI_API_KEY is missing from environment variables.");
+      return NextResponse.json(
+        { error: "Konfigurasi AI belum lengkap (API Key hilang)." },
+        { status: 500 }
+      );
+    }
+
     const { messages } = await req.json();
     
+    if (!messages || messages.length === 0) {
+      return NextResponse.json({ error: "Pesan kosong." }, { status: 400 });
+    }
+
     // Get the latest message
     const userMessage = messages[messages.length - 1].text;
 
@@ -39,24 +52,24 @@ export async function POST(req: Request) {
       systemInstruction: SYSTEM_PROMPT 
     });
 
-    // Prepare history for chat
+    // Prepare history for chat - Ensure all text is string
     const chatHistory = messages.slice(0, -1).map((m: any) => ({
       role: m.sender === "user" ? "user" : "model",
-      parts: [{ text: m.text }],
+      parts: [{ text: String(m.text || "") }],
     }));
 
     const chat = model.startChat({
       history: chatHistory,
     });
 
-    const result = await chat.sendMessage(userMessage);
+    const result = await chat.sendMessage(String(userMessage || ""));
     const responseText = result.response.text();
 
     return NextResponse.json({ text: responseText });
   } catch (error: any) {
-    console.error("Gemini API Error:", error);
+    console.error("Gemini API Full Error:", error);
     return NextResponse.json(
-      { error: "Gagal memproses permintaan AI." },
+      { error: "Maaf, otak Kak Sevi sedang mengalami gangguan teknis. Mohon periksa koneksi atau API Key." },
       { status: 500 }
     );
   }

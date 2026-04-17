@@ -136,10 +136,16 @@ export function KakSeviBot() {
     setIsTyping(true);
 
     try {
+      // Sanitize messages: Ensure all 'text' fields are strictly strings
+      const sanitizedMessages = newMessages.map(m => ({
+        ...m,
+        text: typeof m.text === "string" ? m.text : "Element Visual"
+      }));
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ messages: sanitizedMessages }),
       });
 
       if (!response.ok) throw new Error("Gagal mengambil jawaban AI.");
