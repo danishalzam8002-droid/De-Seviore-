@@ -14,6 +14,71 @@ type Message = {
   text: string | ReactNode;
 };
 
+function AnimatedBotIcon({ size = 24, className = "" }: { size?: number, className?: string }) {
+  return (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      {/* Head Shell */}
+      <rect x="3" y="6" width="18" height="13" rx="3" stroke="currentColor" strokeWidth="2" />
+      <path d="M12 6V3M12 3H15M12 3H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <rect x="7" y="19" width="2" height="2" fill="currentColor" />
+      <rect x="15" y="19" width="2" height="2" fill="currentColor" />
+      
+      {/* Visor Area */}
+      <rect x="6" y="9" width="12" height="5" rx="1" fill="currentColor" fillOpacity="0.2" />
+      
+      {/* Animated Eyes */}
+      <g className="animate-bot-eyes">
+        <circle cx="9" cy="11.5" r="1.5" fill="currentColor">
+          <animate 
+            attributeName="cy" 
+            values="11.5;11.5;10.5;11.5;11.5" 
+            dur="4s" 
+            repeatCount="indefinite" 
+          />
+          <animate 
+            attributeName="cx" 
+            values="9;10;9;8;9" 
+            dur="4s" 
+            repeatCount="indefinite" 
+          />
+        </circle>
+        <circle cx="15" cy="11.5" r="1.5" fill="currentColor">
+          <animate 
+            attributeName="cy" 
+            values="11.5;11.5;10.5;11.5;11.5" 
+            dur="4s" 
+            repeatCount="indefinite" 
+          />
+          <animate 
+            attributeName="cx" 
+            values="15;16;15;14;15" 
+            dur="4s" 
+            repeatCount="indefinite" 
+          />
+        </circle>
+      </g>
+      
+      {/* Blinking Overlay */}
+      <rect x="7.5" y="10" width="9" height="3" fill="none" className="animate-bot-blink">
+        <animate 
+          attributeName="fill" 
+          values="none;currentColor;none" 
+          dur="5s" 
+          begin="2s"
+          repeatCount="indefinite" 
+        />
+      </rect>
+    </svg>
+  );
+}
+
 export function KakViorBot() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -264,8 +329,9 @@ export function KakViorBot() {
           {/* Header */}
           <div className="bg-accent/10 backdrop-blur-md p-4 flex items-center justify-between border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center animate-pulse">
-                <Bot size={24} className="text-background" />
+              <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center relative overflow-hidden group">
+                <div className="absolute inset-0 bg-accent/20 animate-pulse"></div>
+                <AnimatedBotIcon size={26} className="text-background relative z-10" />
               </div>
               <div>
                 <h3 className="font-bold text-accent">Kak Vior</h3>
@@ -291,7 +357,7 @@ export function KakViorBot() {
                   "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
                   msg.sender === "user" ? "bg-white/10" : "bg-accent/20"
                 )}>
-                  {msg.sender === "user" ? <User size={14} className="text-white" /> : <Bot size={14} className="text-accent" />}
+                  {msg.sender === "user" ? <User size={14} className="text-white" /> : <AnimatedBotIcon size={16} className="text-accent" />}
                 </div>
                 <div className={cn(
                   "p-3 rounded-2xl text-sm whitespace-pre-line",
@@ -305,8 +371,8 @@ export function KakViorBot() {
             ))}
             {isTyping && (
               <div className="flex gap-3 max-w-[85%]">
-                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center animate-bounce">
-                  <Bot size={14} className="text-accent" />
+                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center relative overflow-hidden">
+                  <AnimatedBotIcon size={16} className="text-accent" />
                 </div>
                 <div className="bg-accent/10 border border-accent/20 p-3 rounded-2xl rounded-tl-none flex gap-1">
                   <span className="w-1.5 h-1.5 bg-accent/60 rounded-full animate-bounce"></span>
