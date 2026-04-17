@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect, ReactNode } from "react";
-import { MessageCircle, X, Send, Bot, User } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
 
 type Message = {
   id: string;
@@ -13,16 +15,76 @@ type Message = {
 };
 
 export function KakSeviBot() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       sender: "bot",
-      text: "Halo! Aku Kak Sevi, asisten virtual De Seviore. Ada yang bisa Kubantu terkait Pendaftaran, Berita Al-Azhar, atau Perpustakaan?",
+      text: "Halo! Aku Kak Sevi, asisten virtual De Seviore. Ada yang bisa kubantu terkait Pendaftaran, Berita Al-Azhar, atau Perpustakaan?",
     },
   ]);
   const [inputText, setInputText] = useState("");
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+
+  const startSpeechToText = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      toast({
+        title: "Browser Tidak Mendukung",
+        description: "Maaf, browsermu tidak mendukung fitur suara.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "id-ID";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast({
+        title: "Mendengarkan...",
+        description: "Silakan bicara sekarang.",
+      });
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInputText(transcript);
+      setIsListening(false);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech Rec Error:", event.error);
+      setIsListening(false);
+      if (event.error === 'not-allowed') {
+        toast({
+          title: "Izin Ditolak",
+          description: "Mohon izinkan akses mikrofon di browsermu.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+    recognitionRef.current = recognition;
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -104,13 +166,42 @@ export function KakSeviBot() {
       } else if (lowerInput.includes("alur") || lowerInput.includes("cara") || lowerInput.includes("step") || lowerInput.includes("daftar") || lowerInput.includes("pendaftaran")) {
         botResponse = "Berikut alur pendaftaran Ponpes Al-Azhar Purwakarta:\n1. Isi formulir pendaftaran di web resmi dengan data lengkap.\n2. Jika ada biaya pendaftaran, lakukan pembayaran melalui Bank atau Minimarket.\n3. Proses seleksi dapat dicek secara real time.\n4. Hasil penerimaan bisa dicek online menggunakan nomor pendaftaran.\n5. Peserta Diterima wajib melakukan daftar ulang untuk konfirmasi dan memperoleh Nomor Kartu.";
       } else if (lowerInput.includes("jadwal") || lowerInput.includes("kapan") || lowerInput.includes("gelombang")) {
-        botResponse = "Jadwal pendaftaran terbagi dua:\n- Gelombang 1: 1 Oktober 2025 s.d 13 Desember 2025\n- Gelombang 2: 15 Desember 2025 s.d 31 Juli 2026\nYuk! Jangan sampai ketinggalan.";
+        botResponse = "Jadwal pendaftaran terbagi dua:\n- Gelombang 1: 1 Oktober 2026 s.d 13 Desember 2026\n- Gelombang 2: 15 Desember 2026 s.d 31 Juli 2027\nYuk! Jangan sampai ketinggalan.";
       } else if (lowerInput.includes("berita") || lowerInput.includes("news") || lowerInput.includes("kegiatan") || lowerInput.includes("info")) {
         botResponse = "Kamu bisa mengecek berita terbaru Al-Azhar di menu 'Tentang Al-Azhar'. Di sana Kak Sevi sering membagikan info kegiatan, prestasi santri, dan pengumuman terbaru lho!";
       } else if (lowerInput.includes("perpus") || lowerInput.includes("kitab") || lowerInput.includes("buku") || lowerInput.includes("baca")) {
         botResponse = "Di menu 'Perpustakaan', kita punya banyak koleksi kitab digital karya ulama. Kamu cukup ketik judul atau nama pengarang di kolom pencarian, lalu klik 'Akses Kitab' untuk membacanya secara online.";
       } else if (lowerInput.includes("halo") || lowerInput.includes("hai") || lowerInput.includes("hi") || lowerInput.includes("assalam")) {
         botResponse = "Wa'alaikumussalam! Hai juga! Yuk tanya seputar Pendaftaran, Biaya, Jadwal, atau fasilitas lainnya.";
+      }
+
+      // Navigation Command Detection
+      const navWords = ["buka", "ke", "halaman", "lihat", "tampilkan", "akses"];
+      const isNav = navWords.some(word => lowerInput.includes(word));
+      
+      let targetPath = "";
+      if (isNav) {
+        if (lowerInput.includes("dashboard") || lowerInput.includes("admin")) {
+          targetPath = "/admin/dashboard";
+        } else if (lowerInput.includes("perpus") || lowerInput.includes("kitab") || lowerInput.includes("baca")) {
+          targetPath = "/alazhar/perpustakaan";
+        } else if (lowerInput.includes("daftar") || lowerInput.includes("pendaftaran") || lowerInput.includes("registrasi")) {
+          targetPath = "/alazhar/info-pendaftaran";
+        } else if (lowerInput.includes("tentang") || lowerInput.includes("sejarah") || lowerInput.includes("profil") || lowerInput.includes("berita")) {
+          targetPath = "/alazhar/tentang";
+        } else if (lowerInput.includes("album") || lowerInput.includes("galeri") || lowerInput.includes("foto") || lowerInput.includes("video")) {
+          targetPath = "/albums";
+        } else if (lowerInput.includes("anggota") || lowerInput.includes("member") || lowerInput.includes("santri")) {
+          targetPath = "/members";
+        }
+
+        if (targetPath) {
+          botResponse = `Siap! Langsung Kak Sevi antar ya...`;
+          setTimeout(() => {
+            router.push(targetPath);
+            setIsOpen(false);
+          }, 600);
+        }
       }
 
       const botMessage: Message = {
@@ -202,13 +293,25 @@ export function KakSeviBot() {
           {/* Input Area */}
           <div className="p-4 border-t border-white/10 bg-background/50">
             <form onSubmit={handleSendMessage} className="flex gap-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="icon" 
+                onClick={startSpeechToText}
+                className={cn(
+                  "shrink-0 border-white/20 hover:border-accent/40 transition-colors",
+                  isListening && "bg-accent/20 text-accent animate-pulse border-accent"
+                )}
+              >
+                {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+              </Button>
               <Input
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder="Ketik pertanyaanmu..."
+                placeholder={isListening ? "Mendengarkan..." : "Ketik pertanyaanmu..."}
                 className="bg-background/80 border-white/20"
               />
-              <Button type="submit" size="icon" disabled={!inputText.trim()} className="bg-accent text-background hover:bg-accent/80 shrink-0">
+              <Button type="submit" size="icon" disabled={!inputText.trim() || isListening} className="bg-accent text-background hover:bg-accent/80 shrink-0">
                 <Send size={18} />
               </Button>
             </form>

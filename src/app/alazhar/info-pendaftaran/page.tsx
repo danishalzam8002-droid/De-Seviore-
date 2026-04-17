@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ExternalLink, FileText, School } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { KakSeviBot } from "@/components/KakSeviBot";
+// KakSeviBot import removed as it is now in layout.tsx
 
 export default function InfoPendaftaranPage() {
   return (
@@ -49,7 +49,7 @@ export default function InfoPendaftaranPage() {
         </Card>
       </div>
 
-      <KakSeviBot />
+      {/* KakSeviBot removed as it is now in layout.tsx */}
     </main>
   );
 }

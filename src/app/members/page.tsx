@@ -7,7 +7,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Card, CardContent } from "@/components/ui/card";
 import { Instagram, Phone, MapPin, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, optimizeCloudinary } from "@/lib/utils";
 import {
   Carousel,
   CarouselContent,
@@ -73,7 +73,7 @@ function MembersPage() {
                     <Card className="glass-card overflow-hidden group h-full cursor-pointer hover:border-accent/50 transition-colors">
                       <div className="relative h-96 overflow-hidden">
                         <Image
-                          src={member.image_url || "https://picsum.photos/seed/default/400/500"}
+                          src={optimizeCloudinary(member.image_url || "https://picsum.photos/seed/default/400/500", 600)}
                           alt={member.name}
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -115,7 +115,7 @@ function MembersPage() {
                     {/* Left: Full Image */}
                     <div className="relative w-full md:w-1/2 h-64 md:h-full">
                       <Image
-                        src={member.imageUrl || "https://picsum.photos/seed/default/400/500"}
+                        src={optimizeCloudinary(member.imageUrl || member.image_url || "https://picsum.photos/seed/default/400/500", 1200)}
                         alt={member.name}
                         fill
                         className="object-cover"

@@ -7,12 +7,42 @@ import { CheckCircle, XCircle, Info, Users, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Badge } from "@/components/ui/badge";
 
+import { useRouter } from "next/navigation";
+
 export default function DebugPage() {
+  const router = useRouter();
   const [envStatus, setEnvStatus] = useState<Record<string, { set: boolean; value?: string }>>({});
   const [authState, setAuthState] = useState<{ user: any; session: any; loading: boolean }>({ user: null, session: null, loading: true });
 
   useEffect(() => {
-    // Check Env
+    // Check Auth and Role
+    const checkAccess = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        router.push("/login");
+        return;
+      }
+
+      // Check if user is in 'admins' table
+      const { data: adminData } = await supabase
+        .from('admins')
+        .select('role')
+        .eq('email', session.user.email)
+        .single();
+
+      if (!adminData) {
+        router.push("/");
+        return;
+      }
+
+      setAuthState({
+        user: session.user,
+        session: session,
+        loading: false,
+      });
+    };
+    checkAccess();
     const checkEnv = () => {
       const status: Record<string, { set: boolean; value?: string }> = {
         "NEXT_PUBLIC_SUPABASE_URL": { 

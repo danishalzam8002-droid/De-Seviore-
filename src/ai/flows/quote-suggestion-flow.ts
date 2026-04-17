@@ -39,10 +39,8 @@ const quoteSuggestionFlow = ai.defineFlow(
     outputSchema: QuoteSuggestionOutputSchema,
   },
   async (input) => {
-    console.log("Executing quoteSuggestionFlow with input:", input);
     try {
       const { output } = await quoteSuggestionPrompt(input);
-      console.log("Gemini Output:", output);
       return output!;
     } catch (err) {
       console.error("Genkit/Gemini Error:", err);

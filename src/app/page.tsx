@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/carousel";
 import { useUser } from "@/hooks/use-supabase-user";
 import { supabase } from "@/lib/supabase";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const { user } = useUser();
@@ -118,54 +119,95 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
         </div>
         
-        <div className="relative z-10 text-center px-4 space-y-2">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="relative z-10 text-center px-4 space-y-2"
+        >
           {logo && (
-            <div className="mx-auto w-48 h-48 md:w-64 md:h-64 relative mb-2 animate-in fade-in zoom-in duration-1000">
+            <motion.div 
+              initial={{ rotate: -10, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 1 }}
+              className="mx-auto w-48 h-48 md:w-64 md:h-64 relative mb-2"
+            >
               <Image
                 src={logo.imageUrl}
                 alt="Logo De Seviore"
                 fill
                 className="object-contain drop-shadow-[0_0_20px_rgba(26,204,230,0.3)]"
               />
-            </div>
+            </motion.div>
           )}
           <h1 className="font-headline font-bold accent-glow tracking-tight flex flex-col items-center gap-2">
-            <span className="text-3xl md:text-5xl font-normal opacity-90">
+            <motion.span 
+              initial={{ x: -50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+              className="text-3xl md:text-5xl font-normal opacity-90"
+            >
               {user ? `Halo ${(user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin').replace(/[0-9]/g, '')}, Selamat datang di` : 'Selamat datang di'}
-            </span>
-            <span className="text-5xl md:text-8xl">Seviore Space</span>
+            </motion.span>
+            <motion.span 
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.8 }}
+              className="text-5xl md:text-8xl"
+            >
+              Seviore Space
+            </motion.span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light italic mt-4">
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 1 }}
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light italic mt-4"
+          >
             Powered by : "Al-Azhar Seventh Generation"
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </section>
 
       {/* History & Philosophy */}
       <section className="container mx-auto px-6 pb-6 pt-20 grid md:grid-cols-2 gap-12">
-        <Card className="glass-card">
-          <CardContent className="p-8 space-y-4">
-            <div className="flex items-center gap-3 text-accent mb-4">
-              <History className="w-8 h-8" />
-              <h2 className="text-3xl font-headline font-bold">Sejarah Kami</h2>
-            </div>
-            <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap">
-              {batchInfo.history}
-            </p>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <Card className="glass-card h-full">
+            <CardContent className="p-8 space-y-4">
+              <div className="flex items-center gap-3 text-accent mb-4">
+                <History className="w-8 h-8" />
+                <h2 className="text-3xl font-headline font-bold">Sejarah Kami</h2>
+              </div>
+              <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap">
+                {batchInfo.history}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <Card className="glass-card">
-          <CardContent className="p-8 space-y-4">
-            <div className="flex items-center gap-3 text-accent mb-4">
-              <Shield className="w-8 h-8" />
-              <h2 className="text-3xl font-headline font-bold">Filosofi</h2>
-            </div>
-            <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap">
-              {batchInfo.philosophy}
-            </p>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <Card className="glass-card h-full">
+            <CardContent className="p-8 space-y-4">
+              <div className="flex items-center gap-3 text-accent mb-4">
+                <Shield className="w-8 h-8" />
+                <h2 className="text-3xl font-headline font-bold">Filosofi</h2>
+              </div>
+              <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap">
+                {batchInfo.philosophy}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
       </section>
 
       {/* School Affiliation */}

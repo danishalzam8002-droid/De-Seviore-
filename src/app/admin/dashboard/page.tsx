@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/use-supabase-user";
@@ -21,7 +20,18 @@ import { Plus, Pencil, Trash2, Save, X, Image as ImageIcon, Users, BookOpen, Vid
 import { QuoteGenerator } from "@/components/QuoteGenerator";
 import { UsageMonitor } from "@/components/admin/UsageMonitor";
 import { toast } from "@/hooks/use-toast";
-import { Activity, Bell, FileCheck, Check, X as XMark } from "lucide-react";
+import { Activity, Bell, FileCheck, Check, X as XMark, LayoutDashboard } from "lucide-react";
+import { Member, Kitab, Album, GalleryItem, AdminRole, AdminRequest } from "@/types";
+import { motion, AnimatePresence } from "framer-motion";
+
+// Import Refactored Tabs with Dynamic Loading
+const MembersTab = dynamic(() => import("@/components/admin/tabs/MembersTab").then(mod => mod.MembersTab), { ssr: false });
+const GalleryTab = dynamic(() => import("@/components/admin/tabs/GalleryTab").then(mod => mod.GalleryTab), { ssr: false });
+const AlbumsTab = dynamic(() => import("@/components/admin/tabs/AlbumsTab").then(mod => mod.AlbumsTab), { ssr: false });
+const LibraryTab = dynamic(() => import("@/components/admin/tabs/LibraryTab").then(mod => mod.LibraryTab), { ssr: false });
+const AccessTab = dynamic(() => import("@/components/admin/tabs/AccessTab").then(mod => mod.AccessTab), { ssr: false });
+const RequestsTab = dynamic(() => import("@/components/admin/tabs/RequestsTab").then(mod => mod.RequestsTab), { ssr: false });
+const MonitoringTab = dynamic(() => import("@/components/admin/tabs/MonitoringTab").then(mod => mod.MonitoringTab), { ssr: false });
 
 
 
@@ -51,8 +61,7 @@ function AdminDashboard() {
   const [newAdmin, setNewAdmin] = useState({ email: "", password: "", role: "Member" });
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
   const [requests, setRequests] = useState<any[]>([]);
-  const rawRole = adminRoles.find(a => a.email === user?.email)?.role;
-  const currentUserRole = (rawRole === 'Admin' || rawRole === 'Admin Utama' || rawRole === 'Admin Konten' || rawRole === 'Moderator') ? 'Admin' : 'Member';
+  const currentUserRole = adminRoles.find(a => a.email === user?.email)?.role || 'Member';
 
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; title: string; description: string; onConfirm: () => void }>({
     open: false,
@@ -94,7 +103,7 @@ function AdminDashboard() {
 
         // Fetch Requests if Admin
         const { data: adminCheck } = await supabase.from('admins').select('role').eq('email', user?.email).single();
-        if (adminCheck?.role === 'Admin') {
+        if (adminCheck?.role === 'Admin' || adminCheck?.role === 'Admin Utama') {
           const { data: requestData } = await supabase.from('requests').select('*').eq('status', 'pending').order('created_at', { ascending: false });
           setRequests(requestData || []);
         }
@@ -577,7 +586,7 @@ function AdminDashboard() {
             setAdminRoles([...adminRoles, roleData]);
           }
 
-          setNewAdmin({ email: "", password: "", role: "Moderator" });
+          setNewAdmin({ email: "", password: "", role: "Member" });
           toast({ title: "Akses Ditambahkan", description: "Admin baru berhasil didaftarkan." });
         } catch (error: any) {
           console.error(error);
@@ -627,6 +636,23 @@ function AdminDashboard() {
     }
   };
 
+  const handleUpdateAdmin = async (id: string, newRole: string) => {
+    try {
+      const { error } = await supabase
+        .from('admins')
+        .update({ role: newRole })
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setAdminRoles(adminRoles.map(a => a.id === id ? { ...a, role: newRole } : a));
+      toast({ title: "Role Diperbarui", description: "Hak akses admin telah diperbarui." });
+    } catch (err: any) {
+      console.error(err);
+      toast({ title: "Gagal Memperbarui", description: err.message, variant: "destructive" });
+    }
+  };
+
   const handleDeleteAdmin = async (adminId: string) => {
     if (!confirm("Hapus akun akses ini?")) return;
     try {
@@ -654,20 +680,37 @@ function AdminDashboard() {
       <Navbar />
 
       <div className="container mx-auto px-6 py-20">
-        <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <motion.header 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6"
+        >
           <div>
             <h1 className="text-4xl md:text-6xl font-headline font-bold accent-glow">
-              {currentUserRole === 'Admin' ? "Dashboard Admin" : "Dashboard Member"}
+              {(currentUserRole === 'Admin' || currentUserRole === 'Admin Utama') ? "Dashboard Admin" : "Dashboard Member"}
             </h1>
-            <p className="text-muted-foreground text-lg mt-2">
-              {currentUserRole === 'Admin' 
+            <p className="text-muted-foreground text-lg mt-2 font-light">
+              {(currentUserRole === 'Admin' || currentUserRole === 'Admin Utama')
                 ? "Kelola semua data dan setujui permintaan perubahan." 
                 : "Kontribusi data dan upload momen ke galeri."}
             </p>
+            {/* DEBUG INFO */}
+            <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-[10px] text-accent font-mono">
+              <span className="opacity-50">Debug:</span>
+              <span>{user?.email || 'No Email'}</span>
+              <span className="opacity-50">|</span>
+              <span className="font-bold uppercase tracking-widest">{currentUserRole}</span>
+            </div>
           </div>
-        </header>
+        </motion.header>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.8 }}
+        >
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <TabsList className="bg-card border border-white/10 p-1 w-full md:w-auto">
             <TabsTrigger value="members" className="data-[state=active]:bg-accent data-[state=active]:text-background">
               <Users className="w-4 h-4 mr-2" /> Anggota
@@ -682,12 +725,12 @@ function AdminDashboard() {
               <Camera className="w-4 h-4 mr-2" /> Album
             </TabsTrigger>
             <TabsTrigger value="library" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-              <BookOpen className="w-4 h-4 mr-2" /> Perpustakaan
+              <BookOpen className="w-4 h-4 mr-2" /> Pendidikan
             </TabsTrigger>
-            {currentUserRole === 'Admin' && (
+            {(currentUserRole === 'Admin' || currentUserRole === 'Admin Utama') && (
               <>
                 <TabsTrigger value="access" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-                  <Key className="w-4 h-4 mr-2" /> {currentUserRole === 'Admin' ? "Akses Login" : "Profil Saya"}
+                  <Key className="w-4 h-4 mr-2" /> {(currentUserRole === 'Admin' || currentUserRole === 'Admin Utama') ? "Akses Login" : "Profil Saya"}
                 </TabsTrigger>
                 <TabsTrigger value="requests" className="data-[state=active]:bg-accent data-[state=active]:text-background relative">
                   <Bell className="w-4 h-4 mr-2" /> Permintaan
@@ -704,696 +747,132 @@ function AdminDashboard() {
             )}
           </TabsList>
 
-          <TabsContent value="members" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="glass-card md:col-span-1 h-fit">
-                <CardHeader>
-                  <CardTitle>{editingMember ? "Ubah Anggota" : "Tambah Anggota"}</CardTitle>
-                  <CardDescription>Masukkan rincian biografi individu.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Nama Lengkap</Label>
-                      <Input
-                        value={editingMember ? editingMember.name : newMember.name}
-                        onChange={(e) => editingMember ? setEditingMember({ ...editingMember, name: e.target.value }) : setNewMember({ ...newMember, name: e.target.value })}
-                        className="bg-background/50"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Peran</Label>
-                      <Select
-                        value={editingMember ? editingMember.role || "Anggota" : newMember.role}
-                        onValueChange={(value) => editingMember ? setEditingMember({ ...editingMember, role: value }) : setNewMember({ ...newMember, role: value })}
-                      >
-                        <SelectTrigger className="bg-background/50">
-                          <SelectValue placeholder="Pilih Peran" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Anggota">Anggota</SelectItem>
-                          <SelectItem value="Ketua">Ketua</SelectItem>
-                          <SelectItem value="Pengajar">Pengajar</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Tempat Lahir</Label>
-                      <Input
-                        value={editingMember ? editingMember.pob : newMember.pob}
-                        onChange={(e) => editingMember ? setEditingMember({ ...editingMember, pob: e.target.value }) : setNewMember({ ...newMember, pob: e.target.value })}
-                        className="bg-background/50"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Tanggal Lahir</Label>
-                      <Input
-                        type="date"
-                        value={editingMember ? editingMember.dob : newMember.dob}
-                        onChange={(e) => editingMember ? setEditingMember({ ...editingMember, dob: e.target.value }) : setNewMember({ ...newMember, dob: e.target.value })}
-                        className="bg-background/50"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Telepon</Label>
-                    <Input
-                      value={editingMember ? editingMember.phone : newMember.phone}
-                      onChange={(e) => editingMember ? setEditingMember({ ...editingMember, phone: e.target.value }) : setNewMember({ ...newMember, phone: e.target.value })}
-                      className="bg-background/50"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Username Instagram</Label>
-                    <Input
-                      value={editingMember ? editingMember.ig : newMember.ig}
-                      onChange={(e) => editingMember ? setEditingMember({ ...editingMember, ig: e.target.value }) : setNewMember({ ...newMember, ig: e.target.value })}
-                      placeholder="@username"
-                      className="bg-background/50"
-                    />
-                  </div>
-
-                  <div className="space-y-2 pt-2 border-t border-white/10">
-                    <Label>Foto Profil</Label>
-                    <div className="flex items-center gap-4">
-                      { (newMember.image_url) && (
-                        <div className="relative group/img">
-                          <img 
-                            src={newMember.image_url} 
-                            alt="Profile Preview" 
-                            className="w-16 h-16 rounded-full object-cover border border-white/20" 
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setNewMember({ ...newMember, image_url: "" });
-                            }}
-                            className="absolute -top-1 -right-1 bg-destructive text-white rounded-full p-1 opacity-0 group-hover/img:opacity-100 transition-opacity shadow-lg"
-                            title="Batalkan / Hapus Foto"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      )}
-                      <div className="flex-1 space-y-2">
-                        <Label htmlFor="image-upload" className="cursor-pointer">
-                          <div className="flex items-center justify-center gap-2 border border-dashed border-white/20 p-4 rounded-md hover:bg-white/5 transition-colors">
-                            <Upload className="w-4 h-4 text-accent" />
-                            <span className="text-sm font-medium">
-                              {selectedMemberFile ? selectedMemberFile.name : "Pilih Foto untuk Profil"}
-                            </span>
-                          </div>
-                        </Label>
-                        <Input
-                          id="image-upload"
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageUpload(e, 'member')}
-                          disabled={isUploading}
-                          className="hidden"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-2 pt-4 border-t border-white/10">
-                    <Label>Kutipan Pribadi ('Kata-kata')</Label>
-                    <QuoteGenerator
-                      onQuoteGenerated={(quote) => {
-                        console.log("Setting auto-quote:", quote);
-                        setNewMember({ ...newMember, quote });
-                      }}
-                    />
-                    <Textarea
-                      value={newMember.quote}
-                      onChange={(e) => setNewMember({ ...newMember, quote: e.target.value })}
-                      className="bg-background/50 h-24 mt-2"
-                      placeholder="Masukkan kutipan atau buat dengan AI di atas..."
-                    />
-                  </div>
-
-                  <Button onClick={handleSaveMember} className="w-full bg-accent text-background font-bold uppercase tracking-wider py-6 mt-4">
-                    <Plus className="w-4 h-4 mr-2" /> Tambah Anggota Baru
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-card md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Direktori Anggota</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-white/10 hover:bg-transparent">
-                        <TableHead className="text-accent">Nama</TableHead>
-                        <TableHead className="text-accent">Kontak</TableHead>
-                        <TableHead className="text-accent text-right">Aksi</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {members.map((m) => (
-                        <TableRow key={m.id} className="border-white/10 hover:bg-white/5">
-                          <TableCell>
-                            <div className="font-bold">{m.name}</div>
-                            <div className="text-xs text-accent">{m.role || "Anggota"}</div>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground text-xs">
-                            {m.phone}<br />{m.ig}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button 
-                                size="icon" 
-                                variant="ghost" 
-                                onClick={() => {
-                                  setEditingMember(m);
-                                  setIsEditModalOpen(true);
-                                }} 
-                                className="h-8 w-8 hover:text-accent"
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </Button>
-                              <Button size="icon" variant="ghost" onClick={() => handleDeleteMember(m.id)} className="h-8 w-8 hover:text-destructive">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {members.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">Belum ada anggota terdaftar.</TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
+          <TabsContent value="members">
+            <MembersTab 
+              members={members} 
+              onSave={handleSaveMember} 
+              onDelete={handleDeleteMember}
+              isUploading={isUploading}
+              uploadProgress={uploadProgress}
+            />
           </TabsContent>
 
-          <TabsContent value="content" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <Card className="glass-card max-w-3xl mx-auto">
-              <CardHeader>
-                <CardTitle>Lore, Nilai & Media Angkatan</CardTitle>
-                <CardDescription>Perbarui sejarah, filosofi, dan video kenangan yang ditampilkan di halaman beranda.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label>Teks Sejarah</Label>
-                  <Textarea
-                    value={batchContent.history}
-                    onChange={(e) => setBatchContent({ ...batchContent, history: e.target.value })}
-                    className="bg-background/50 h-32"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Teks Filosofi</Label>
-                  <Textarea
-                    value={batchContent.philosophy}
-                    onChange={(e) => setBatchContent({ ...batchContent, philosophy: e.target.value })}
-                    className="bg-background/50 h-32"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Video className="w-4 h-4 text-accent" />
-                    URL Video Kenangan (Embed YouTube)
-                  </Label>
-                  <Input
-                    value={batchContent.videoUrl}
-                    onChange={(e) => setBatchContent({ ...batchContent, videoUrl: e.target.value })}
-                    placeholder="Contoh: https://www.youtube.com/embed/XXXXXX"
-                    className="bg-background/50"
-                  />
-                  <p className="text-[10px] text-muted-foreground italic">Gunakan link 'Embed' dari YouTube untuk hasil terbaik.</p>
-                </div>
-                <Button onClick={handleUpdateBatchContent} className="w-full bg-accent text-background font-bold uppercase tracking-wider py-6">
-                  <Save className="w-5 h-5 mr-2" /> Simpan dan Unggah Perubahan
-                </Button>
-              </CardContent>
-            </Card>
+          <TabsContent value="content">
+             <Card className="glass-card max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <CardHeader>
+                 <CardTitle>Lore, Nilai & Media Angkatan</CardTitle>
+                 <CardDescription>Perbarui sejarah, filosofi, dan video kenangan yang ditampilkan di halaman beranda.</CardDescription>
+               </CardHeader>
+               <CardContent className="space-y-6">
+                 <div className="space-y-2">
+                   <Label>Teks Sejarah</Label>
+                   <Textarea
+                     value={batchContent.history}
+                     onChange={(e) => setBatchContent({ ...batchContent, history: e.target.value })}
+                     className="bg-background/50 h-32"
+                   />
+                 </div>
+                 <div className="space-y-2">
+                   <Label>Teks Filosofi</Label>
+                   <Textarea
+                     value={batchContent.philosophy}
+                     onChange={(e) => setBatchContent({ ...batchContent, philosophy: e.target.value })}
+                     className="bg-background/50 h-32"
+                   />
+                 </div>
+                 <div className="space-y-2">
+                   <Label className="flex items-center gap-2">
+                     <Video className="w-4 h-4 text-accent" />
+                     URL Video Kenangan (Embed YouTube)
+                   </Label>
+                   <Input
+                     value={batchContent.videoUrl}
+                     onChange={(e) => setBatchContent({ ...batchContent, videoUrl: e.target.value })}
+                     placeholder="Contoh: https://www.youtube.com/embed/XXXXXX"
+                     className="bg-background/50"
+                   />
+                   <p className="text-[10px] text-muted-foreground italic">Gunakan link 'Embed' dari YouTube untuk hasil terbaik.</p>
+                 </div>
+                 <Button onClick={handleUpdateBatchContent} className="w-full bg-accent text-background font-bold uppercase tracking-wider py-6">
+                   <Save className="w-5 h-5 mr-2" /> Simpan dan Unggah Perubahan
+                 </Button>
+               </CardContent>
+             </Card>
           </TabsContent>
 
-          <TabsContent value="gallery" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <Card className="glass-card max-w-md">
-              <CardHeader>
-                <CardTitle>Unggah Momen Baru</CardTitle>
-                <CardDescription>Beri judul dan pilih foto untuk dibagikan.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Judul Momen</Label>
-                  <Input
-                    placeholder="Contoh: Rapat Angkatan"
-                    value={galleryTitle}
-                    onChange={(e) => setGalleryTitle(e.target.value)}
-                    className="bg-background/50"
-                  />
-                </div>
-                <div className="relative aspect-video border-2 border-dashed border-white/20 rounded-xl flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-accent hover:text-accent transition-colors cursor-pointer group overflow-hidden">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, 'gallery')}
-                    disabled={isUploading}
-                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                  />
-                  {isUploading ? (
-                    <div className="text-center">
-                      <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-accent" />
-                      <span className="text-sm font-bold">{Math.round(uploadProgress)}%</span>
-                    </div>
-                  ) : (
-                    <>
-                      <Plus className="w-8 h-8 group-hover:scale-110 transition-transform" />
-                      <span className="text-sm font-bold uppercase">Pilih Foto</span>
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {galleryItems.map((item) => (
-                <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 group">
-                  <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 text-center gap-2">
-                    <p className="text-[10px] font-bold text-white uppercase">{item.title}</p>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => {
-                        if (confirm("Hapus foto ini dari galeri?")) {
-                          handleDeleteGallery(item.id);
-                        }
-                      }}
-                      className="h-7 px-2 text-[8px] font-bold uppercase tracking-wider"
-                    >
-                      <Trash2 className="w-3 h-3 mr-1" /> Hapus
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <TabsContent value="gallery">
+            <GalleryTab 
+              galleryItems={galleryItems}
+              onUpload={(file, title) => {
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
+                formData.append("folder", "gallery");
+                setGalleryTitle(title);
+                startUpload(formData, 'gallery');
+              }}
+              onDelete={handleDeleteGallery}
+              isUploading={isUploading}
+              uploadProgress={uploadProgress}
+            />
           </TabsContent>
 
-          <TabsContent value="library" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="glass-card md:col-span-1 h-fit">
-                <CardHeader>
-                  <CardTitle>Unggah Kitab</CardTitle>
-                  <CardDescription>Tambahkan kitab baru ke perpustakaan online.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Judul Kitab</Label>
-                    <Input
-                      value={newKitab.title}
-                      onChange={(e) => setNewKitab({ ...newKitab, title: e.target.value })}
-                      placeholder="Contoh: Safinatun Najah"
-                      className="bg-background/50"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Penyusun / Penulis</Label>
-                    <Input
-                      value={newKitab.author}
-                      onChange={(e) => setNewKitab({ ...newKitab, author: e.target.value })}
-                      placeholder="Contoh: Syekh Salim bin Sumair"
-                      className="bg-background/50"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Kategori</Label>
-                    <Select value={newKitab.category} onValueChange={(val) => setNewKitab({ ...newKitab, category: val })}>
-                      <SelectTrigger className="bg-background/50 border-white/20">
-                        <SelectValue placeholder="Pilih Kategori" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Fiqih">Fiqih</SelectItem>
-                        <SelectItem value="Aqidah">Aqidah</SelectItem>
-                        <SelectItem value="Akhlaq / Tasawuf">Akhlaq / Tasawuf</SelectItem>
-                        <SelectItem value="Tafsir">Tafsir</SelectItem>
-                        <SelectItem value="Hadits">Hadits</SelectItem>
-                        <SelectItem value="Sejarah / Sirah">Sejarah / Sirah</SelectItem>
-                        <SelectItem value="Nahwu / Shorof">Nahwu / Shorof</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Tautan File (URL)</Label>
-                    <Input
-                      value={newKitab.file_url}
-                      onChange={(e) => setNewKitab({ ...newKitab, file_url: e.target.value })}
-                      placeholder="https://link-ke-file-pdf.com"
-                      className="bg-background/50"
-                    />
-                  </div>
-                  <div className="pt-2">
-                    <Button onClick={handleSaveKitab} className="w-full bg-accent text-background font-bold uppercase tracking-wider">
-                      <Save className="w-4 h-4 mr-2" /> Simpan dan Unggah Kitab
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-card md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Daftar Kitab</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-white/10 hover:bg-transparent">
-                        <TableHead className="text-accent">Informasi Kitab</TableHead>
-                        <TableHead className="text-accent">Kategori</TableHead>
-                        <TableHead className="text-accent text-right">Aksi</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {kitabs.map((k) => (
-                        <TableRow key={k.id} className="border-white/10 hover:bg-white/5">
-                          <TableCell>
-                            <div className="font-bold">{k.title}</div>
-                            <div className="text-xs text-muted-foreground">{k.author}</div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="text-sm">{k.category}</div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button size="icon" variant="ghost" onClick={() => handleDeleteKitab(k.id)} className="h-8 w-8 hover:text-destructive">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {kitabs.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">Belum ada kitab terdaftar.</TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          {currentUserRole === 'Admin' && (
-            <TabsContent value="access" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="glass-card md:col-span-1 h-fit">
-                <CardHeader>
-                  <CardTitle>Beri Akses Admin</CardTitle>
-                  <CardDescription>Buat akun login baru (email & password) untuk pengurus lain agar dapat masuk ke konsol ini.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Email</Label>
-                    <Input
-                      type="email"
-                      value={newAdmin.email}
-                      onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
-                      placeholder="pengurus@domain.com"
-                      className="bg-background/50"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Kata Sandi</Label>
-                    <Input
-                      type="password"
-                      value={newAdmin.password}
-                      onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
-                      placeholder="Minimal 6 karakter"
-                      className="bg-background/50"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Peran / Jabatan Admin</Label>
-                    <Select value={newAdmin.role} onValueChange={(val) => setNewAdmin({ ...newAdmin, role: val })}>
-                      <SelectTrigger className="bg-background/50 border-white/20">
-                        <SelectValue placeholder="Pilih Peran" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Admin">Admin</SelectItem>
-                        <SelectItem value="Member">Member</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="pt-2">
-                    <Button
-                      onClick={handleCreateAdmin}
-                      disabled={isCreatingAdmin}
-                      className="w-full bg-accent text-background font-bold uppercase tracking-wider"
-                    >
-                      {isCreatingAdmin ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                      {isCreatingAdmin ? "Menyimpan..." : "Simpan dan Unggah Akses"}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-card md:col-span-2 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-10 blur-xl pointer-events-none">
-                  <Key className="w-64 h-64 text-accent" />
-                </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle>Daftar Pengurus Admin</CardTitle>
-                  <CardDescription>Daftar akun yang berhak mengakses Konsol Admin ini.</CardDescription>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-white/10 hover:bg-transparent">
-                        <TableHead className="text-accent">User Email</TableHead>
-                        <TableHead className="text-accent">Hak Akses / Peran</TableHead>
-                        {currentUserRole === 'Admin' && <TableHead className="text-accent text-right">Aksi</TableHead>}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {adminRoles.map((a) => (
-                        <TableRow key={a.id} className="border-white/10 hover:bg-white/5">
-                          <TableCell className="font-medium text-white">{a.email}</TableCell>
-                          <TableCell>
-                            <span className="inline-block px-2 py-1 bg-accent/20 text-accent text-xs rounded-md">
-                              {a.role}
-                            </span>
-                          </TableCell>
-                          {currentUserRole === 'Admin' && (
-                            <TableCell className="text-right">
-                              <Button 
-                                size="icon" 
-                                variant="ghost" 
-                                onClick={() => handleDeleteAdmin(a.id)}
-                                disabled={a.email === user?.email}
-                                className="h-8 w-8 hover:text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      ))}
-                      {adminRoles.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={2} className="text-center py-8 text-muted-foreground">
-                            Hanya Anda yang tercatat sebagai Admin saat ini (atau tidak ada data sekunder).
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          )}
-
-          <TabsContent value="albums" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle>Manajemen Album Kenangan</CardTitle>
-                <CardDescription>Upload cover album dan masukkan link download dari Google Drive.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Judul Album</Label>
-                      <Input
-                        placeholder="Contoh: Album Perpisahan 2024"
-                        value={newAlbum.title}
-                        onChange={(e) => setNewAlbum({ ...newAlbum, title: e.target.value })}
-                        className="bg-background/50 border-white/10"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Link Google Drive</Label>
-                      <Input
-                        placeholder="https://drive.google.com/..."
-                        value={newAlbum.driveLink}
-                        onChange={(e) => setNewAlbum({ ...newAlbum, driveLink: e.target.value })}
-                        className="bg-background/50 border-white/10"
-                      />
-                    </div>
-                    <Button onClick={handleAddAlbum} className="w-full bg-accent hover:bg-accent/80 text-background font-bold uppercase tracking-wider">
-                      {currentUserRole === 'Admin' ? "Simpan dan Unggah Album" : "Ajukan Unggah Album"}
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Cover Album</Label>
-                    <div className="relative aspect-video border-2 border-dashed border-white/20 rounded-xl flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-accent hover:text-accent transition-colors cursor-pointer group overflow-hidden bg-white/5">
-                      {newAlbum.imageUrl ? (
-                        <>
-                          <img src={newAlbum.imageUrl} alt="Cover Preview" className="absolute inset-0 w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); setNewAlbum({ ...newAlbum, imageUrl: "" }); }} className="h-8">
-                              Ganti Foto
-                            </Button>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleImageUpload(e, 'album' as any)}
-                            disabled={isUploading}
-                            className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                          />
-                          {isUploading ? (
-                            <div className="text-center">
-                              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-accent" />
-                              <span className="text-sm font-bold text-accent">{Math.round(uploadProgress)}%</span>
-                            </div>
-                          ) : (
-                            <>
-                              <Upload className="w-8 h-8 group-hover:scale-110 transition-transform mb-1" />
-                              <span className="text-sm font-bold uppercase">Pilih Cover</span>
-                            </>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-white/10 pt-8 mt-4">
-                  <h3 className="text-lg font-bold mb-6 uppercase tracking-wider text-accent flex items-center gap-2">
-                    <Camera className="w-5 h-5" /> Koleksi Album Terdaftar
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                    {albumItems.map((album) => (
-                      <div key={album.id} className="relative aspect-[3/4] rounded-xl overflow-hidden border border-white/10 group bg-card shadow-lg">
-                        <img src={album.image_url} alt={album.title} className="w-full h-full object-cover" />
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 transition-transform duration-300 translate-y-full group-hover:translate-y-0 text-left">
-                           <p className="text-[10px] font-bold text-white uppercase line-clamp-1 mb-2">
-                             {album.title}
-                           </p>
-                           <div className="text-[10px] text-accent mb-2 font-medium">
-                             Unduh & Lihat Album Kenangan
-                           </div>
-                           <div className="flex gap-2">
-                             <Button
-                               size="icon"
-                               variant="outline"
-                               onClick={() => window.open(album.drive_link, '_blank')}
-                               className="h-7 w-7 rounded-full border-white/20 bg-white/10 text-white hover:bg-accent hover:text-background"
-                             >
-                               <Upload className="w-3 h-3" />
-                             </Button>
-                             {currentUserRole === 'Admin' && (
-                               <Button
-                                 size="icon"
-                                 variant="destructive"
-                                 onClick={() => {
-                                   if (confirm("Hapus album ini?")) {
-                                     handleDeleteAlbum(album.id);
-                                   }
-                                 }}
-                                 className="h-7 w-7 rounded-full"
-                               >
-                                 <Trash2 className="w-3 h-3" />
-                               </Button>
-                             )}
-                           </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="albums">
+            <AlbumsTab 
+              albums={albumItems}
+              onAdd={(album) => {
+                setNewAlbum({ title: album.title!, driveLink: album.drive_link!, imageUrl: album.image_url! });
+                handleAddAlbum();
+              }}
+              onDelete={handleDeleteAlbum}
+              isUploading={isUploading}
+              uploadProgress={uploadProgress}
+            />
           </TabsContent>
 
-          {currentUserRole === 'Admin' && (
-            <TabsContent value="requests" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle>Permintaan Perubahan Data</CardTitle>
-                  <CardDescription>Daftar perubahan yang diajukan oleh Member yang memerlukan persetujuan Admin.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableCell className="font-bold uppercase tracking-wider text-xs">Halaman</TableCell>
-                        <TableCell className="font-bold uppercase tracking-wider text-xs">Aksi</TableCell>
-                        <TableCell className="font-bold uppercase tracking-wider text-xs">Oleh</TableCell>
-                        <TableCell className="font-bold uppercase tracking-wider text-xs text-right">Tindakan</TableCell>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {requests.map((req) => (
-                        <TableRow key={req.id}>
-                          <TableCell className="capitalize font-medium">{req.table_name}</TableCell>
-                          <TableCell>
-                            <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
-                              req.action === 'CREATE' ? 'bg-green-500/20 text-green-400' : 
-                              req.action === 'UPDATE' ? 'bg-blue-500/20 text-blue-400' : 
-                              'bg-red-500/20 text-red-400'
-                            }`}>
-                              {req.action}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground text-sm">{req.requested_by}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button size="sm" onClick={() => handleApproveRequest(req)} className="bg-green-600 hover:bg-green-700 h-8 px-3 text-white">
-                                <Check className="w-4 h-4 mr-1" /> Setujui
-                              </Button>
-                              <Button size="sm" variant="destructive" onClick={() => handleRejectRequest(req.id)} className="h-8 px-3">
-                                <XMark className="w-4 h-4 mr-1" /> Tolak
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {requests.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
-                            <FileCheck className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                            <p className="font-medium">Tidak ada permintaan pending saat ini.</p>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
+          <TabsContent value="library">
+            <LibraryTab 
+              kitabs={kitabs}
+              onAdd={(kitab) => {
+                setNewKitab(kitab as any);
+                handleSaveKitab();
+              }}
+              onDelete={handleDeleteKitab}
+            />
+          </TabsContent>
 
-          {currentUserRole === 'Admin' && (
-            <TabsContent value="monitoring" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <UsageMonitor />
-            </TabsContent>
+          {(currentUserRole === 'Admin' || currentUserRole === 'Admin Utama') && (
+            <>
+              <TabsContent value="access">
+                <AccessTab 
+                  admins={adminRoles}
+                  onAddAdmin={(admin) => {
+                    setNewAdmin(admin);
+                    handleCreateAdmin();
+                  }}
+                  onDeleteAdmin={handleDeleteAdmin}
+                  onUpdateAdmin={handleUpdateAdmin}
+                  currentUserEmail={user?.email}
+                  isCreating={isCreatingAdmin}
+                />
+              </TabsContent>
+
+              <TabsContent value="requests">
+                <RequestsTab 
+                  requests={requests}
+                  onApprove={handleApproveRequest}
+                  onReject={handleRejectRequest}
+                />
+              </TabsContent>
+
+              <TabsContent value="monitoring">
+                <MonitoringTab />
+              </TabsContent>
+            </>
           )}
         </Tabs>
-      </div>
+      </motion.div>
+    </div>
       {/* Progress Upload Modal */}
       <AlertDialog open={(isUploading && selectedMemberFile !== null) || uploadStatus === 'success'}>
         <AlertDialogContent className="glass-card border-accent/20 max-w-sm">
@@ -1607,6 +1086,6 @@ function AdminDashboard() {
   );
 }
 
-export default dynamic(() => Promise.resolve(AdminDashboard), {
-  ssr: false
-});
+export default function AdminDashboardPage() {
+  return <AdminDashboard />;
+}
