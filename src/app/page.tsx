@@ -47,6 +47,10 @@ export default function Home() {
     Autoplay({ delay: 5000, stopOnInteraction: true })
   );
 
+  const galleryPlugin = useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: true })
+  );
+
   const [videoCarouselApi, setVideoCarouselApi] = useState<CarouselApi>();
 
   // Mouse tracking for Registration Section
@@ -508,7 +512,13 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-headline font-bold">Swipe The Moment!!</h2>
         </div>
         
-        <Carousel opts={{ align: "start", loop: true }} className="w-full">
+        <Carousel 
+          opts={{ align: "start", loop: true }} 
+          plugins={[galleryPlugin.current]}
+          onMouseEnter={galleryPlugin.current.stop}
+          onMouseLeave={galleryPlugin.current.reset}
+          className="w-full"
+        >
           <CarouselContent className="-ml-4">
             {gallery.length > 0 ? gallery.map((item) => (
               <CarouselItem key={item.id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
