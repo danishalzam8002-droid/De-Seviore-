@@ -394,7 +394,7 @@ export function KakViorBot() {
             <p>Untuk jadwal pendaftaran terupdate, Akang/Teteh bisa langsung cek di:</p>
             <ul className="list-disc pl-4 space-y-1">
               <li>Web Resmi: <a href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta#schedule" target="_blank" rel="noopener noreferrer" className="text-accent underline font-bold">alazharpwk.cazh.id</a></li>
-              <li>Instagram: <a href="https://www.instagram.com/azhart_tv_" target="_blank" rel="noopener noreferrer" className="text-accent underline font-bold">@azhart_tv_</a></li>
+              <li>Instagram: <a href="https://www.instagram.com/azhar_tv_" target="_blank" rel="noopener noreferrer" className="text-accent underline font-bold">@azhar_tv_</a></li>
             </ul>
             <p className="text-[10px] mt-2 italic text-white/60">Yuk! Jangan sampai ketinggalan gelombangnya ya.</p>
           </div>
