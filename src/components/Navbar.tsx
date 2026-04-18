@@ -46,26 +46,30 @@ export function Navbar() {
     >
       
       {/* 1. Beranda */}
-      <Link
-        href="/"
-        className={cn(
-          "flex flex-col items-center gap-1 transition-colors duration-200",
-          pathname === "/" ? "text-accent" : "text-muted-foreground hover:text-foreground"
-        )}
-      >
-        <Home size={20} />
-        <span className="text-[10px] font-bold uppercase tracking-widest">Beranda</span>
-      </Link>
+      <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+        <Link
+          href="/"
+          className={cn(
+            "flex flex-col items-center gap-1 transition-colors duration-200",
+            pathname === "/" ? "text-accent" : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Home size={20} />
+          <span className="text-[10px] font-bold uppercase tracking-widest">Beranda</span>
+        </Link>
+      </motion.div>
 
       {/* 2. Al-Azhar (Dropdown) */}
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors duration-200 outline-none">
-          <Building2 size={20} className={pathname.startsWith("/alazhar") ? "text-accent" : ""} />
-          <span className={cn(
-            "text-[10px] font-bold uppercase tracking-widest",
-             pathname.startsWith("/alazhar") ? "text-accent" : ""
-          )}>Al-Azhar</span>
-        </DropdownMenuTrigger>
+        <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+          <DropdownMenuTrigger className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors duration-200 outline-none">
+            <Building2 size={20} className={pathname.startsWith("/alazhar") ? "text-accent" : ""} />
+            <span className={cn(
+              "text-[10px] font-bold uppercase tracking-widest",
+               pathname.startsWith("/alazhar") ? "text-accent" : ""
+            )}>Al-Azhar</span>
+          </DropdownMenuTrigger>
+        </motion.div>
         <DropdownMenuContent 
           side="top" 
           sideOffset={16} 
@@ -118,43 +122,49 @@ export function Navbar() {
       </DropdownMenu>
 
       {/* 3. Anggota */}
-      <Link
-        href="/members"
-        className={cn(
-          "flex flex-col items-center gap-1 transition-colors duration-200",
-          pathname === "/members" ? "text-accent" : "text-muted-foreground hover:text-foreground"
-        )}
-      >
-        <Users size={20} />
-        <span className="text-[10px] font-bold uppercase tracking-widest">Anggota</span>
-      </Link>
+      <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+        <Link
+          href="/members"
+          className={cn(
+            "flex flex-col items-center gap-1 transition-colors duration-200",
+            pathname === "/members" ? "text-accent" : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Users size={20} />
+          <span className="text-[10px] font-bold uppercase tracking-widest">Anggota</span>
+        </Link>
+      </motion.div>
 
       {/* 4. Admin (Jika Login) */}
       {user && (
-        <Link
-          href="/admin/dashboard"
-          className={cn(
-            "flex flex-col items-center gap-1 transition-colors duration-200",
-            pathname.startsWith("/admin") ? "text-accent" : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <Settings size={20} />
-          <span className="text-[10px] font-bold uppercase tracking-widest">Admin</span>
-        </Link>
+        <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+          <Link
+            href="/admin/dashboard"
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors duration-200",
+              pathname.startsWith("/admin") ? "text-accent" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Settings size={20} />
+            <span className="text-[10px] font-bold uppercase tracking-widest">Admin</span>
+          </Link>
+        </motion.div>
       )}
 
       {/* 5. Auth (Masuk) - Hanya jika belum login */}
       {!user && (
-        <Link
-          href="/login"
-          className={cn(
-            "flex flex-col items-center gap-1 transition-colors duration-200",
-            pathname === "/login" ? "text-accent" : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <LogIn size={20} />
-          <span className="text-[10px] font-bold uppercase tracking-widest">Masuk</span>
-        </Link>
+        <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+          <Link
+            href="/login"
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors duration-200",
+              pathname === "/login" ? "text-accent" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <LogIn size={20} />
+            <span className="text-[10px] font-bold uppercase tracking-widest">Masuk</span>
+          </Link>
+        </motion.div>
       )}
     </motion.nav>
   );
