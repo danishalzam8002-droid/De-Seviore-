@@ -78,7 +78,8 @@ function MembersPage() {
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-80" />
+                        {/* Subtle bottom shadow for name readability */}
+                        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent" />
                         <div className="absolute bottom-6 left-6 right-6">
                           <h3 className="text-3xl font-headline font-bold mb-1">{member.name}</h3>
                           <Badge variant="outline" className="border-accent text-accent">{member.role || "Anggota"}</Badge>
@@ -120,7 +121,8 @@ function MembersPage() {
                         fill
                         className="object-cover"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-background to-transparent opacity-80 md:opacity-50" />
+                      {/* Subtle shadow for name readability */}
+                      <div className="absolute inset-x-0 bottom-0 h-1/3 md:h-full md:w-1/2 bg-gradient-to-t md:bg-gradient-to-r from-black/40 to-transparent" />
                     </div>
 
                     {/* Right: Content */}
