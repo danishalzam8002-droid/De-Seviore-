@@ -307,7 +307,7 @@ export function KakViorBot() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = (e?: React.FormEvent, customText?: string) => {
+  const handleSendMessage = async (e?: React.FormEvent, customText?: string) => {
     if (e) e.preventDefault();
     
     // Auto-stop mic if user clicks send while listening
