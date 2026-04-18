@@ -55,11 +55,24 @@ export default function Home() {
   const springX = useSpring(mouseX, { stiffness: 100, damping: 20 });
   const springY = useSpring(mouseY, { stiffness: 100, damping: 20 });
   const [isHovering, setIsHovering] = useState(false);
+  const [stars, setStars] = useState<{ id: number; x: number; y: number }[]>([]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    mouseX.set(e.clientX - rect.left);
-    mouseY.set(e.clientY - rect.top);
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    mouseX.set(x);
+    mouseY.set(y);
+
+    // Add a new star occasionally for performance
+    if (Math.random() > 0.7) {
+      const newStar = {
+        id: Date.now(),
+        x: x + (Math.random() - 0.5) * 40,
+        y: y + (Math.random() - 0.5) * 40,
+      };
+      setStars((prev) => [...prev.slice(-20), newStar]); // Keep only last 20 stars
+    }
   };
 
   useEffect(() => {
@@ -170,17 +183,51 @@ export default function Home() {
         >
           {logo && (
             <motion.div 
-              initial={{ rotate: -10, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 1 }}
-              className="mx-auto w-40 h-40 md:w-64 md:h-64 relative mb-2"
+              initial={{ rotate: -10, opacity: 0, scale: 0.8 }}
+              animate={{ 
+                rotate: [0, -3, 3, 0],
+                y: [0, -10, 0],
+                opacity: 1, 
+                scale: 1 
+              }}
+              whileHover={{ 
+                scale: 1.15,
+                rotate: [0, -8, 8, -5, 5, 0],
+                transition: {
+                  rotate: {
+                    repeat: Infinity,
+                    duration: 0.5,
+                    ease: "easeInOut"
+                  }
+                }
+              }}
+              whileTap={{ scale: 0.9, rotate: -15 }}
+              transition={{ 
+                delay: 0.3, 
+                duration: 1,
+                y: {
+                  repeat: Infinity,
+                  duration: 4,
+                  ease: "easeInOut"
+                }
+              }}
+              className="mx-auto w-40 h-40 md:w-64 md:h-64 relative mb-2 cursor-pointer group"
             >
               <Image
                 src={logo.imageUrl}
                 alt="Logo De Seviore"
                 fill
-                className="object-contain drop-shadow-[0_0_20px_rgba(26,204,230,0.3)]"
+                className="object-contain drop-shadow-[0_0_25px_rgba(26,204,230,0.5)] transition-all duration-500 group-hover:drop-shadow-[0_0_40px_rgba(26,204,230,0.8)]"
               />
+              {/* Abstract decorative particles around logo on hover */}
+              <motion.div 
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              >
+                <div className="absolute top-0 left-0 w-2 h-2 bg-accent rounded-full blur-[2px] animate-pulse" />
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-blue-400 rounded-full blur-[3px] animate-pulse delay-75" />
+              </motion.div>
             </motion.div>
           )}
           <h1 className="font-headline font-bold accent-glow tracking-tight flex flex-col items-center gap-2">
@@ -306,24 +353,40 @@ export default function Home() {
           viewport={{ once: true }}
           className="relative glass-card overflow-hidden rounded-[2rem] md:rounded-[3rem] p-1 shadow-2xl group/cta"
         >
-          {/* Enhanced Rainbow Shine Effect (Thin Streak) */}
+          {/* Enhanced Rainbow Shine Effect (Natural Glow + Stars) */}
           <AnimatePresence>
             {isHovering && (
-              <motion.div 
-                className="absolute z-30 pointer-events-none md:block hidden"
-                style={{
-                  left: springX,
-                  top: springY,
-                  translateX: "-50%",
-                  translateY: "-50%",
-                }}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-              >
-                <div className="w-[400px] h-[300px] bg-[conic-gradient(from_0deg,transparent_0deg,violet_60deg,indigo_120deg,blue_180deg,green_240deg,yellow_300deg,orange_360deg)] opacity-30 blur-[60px] animate-[spin_4s_linear_infinite]" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1px] h-[150px] bg-gradient-to-b from-transparent via-white to-transparent rotate-45 shadow-[0_0_15px_white]" />
-              </motion.div>
+              <>
+                <motion.div 
+                  className="absolute z-30 pointer-events-none md:block hidden"
+                  style={{
+                    left: springX,
+                    top: springY,
+                    translateX: "-50%",
+                    translateY: "-50%",
+                  }}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                >
+                  <div className="w-[400px] h-[300px] bg-[conic-gradient(from_0deg,transparent_0deg,violet_60deg,indigo_120deg,blue_180deg,green_240deg,yellow_300deg,orange_360deg)] opacity-20 blur-[80px] animate-[spin_6s_linear_infinite]" />
+                </motion.div>
+
+                {/* Sparkling Star Trail */}
+                {stars.map((star) => (
+                  <motion.div
+                    key={star.id}
+                    initial={{ opacity: 0, scale: 0, rotate: 0 }}
+                    animate={{ opacity: [0, 1, 0.5, 0], scale: [0, 1, 0.8, 0], rotate: 180 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    className="absolute z-40 pointer-events-none text-yellow-400/80 md:block hidden"
+                    style={{ left: star.x, top: star.y, translateX: "-50%", translateY: "-50%" }}
+                  >
+                    <Star size={Math.random() * 12 + 6} fill="currentColor" className="drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
+                  </motion.div>
+                ))}
+              </>
             )}
           </AnimatePresence>
 
