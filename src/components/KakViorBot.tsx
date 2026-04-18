@@ -340,7 +340,7 @@ export function KakViorBot() {
       const textVal = typeof userMessage.text === "string" ? userMessage.text : "";
       const lowerInput = textVal.toLowerCase();
 
-      } else if (lowerInput.includes("biaya") || lowerInput.includes("harga") || lowerInput.includes("bayar") || lowerInput.includes("rincian") || lowerInput.includes("daftar") || lowerInput.includes("pendaftaran") || lowerInput.includes("alur")) {
+      if (lowerInput.includes("biaya") || lowerInput.includes("harga") || lowerInput.includes("bayar") || lowerInput.includes("rincian") || lowerInput.includes("daftar") || lowerInput.includes("pendaftaran") || lowerInput.includes("alur")) {
         botResponse = (
           <div className="space-y-4">
             <p className="font-bold border-b border-accent/20 pb-2 text-white uppercase">Informasi Pendaftaran & Biaya</p>
