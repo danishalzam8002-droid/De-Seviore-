@@ -14,15 +14,35 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import { useState } from "react";
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useUser();
+  const [hidden, setHidden] = useState(false);
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const previous = scrollY.getPrevious() ?? 0;
+    if (latest > previous && latest > 150) {
+      setHidden(true);
+    } else {
+      setHidden(false);
+    }
+  });
 
   return (
-    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full glass-card border-white/20 flex items-center gap-8">
+    <motion.nav 
+      variants={{
+        visible: { y: 0, opacity: 1 },
+        hidden: { y: 100, opacity: 0 },
+      }}
+      animate={hidden ? "hidden" : "visible"}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full glass-card border-white/20 flex items-center gap-6 md:gap-8"
+    >
       
       {/* 1. Beranda */}
       <Link
@@ -135,6 +155,6 @@ export function Navbar() {
           <span className="text-[10px] font-bold uppercase tracking-widest">Masuk</span>
         </Link>
       )}
-    </nav>
+    </motion.nav>
   );
 }

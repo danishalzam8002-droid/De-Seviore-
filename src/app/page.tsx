@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/carousel";
 import { useUser } from "@/hooks/use-supabase-user";
 import { supabase } from "@/lib/supabase";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 
 export default function Home() {
   const { user } = useUser();
@@ -48,6 +48,19 @@ export default function Home() {
   );
 
   const [videoCarouselApi, setVideoCarouselApi] = useState<CarouselApi>();
+
+  // Mouse tracking for Registration Section
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springX = useSpring(mouseX, { stiffness: 100, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 100, damping: 20 });
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseX.set(e.clientX - rect.left);
+    mouseY.set(e.clientY - rect.top);
+  };
 
   useEffect(() => {
     const bgTimer = setInterval(() => {
@@ -119,11 +132,11 @@ export default function Home() {
   }, [videoCarouselApi]);
 
   return (
-    <main className="pb-32">
+    <main className="pb-40 md:pb-32 overflow-x-hidden">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <AnimatePresence mode="wait">
             <motion.div
@@ -153,14 +166,14 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="relative z-10 text-center px-4 space-y-2"
+          className="relative z-10 text-center px-6 space-y-2"
         >
           {logo && (
             <motion.div 
               initial={{ rotate: -10, opacity: 0 }}
               animate={{ rotate: 0, opacity: 1 }}
               transition={{ delay: 0.3, duration: 1 }}
-              className="mx-auto w-48 h-48 md:w-64 md:h-64 relative mb-2"
+              className="mx-auto w-40 h-40 md:w-64 md:h-64 relative mb-2"
             >
               <Image
                 src={logo.imageUrl}
@@ -175,7 +188,7 @@ export default function Home() {
               initial={{ x: -50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.8 }}
-              className="text-3xl md:text-5xl font-normal opacity-90"
+              className="text-2xl md:text-5xl font-normal opacity-90"
             >
               {user ? `Halo ${(user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin').replace(/[0-9]/g, '')}, Selamat datang di` : 'Selamat datang di'}
             </motion.span>
@@ -192,7 +205,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2, duration: 1 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light italic mt-4"
+            className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto font-light italic mt-4"
           >
             Powered by : "Al-Azhar Seventh Generation"
           </motion.p>
@@ -200,7 +213,7 @@ export default function Home() {
       </section>
 
       {/* History & Philosophy */}
-      <section className="container mx-auto px-6 pb-6 pt-20 grid md:grid-cols-2 gap-12">
+      <section className="container mx-auto px-6 pb-6 pt-12 md:pt-20 grid md:grid-cols-2 gap-8 md:gap-12">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -208,12 +221,12 @@ export default function Home() {
           transition={{ duration: 0.8 }}
         >
           <Card className="glass-card h-full">
-            <CardContent className="p-8 space-y-4">
+            <CardContent className="p-6 md:p-8 space-y-4">
               <div className="flex items-center gap-3 text-accent mb-4">
                 <History className="w-8 h-8" />
-                <h2 className="text-3xl font-headline font-bold">Sejarah Kami</h2>
+                <h2 className="text-2xl md:text-3xl font-headline font-bold">Sejarah Kami</h2>
               </div>
-              <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap">
+              <p className="text-muted-foreground leading-relaxed text-base md:text-lg whitespace-pre-wrap">
                 {batchInfo.history}
               </p>
             </CardContent>
@@ -227,12 +240,12 @@ export default function Home() {
           transition={{ duration: 0.8 }}
         >
           <Card className="glass-card h-full">
-            <CardContent className="p-8 space-y-4">
+            <CardContent className="p-6 md:p-8 space-y-4">
               <div className="flex items-center gap-3 text-accent mb-4">
                 <Shield className="w-8 h-8" />
-                <h2 className="text-3xl font-headline font-bold">Filosofi</h2>
+                <h2 className="text-2xl md:text-3xl font-headline font-bold">Filosofi</h2>
               </div>
-              <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap">
+              <p className="text-muted-foreground leading-relaxed text-base md:text-lg whitespace-pre-wrap">
                 {batchInfo.philosophy}
               </p>
             </CardContent>
@@ -241,14 +254,14 @@ export default function Home() {
       </section>
 
       {/* School Affiliation */}
-      <section className="container mx-auto px-6 py-6 flex justify-center">
-        <div className="glass-card flex flex-col items-center justify-center space-y-4 px-10 py-8 rounded-3xl w-fit shadow-xl border border-white/5 bg-background/30 backdrop-blur-md">
-          <p className="text-xl md:text-2xl font-bold text-muted-foreground/80 capitalize tracking-widest text-center">
+      <section className="container mx-auto px-6 py-6 md:py-12 flex justify-center">
+        <div className="glass-card flex flex-col items-center justify-center space-y-4 px-8 md:px-10 py-8 rounded-3xl w-full md:w-fit shadow-xl border border-white/5 bg-background/30 backdrop-blur-md overflow-hidden">
+          <p className="text-lg md:text-2xl font-bold text-muted-foreground/80 capitalize tracking-widest text-center">
             Student Of :
           </p>
-          <div className="flex items-center justify-center gap-6 md:gap-12">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12">
             {/* Logo Pondok (Kiri) */}
-            <div className="relative w-24 h-24 md:w-32 md:h-32 opacity-90 hover:opacity-100 transition-opacity duration-300">
+            <div className="relative w-20 h-20 md:w-32 md:h-32 opacity-90 hover:opacity-100 transition-opacity duration-300">
               <Image
                 src="/school-logo.png"
                 alt="School Logo"
@@ -258,7 +271,7 @@ export default function Home() {
             </div>
 
             {/* Logo Yayasan (Tengah) */}
-            <div className="relative w-24 h-24 md:w-32 md:h-32 opacity-90 hover:opacity-100 transition-opacity duration-300">
+            <div className="relative w-20 h-20 md:w-32 md:h-32 opacity-90 hover:opacity-100 transition-opacity duration-300">
               <Image
                 src="/logo-yayasan.jpg"
                 alt="Logo Yayasan"
@@ -268,7 +281,7 @@ export default function Home() {
             </div>
             
             {/* Logo MA (Kanan) */}
-            <div className="relative w-24 h-24 md:w-32 md:h-32 opacity-90 hover:opacity-100 transition-opacity duration-300">
+            <div className="relative w-20 h-20 md:w-32 md:h-32 opacity-90 hover:opacity-100 transition-opacity duration-300">
               <Image
                 src="/logo-ma.png"
                 alt="Logo MA"
@@ -281,44 +294,71 @@ export default function Home() {
       </section>
 
       {/* Registration CTA Section */}
-      <section className="container mx-auto px-6 py-20">
+      <section 
+        className="container mx-auto px-6 py-12 md:py-20"
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="relative glass-card overflow-hidden rounded-[3rem] p-1 shadow-2xl"
+          className="relative glass-card overflow-hidden rounded-[2rem] md:rounded-[3rem] p-1 shadow-2xl group/cta"
         >
+          {/* Enhanced Rainbow Shine Effect (Thin Streak) */}
+          <AnimatePresence>
+            {isHovering && (
+              <motion.div 
+                className="absolute z-30 pointer-events-none md:block hidden"
+                style={{
+                  left: springX,
+                  top: springY,
+                  translateX: "-50%",
+                  translateY: "-50%",
+                }}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0 }}
+              >
+                <div className="w-[400px] h-[300px] bg-[conic-gradient(from_0deg,transparent_0deg,violet_60deg,indigo_120deg,blue_180deg,green_240deg,yellow_300deg,orange_360deg)] opacity-30 blur-[60px] animate-[spin_4s_linear_infinite]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1px] h-[150px] bg-gradient-to-b from-transparent via-white to-transparent rotate-45 shadow-[0_0_15px_white]" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-transparent to-blue-500/10 opacity-50" />
-          <div className="relative z-10 bg-background/40 backdrop-blur-xl rounded-[2.9rem] p-8 md:p-16 text-center space-y-8 border border-white/10">
+          <div className="relative z-10 bg-background/40 backdrop-blur-xl rounded-[1.9rem] md:rounded-[2.9rem] p-8 md:p-16 text-center space-y-8 border border-white/10">
             <div className="flex justify-center gap-4 mb-4">
-               <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="p-3 bg-yellow-500/20 rounded-2xl text-yellow-500"><Star /></motion.div>
-               <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="p-3 bg-accent/20 rounded-2xl text-accent"><Sparkles /></motion.div>
-               <motion.div animate={{ rotate: [0, -10, 10, 0] }} transition={{ repeat: Infinity, duration: 2, delay: 0.5 }} className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-500"><Heart /></motion.div>
+               <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="p-2 md:p-3 bg-yellow-500/20 rounded-2xl text-yellow-500"><Star /></motion.div>
+               <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="p-2 md:p-3 bg-accent/20 rounded-2xl text-accent"><Sparkles /></motion.div>
+               <motion.div animate={{ rotate: [0, -10, 10, 0] }} transition={{ repeat: Infinity, duration: 2, delay: 0.5 }} className="p-2 md:p-3 bg-emerald-500/20 rounded-2xl text-emerald-500"><Heart /></motion.div>
             </div>
             
             <div className="space-y-4">
-              <h2 className="text-4xl md:text-6xl font-headline font-bold accent-glow">
-                Ayo Jadi Bagian <br/> dari Keluarga Al-Azhar! ✨
+              <h2 className="text-3xl md:text-6xl font-headline font-bold accent-glow leading-tight">
+                Ayo Jadi Bagian <br className="hidden md:block"/> dari Keluarga Al-Azhar! ✨
               </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
                 Pendaftaran santri baru sudah dibuka lho Akang & Teteh! Yuk, bergabung dengan ribuan santri lainnya untuk mencetak generasi Rabbani yang unggul. 🎓
               </p>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-3">
-              <div className="px-4 py-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-500 text-[10px] font-bold uppercase tracking-widest">Pondok Pesantren</div>
-              <div className="px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-500 text-[10px] font-bold uppercase tracking-widest">SDIT Al-Azhar</div>
-              <div className="px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-500 text-[10px] font-bold uppercase tracking-widest">SMP Islam Al-Azhar</div>
-              <div className="px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-widest">MA Unggulan Al-Azhar</div>
+            <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+              {["Pondok Pesantren", "SDIT Al-Azhar", "SMP Islam Al-Azhar", "MA Unggulan Al-Azhar"].map((unit, idx) => (
+                <div key={idx} className="px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-white/10 bg-white/5 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-white/70">
+                  {unit}
+                </div>
+              ))}
             </div>
 
-            <div className="pt-8">
-              <Button size="lg" className="h-16 px-12 rounded-2xl bg-accent text-background hover:bg-accent/90 shadow-xl shadow-accent/20 hover:scale-105 transition-all text-xl font-bold gap-3" asChild>
+            <div className="pt-4 md:pt-8">
+              <Button size="lg" className="h-14 md:h-16 px-8 md:px-12 rounded-2xl bg-accent text-background hover:bg-accent/90 shadow-xl shadow-accent/20 hover:scale-105 transition-all text-lg md:text-xl font-bold gap-3 w-full md:w-auto" asChild>
                 <Link href="/alazhar/info-pendaftaran">
                    LIHAT INFO PENDAFTARAN <Send size={24} />
                 </Link>
               </Button>
-              <p className="mt-6 text-sm text-muted-foreground italic">
+              <p className="mt-6 text-xs md:text-sm text-muted-foreground italic">
                 * Buka link di atas untuk rincian biaya & kontak person admin yang ramah! 😊
               </p>
             </div>
@@ -327,11 +367,11 @@ export default function Home() {
       </section>
 
       {/* Video Trailer Section */}
-      <section className="container mx-auto px-6 pb-20 pt-6">
+      <section className="container mx-auto px-6 pb-12 md:pb-20 pt-6">
         <div className="glass-card rounded-2xl overflow-hidden p-1 md:p-4">
-          <div className="flex items-center gap-3 text-accent mb-8 p-4">
+          <div className="flex items-center gap-3 text-accent mb-6 md:mb-8 p-4">
             <Play className="w-8 h-8 fill-accent" />
-            <h2 className="text-4xl font-headline font-bold">Kegiatan Kami</h2>
+            <h2 className="text-3xl md:text-4xl font-headline font-bold">Kegiatan Kami</h2>
           </div>
           <Carousel 
             setApi={setVideoCarouselApi}
@@ -364,16 +404,16 @@ export default function Home() {
       </section>
 
       {/* Gallery Section */}
-      <section className="container mx-auto px-6 py-20">
-        <div className="flex items-center gap-3 text-accent mb-12">
+      <section className="container mx-auto px-6 py-12 md:py-20">
+        <div className="flex items-center gap-3 text-accent mb-8 md:mb-12">
           <Camera className="w-8 h-8" />
-          <h2 className="text-4xl font-headline font-bold">Swipe The Moment!!</h2>
+          <h2 className="text-3xl md:text-4xl font-headline font-bold">Swipe The Moment!!</h2>
         </div>
         
         <Carousel opts={{ align: "start", loop: true }} className="w-full">
           <CarouselContent className="-ml-4">
             {gallery.length > 0 ? gallery.map((item) => (
-              <CarouselItem key={item.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+              <CarouselItem key={item.id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
                 <div className="relative rounded-xl overflow-hidden group h-64 md:h-80 border border-white/5">
                   <Image
                     src={item.image_url}
@@ -390,7 +430,7 @@ export default function Home() {
               </CarouselItem>
             )) : (
               [1, 2, 3].map((i) => (
-                <CarouselItem key={i} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                <CarouselItem key={i} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
                   <div className="relative rounded-xl overflow-hidden h-64 md:h-80 bg-white/5 animate-pulse flex items-center justify-center">
                     <Camera className="w-8 h-8 text-white/10" />
                   </div>
@@ -405,7 +445,7 @@ export default function Home() {
 
           {/* Link to Albums Page - Restricted to Admins */}
           {user && (
-            <div className="mt-12 text-center animate-in fade-in zoom-in duration-700 delay-300">
+            <div className="mt-10 md:mt-12 text-center animate-in fade-in zoom-in duration-700 delay-300">
               <a 
                 href="/albums" 
                 className="group inline-flex flex-col items-center gap-2 text-muted-foreground hover:text-accent transition-all duration-300"
@@ -425,15 +465,15 @@ export default function Home() {
       {/* Quote Section */}
       <section className="py-20 bg-primary/5 relative overflow-hidden">
         <div className="container mx-auto px-6 text-center">
-          <Quote className="w-12 h-12 text-accent mx-auto mb-8 opacity-50" />
-          <blockquote className="text-3xl md:text-5xl font-headline font-italic leading-tight max-w-4xl mx-auto">
+          <Quote className="w-8 md:w-12 h-8 md:h-12 text-accent mx-auto mb-6 md:mb-8 opacity-50" />
+          <blockquote className="text-2xl md:text-5xl font-headline font-italic leading-tight max-w-4xl mx-auto px-4">
             "Kelas bukan sekadar tempat belajar; ini adalah keluarga tempat kamu menemukan jati dirimu."
           </blockquote>
         </div>
       </section>
 
       {/* Footer Address */}
-      <footer className="py-8 bg-background border-t border-white/5 text-center mt-auto pb-40">
+      <footer className="py-8 bg-background border-t border-white/5 text-center mt-auto pb-48 md:pb-40">
         <a 
           href="https://share.google/HFMJYuzcjlPPYzcM1" 
           target="_blank" 

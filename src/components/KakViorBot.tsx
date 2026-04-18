@@ -488,7 +488,7 @@ export function KakViorBot() {
   return (
     <>
       {/* Floating Button Area */}
-      <div className={cn("fixed bottom-24 md:bottom-12 right-6 md:right-12 z-50 flex flex-col items-end gap-2", isOpen && "hidden")}>
+      <div className={cn("fixed bottom-28 md:bottom-12 right-6 md:right-12 z-50 flex flex-col items-end gap-2", isOpen && "hidden")}>
         {/* Peeking Robots Group */}
         <div className="relative w-full flex justify-end">
           {/* Main Bot */}
@@ -530,7 +530,7 @@ export function KakViorBot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 md:bottom-12 right-6 md:right-12 w-[340px] h-[500px] max-h-[70vh] glass-card rounded-2xl flex flex-col z-50 overflow-hidden shadow-2xl border border-white/20 animate-in slide-in-from-bottom-5">
+        <div className="fixed bottom-28 md:bottom-12 right-6 md:right-12 w-[340px] h-[500px] max-h-[70vh] glass-card rounded-2xl flex flex-col z-50 overflow-hidden shadow-2xl border border-white/20 animate-in slide-in-from-bottom-5">
           {/* Header */}
           <div className="bg-accent/10 backdrop-blur-md p-4 flex items-center justify-between border-b border-white/10">
             <div className="flex items-center gap-3">

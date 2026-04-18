@@ -167,54 +167,54 @@ export default function InfoPendaftaranPage() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="container mx-auto px-6 py-20 pt-32 max-w-6xl relative z-10"
+        className="container mx-auto px-4 md:px-6 py-12 md:py-20 pt-28 md:pt-32 max-w-6xl relative z-10"
       >
         {/* Header Section */}
-        <motion.header variants={itemVariants} className="mb-20 text-center space-y-6">
+        <motion.header variants={itemVariants} className="mb-12 md:mb-20 text-center space-y-4 md:space-y-6">
           <motion.div 
             whileHover={{ scale: 1.05, rotate: 5 }}
-            className="inline-flex items-center justify-center p-5 rounded-[2rem] bg-accent/10 text-accent mb-4 relative group cursor-default"
+            className="inline-flex items-center justify-center p-4 md:p-5 rounded-[1.5rem] md:rounded-[2rem] bg-accent/10 text-accent mb-2 md:mb-4 relative group cursor-default"
           >
-            <School className="w-14 h-14 relative z-10 drop-shadow-[0_0_10px_rgba(26,204,230,0.5)]" />
-            <div className="absolute inset-0 bg-accent/20 rounded-[2rem] blur-2xl group-hover:blur-3xl transition-all" />
+            <School className="w-10 h-10 md:w-14 md:h-14 relative z-10 drop-shadow-[0_0_10px_rgba(26,204,230,0.5)]" />
+            <div className="absolute inset-0 bg-accent/20 rounded-[1.5rem] md:rounded-[2rem] blur-xl group-hover:blur-2xl transition-all" />
             <motion.div 
               animate={{ y: [0, -5, 0], rotate: [12, 15, 12] }}
               transition={{ repeat: Infinity, duration: 2 }}
-              className="absolute -top-3 -right-3 bg-yellow-500 text-black px-3 py-1 rounded-full text-[11px] font-bold shadow-xl z-20"
+              className="absolute -top-3 -right-3 bg-yellow-500 text-black px-2 md:px-3 py-1 rounded-full text-[9px] md:text-[11px] font-bold shadow-xl z-20"
             >
               PPDB 2026
             </motion.div>
           </motion.div>
           
-          <h1 className="text-5xl md:text-7xl font-headline font-bold tracking-tight">
-            Masa Depan <span className="text-accent italic">Rabbani</span> <br/>
+          <h1 className="text-3xl md:text-7xl font-headline font-bold tracking-tight leading-tight">
+            Masa Depan <span className="text-accent italic">Rabbani</span> <br className="hidden md:block"/>
             Mulai dari <span className="relative inline-block">
               Sini.
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
                 transition={{ delay: 1, duration: 1 }}
-                className="absolute bottom-2 left-0 h-3 bg-accent/20 -z-10 rounded-full" 
+                className="absolute bottom-1 md:bottom-2 left-0 h-2 md:h-3 bg-accent/20 -z-10 rounded-full" 
               />
             </span> ✨
           </h1>
-          <p className="text-muted-foreground text-xl max-w-3xl mx-auto font-light leading-relaxed">
+          <p className="text-muted-foreground text-sm md:text-xl max-w-3xl mx-auto font-light leading-relaxed">
             Bergabunglah dengan Keluarga Besar Pondok Pesantren Al-Azhar. <br className="hidden md:block"/>
             Mencetak generasi Hafidz yang cerdas, berakhlak mulia, dan kompetitif.
           </p>
         </motion.header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
           
           {/* Timeline / Flow Section */}
           <div className="lg:col-span-12">
             <motion.div variants={itemVariants} className="space-y-8">
-              <div className="flex flex-col items-center gap-2 mb-10">
-                <Badge variant="outline" className="px-4 py-1 border-accent/30 text-accent text-xs uppercase tracking-widest font-bold">Registration Flow</Badge>
-                <h2 className="text-3xl font-headline font-bold">Langkah Mudah Mendaftar</h2>
+              <div className="flex flex-col items-center gap-2 mb-6 md:mb-10">
+                <Badge variant="outline" className="px-3 md:px-4 py-1 border-accent/30 text-accent text-[8px] md:text-xs uppercase tracking-widest font-bold">Registration Flow</Badge>
+                <h2 className="text-2xl md:text-3xl font-headline font-bold">Langkah Mudah Mendaftar</h2>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 relative">
                 {/* Connector line for desktop */}
                 <div className="hidden md:block absolute top-12 left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-accent/30 to-transparent -z-10" />
                 
@@ -222,14 +222,14 @@ export default function InfoPendaftaranPage() {
                   <motion.div 
                     key={idx}
                     whileHover={{ y: -5 }}
-                    className="glass-card p-6 rounded-3xl border border-white/10 text-center space-y-4 hover:border-accent/30 transition-all group"
+                    className="glass-card p-5 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 text-center space-y-3 md:space-y-4 hover:border-accent/30 transition-all group"
                   >
-                    <div className={cn("mx-auto w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", step.color)}>
+                    <div className={cn("mx-auto w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", step.color)}>
                       {step.icon}
                     </div>
-                    <div className="space-y-2">
-                      <h3 className="font-bold text-lg text-white">{step.title}</h3>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
+                    <div className="space-y-1 md:space-y-2">
+                      <h3 className="font-bold text-base md:text-lg text-white">{step.title}</h3>
+                      <p className="text-[10px] md:text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -240,23 +240,23 @@ export default function InfoPendaftaranPage() {
           {/* Registration Main Card */}
           <div className="lg:col-span-12">
             <motion.div variants={itemVariants}>
-              <Card className="glass-card border-white/10 overflow-hidden relative group hover:border-accent/20 transition-all duration-700 rounded-[3rem] shadow-2xl">
+              <Card className="glass-card border-white/10 overflow-hidden relative group hover:border-accent/20 transition-all duration-700 rounded-[2rem] md:rounded-[3rem] shadow-2xl">
                 <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
-                <CardContent className="p-8 md:p-16 flex flex-col lg:flex-row items-center justify-between gap-12 text-center lg:text-left">
-                  <div className="space-y-6 max-w-xl">
+                <CardContent className="p-6 md:p-16 flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-12 text-center lg:text-left">
+                  <div className="space-y-4 md:space-y-6 max-w-xl">
                     <div className="flex justify-center lg:justify-start">
                       <div className="p-3 bg-accent/20 rounded-2xl text-accent"><Sparkles className="animate-pulse" /></div>
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-headline font-bold leading-tight">
+                    <h2 className="text-2xl md:text-5xl font-headline font-bold leading-tight">
                       Siap Jadi Bagian dari <br className="hidden md:block"/> Generasi Rabbani?
                     </h2>
-                    <p className="text-lg text-muted-foreground font-light">
+                    <p className="text-base md:text-lg text-muted-foreground font-light">
                       Pendaftaran telah dibuka! Jangan lewatkan kesempatan emas untuk menimba ilmu di lingkungan yang Islami dan modern.
                     </p>
-                    <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
-                      <Button size="lg" className="h-16 px-10 rounded-2xl bg-accent text-background hover:bg-accent/90 shadow-[0_10px_30px_rgba(26,204,230,0.3)] hover:scale-105 transition-all text-lg font-bold gap-3 group/btn" asChild>
+                    <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-2 md:pt-4">
+                      <Button size="lg" className="h-14 md:h-16 px-6 md:px-10 rounded-2xl bg-accent text-background hover:bg-accent/90 shadow-[0_10px_30px_rgba(26,204,230,0.3)] hover:scale-105 transition-all text-base md:text-lg font-bold gap-3 group/btn w-full sm:w-auto" asChild>
                         <Link href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta" target="_blank">
-                          <ExternalLink size={24} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" /> DAFTAR ONLINE SEKARANG
+                          <ExternalLink size={20} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" /> DAFTAR ONLINE SEKARANG
                         </Link>
                       </Button>
                     </div>
@@ -282,15 +282,15 @@ export default function InfoPendaftaranPage() {
           {/* Cost Section */}
           <div className="lg:col-span-5">
             <motion.div variants={itemVariants} className="h-full">
-              <Card className="glass-card border-white/5 h-full rounded-[3rem] overflow-hidden shadow-2xl">
-                <CardHeader className="p-8 pb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-accent/20 flex items-center justify-center text-accent mb-4">
+              <Card className="glass-card border-white/5 h-full rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl">
+                <CardHeader className="p-6 md:p-8 pb-4">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-accent/20 flex items-center justify-center text-accent mb-4">
                     <Wallet size={24} />
                   </div>
-                  <CardTitle className="text-3xl font-headline font-bold">Investasi Masa Depan 💰</CardTitle>
-                  <CardDescription className="text-base">Membangun kualitas pendidikan & karakter terbaik.</CardDescription>
+                  <CardTitle className="text-2xl md:text-3xl font-headline font-bold">Investasi Masa Depan 💰</CardTitle>
+                  <CardDescription className="text-sm md:text-base">Membangun kualitas pendidikan & karakter terbaik.</CardDescription>
                 </CardHeader>
-                <CardContent className="p-8 pt-0 space-y-8">
+                <CardContent className="p-6 md:p-8 pt-0 space-y-6 md:space-y-8">
                   <div className="space-y-4">
                     <div className="space-y-3">
                       {[
@@ -301,16 +301,16 @@ export default function InfoPendaftaranPage() {
                         { label: "Buku (2 Semester)", value: "800.000" },
                       ].map((item, i) => (
                         <div key={i} className="flex justify-between items-center group transition-all hover:translate-x-1">
-                          <span className="text-sm text-white/50 group-hover:text-white/80 transition-colors">{item.label}</span>
-                          <span className="font-mono text-white/80 font-bold">Rp {item.value}</span>
+                          <span className="text-xs md:text-sm text-white/50 group-hover:text-white/80 transition-colors">{item.label}</span>
+                          <span className="font-mono text-xs md:text-sm text-white/80 font-bold">Rp {item.value}</span>
                         </div>
                       ))}
                       
-                      <div className="mt-8 p-6 rounded-3xl bg-accent/10 border border-accent/20 flex flex-col items-center gap-2 relative overflow-hidden group">
+                      <div className="mt-6 md:mt-8 p-5 md:p-6 rounded-2xl md:rounded-3xl bg-accent/10 border border-accent/20 flex flex-col items-center gap-1 md:gap-2 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-2 opacity-5 italic font-bold">TOTAL</div>
-                        <span className="text-[10px] text-accent font-bold uppercase tracking-[0.3em]">Total Biaya Masuk</span>
-                        <span className="text-4xl font-headline font-bold text-white tracking-tight drop-shadow-sm">Rp 5.800.000</span>
-                        <div className="flex gap-1 mt-2">
+                        <span className="text-[9px] md:text-[10px] text-accent font-bold uppercase tracking-[0.2em] md:tracking-[0.3em]">Total Biaya Masuk</span>
+                        <span className="text-3xl md:text-4xl font-headline font-bold text-white tracking-tight drop-shadow-sm">Rp 5.800.000</span>
+                        <div className="flex gap-1 mt-1 md:mt-2">
                            <span className="w-1 h-1 rounded-full bg-accent/40" />
                            <span className="w-10 h-1 rounded-full bg-accent/40" />
                            <span className="w-1 h-1 rounded-full bg-accent/40" />
@@ -319,13 +319,13 @@ export default function InfoPendaftaranPage() {
                     </div>
                   </div>
 
-                  <div className="p-5 rounded-3xl bg-white/5 border border-white/10 space-y-2">
-                    <p className="font-bold text-accent text-xs uppercase tracking-widest text-center">Iuran Bulanan (SPP)</p>
-                    <div className="flex justify-center items-baseline gap-2">
-                      <span className="text-2xl font-bold text-white">Rp 1.200.000</span>
-                      <span className="text-[10px] text-white/40 font-medium">/ BULAN</span>
+                  <div className="p-4 md:p-5 rounded-2xl md:rounded-3xl bg-white/5 border border-white/10 space-y-1 md:space-y-2">
+                    <p className="font-bold text-accent text-[10px] uppercase tracking-widest text-center">Iuran Bulanan (SPP)</p>
+                    <div className="flex justify-center items-baseline gap-1 md:gap-2">
+                      <span className="text-xl md:text-2xl font-bold text-white">Rp 1.200.000</span>
+                      <span className="text-[9px] md:text-[10px] text-white/40 font-medium">/ BULAN</span>
                     </div>
-                    <p className="text-[10px] text-white/30 italic text-center">* Termasuk Makan 3x Sehari, Laundry, & Fasilitas</p>
+                    <p className="text-[8px] md:text-[10px] text-white/30 italic text-center">* Termasuk Makan 3x Sehari, Laundry, & Fasilitas</p>
                   </div>
                 </CardContent>
               </Card>
@@ -335,9 +335,9 @@ export default function InfoPendaftaranPage() {
           {/* Contact Section */}
           <div className="lg:col-span-7">
             <motion.div variants={itemVariants} className="space-y-6">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="p-3 bg-accent/20 rounded-2xl text-accent"><Phone size={24} /></div>
-                <h2 className="text-3xl font-headline font-bold">Konsultasi dengan Admin 📱</h2>
+              <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
+                <div className="p-2.5 md:p-3 bg-accent/20 rounded-xl md:rounded-2xl text-accent"><Phone size={24} /></div>
+                <h2 className="text-2xl md:text-3xl font-headline font-bold">Konsultasi dengan Admin 📱</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {contactPersons.map((contact, idx) => (
@@ -349,7 +349,7 @@ export default function InfoPendaftaranPage() {
                     whileHover={contact.isComingSoon ? { scale: 1.01 } : { scale: 1.02, y: -4 }}
                     whileTap={contact.isComingSoon ? {} : { scale: 0.98 }}
                     className={cn(
-                      "group relative overflow-hidden glass-card p-6 border rounded-[2rem] flex flex-col justify-between h-56 transition-all duration-300",
+                      "group relative overflow-hidden glass-card p-5 md:p-6 border rounded-[1.5rem] md:rounded-[2rem] flex flex-col justify-between h-52 md:h-56 transition-all duration-300",
                       contact.border,
                       contact.isComingSoon ? "opacity-70 cursor-not-allowed grayscale-[0.5]" : "hover:shadow-xl hover:shadow-black/20"
                     )}
@@ -357,43 +357,40 @@ export default function InfoPendaftaranPage() {
                     <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity", contact.color)} />
                     
                     <div className="relative z-10">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className={cn("p-2.5 rounded-xl bg-white/5", contact.textColor)}>
+                      <div className="flex justify-between items-start mb-3 md:mb-4">
+                        <div className={cn("p-2 rounded-xl bg-white/5", contact.textColor)}>
                           {contact.icon}
                         </div>
-                        <Badge variant={contact.isComingSoon ? "secondary" : "outline"} className={cn("text-[8px] font-bold border-white/10", contact.textColor)}>
+                        <Badge variant={contact.isComingSoon ? "secondary" : "outline"} className={cn("text-[7px] md:text-[8px] font-bold border-white/10", contact.textColor)}>
                           {contact.tag}
                         </Badge>
                       </div>
-                      <h3 className="font-bold text-white text-base leading-snug mb-2 group-hover:text-white transition-colors">
+                      <h3 className="font-bold text-white text-sm md:text-base leading-snug mb-1 md:mb-2 group-hover:text-white transition-colors">
                         {contact.unit}
                       </h3>
-                      <p className="text-white/40 text-[10px] group-hover:text-white/60 transition-colors uppercase tracking-widest font-bold">{contact.note}</p>
+                      <p className="text-white/40 text-[9px] md:text-[10px] group-hover:text-white/60 transition-colors uppercase tracking-widest font-bold">{contact.note}</p>
                     </div>
 
-                    <div className="relative z-10 flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                    <div className="relative z-10 flex items-center justify-between mt-auto pt-3 md:pt-4 border-t border-white/5">
                       <div className="flex flex-col">
-                        <span className="text-[9px] uppercase text-white/40 font-bold mb-0.5">Contact: {contact.phone}</span>
+                        <span className="text-[8px] md:text-[9px] uppercase text-white/40 font-bold mb-0.5">Contact: {contact.phone}</span>
                         <span className="text-xs font-bold text-white tracking-wide">{contact.name}</span>
-                        {/* Hover Effect Text */}
                         {!contact.isComingSoon && (
                           <motion.span 
-                            initial={{ opacity: 0, x: -10 }}
-                            whileHover={{ opacity: 1, x: 0 }}
-                            className="text-[9px] font-bold text-accent mt-1 group-hover:opacity-100 transition-opacity"
+                            className="text-[8px] md:text-[9px] font-bold text-accent mt-0.5 opacity-60 group-hover:opacity-100 transition-opacity"
                           >
                             Klik disini untuk chat WA →
                           </motion.span>
                         )}
                       </div>
-                      <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-background shadow-lg transition-transform", !contact.isComingSoon && "group-hover:scale-110", contact.color.replace('20', '100'))}>
-                        {contact.isComingSoon ? <Calendar size={16} /> : <Send size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
+                      <div className={cn("w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-background shadow-lg transition-transform", !contact.isComingSoon && "group-hover:scale-110", contact.color.replace('20', '100'))}>
+                        {contact.isComingSoon ? <Calendar size={14} /> : <Send size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
                       </div>
                     </div>
 
                     {contact.isComingSoon && (
                       <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                         <Badge className="bg-white text-black text-xs font-bold px-4 py-2">COMING SOON!</Badge>
+                         <Badge className="bg-white text-black text-[10px] font-bold px-3 py-1.5">COMING SOON!</Badge>
                       </div>
                     )}
                   </motion.a>
@@ -402,17 +399,17 @@ export default function InfoPendaftaranPage() {
 
               <motion.div 
                 whileHover={{ scale: 1.01 }}
-                className="mt-10 bg-accent/5 border border-accent/20 p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group"
+                className="mt-8 md:mt-10 bg-accent/5 border border-accent/20 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] flex flex-col md:flex-row items-center gap-6 md:gap-8 relative overflow-hidden group"
               >
                 <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:rotate-12 transition-transform">
                    <Heart size={200} fill="currentColor" className="text-accent" />
                 </div>
-                <div className="w-16 h-16 bg-accent rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-accent/20">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-accent rounded-2xl md:rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-accent/20">
                    <Heart className="text-background fill-background" size={32} />
                 </div>
-                <div className="text-center md:text-left">
-                  <h4 className="text-2xl font-bold text-white mb-2">Masih Bingung?</h4>
-                  <p className="text-muted-foreground leading-relaxed">
+                <div className="text-center md:text-left relative z-10">
+                  <h4 className="text-xl md:text-2xl font-bold text-white mb-1 md:mb-2">Masih Bingung?</h4>
+                  <p className="text-xs md:text-base text-muted-foreground leading-relaxed">
                     Jangan sungkan untuk bertanya. Kami di sini untuk membantu Akang & Teteh memberikan yang terbaik bagi putra-putri tercinta. ❤️
                   </p>
                 </div>
