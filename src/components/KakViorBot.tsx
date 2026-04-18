@@ -511,8 +511,9 @@ export function KakViorBot() {
             <AnimatedBotIcon size={28} className="text-accent/60 drop-shadow-[0_0_6px_rgba(26,204,230,0.3)]" />
           </div>
 
-          <div className="bg-background/95 backdrop-blur-md border border-accent/40 text-accent px-4 py-2 rounded-2xl rounded-br-sm text-sm font-semibold shadow-[0_0_15px_rgba(26,204,230,0.2)] whitespace-nowrap z-10 transition-transform hover:scale-105 duration-300">
-            Bingung Mau Kemana? 
+          <div className="bg-background/95 backdrop-blur-md border border-accent/40 text-accent px-4 py-3 rounded-2xl rounded-br-sm shadow-[0_0_15px_rgba(26,204,230,0.2)] whitespace-nowrap z-10 transition-transform hover:scale-105 duration-300 flex flex-col gap-0.5">
+            <span className="text-sm font-bold leading-tight">Bingung Mau Kemana?</span>
+            <span className="text-[10px] opacity-70 font-medium">Chat sama Kak Vior yuk! ✨</span>
           </div>
         </div>
         <Button
