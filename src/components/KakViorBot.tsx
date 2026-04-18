@@ -388,16 +388,54 @@ export function KakViorBot() {
             <a href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta#schedule" target="_blank" rel="noopener noreferrer" className="block text-center w-full mt-2 font-bold underline hover:text-accent transition-all text-[10px] text-white/60">Lihat Jadwal & Promo di Web Resmi</a>
           </div>
         );
+      } else if (lowerInput.includes("jadwal") || lowerInput.includes("gelombang") || lowerInput.includes("kapan")) {
+        botResponse = (
+          <div className="space-y-2">
+            <p>Untuk jadwal pendaftaran terupdate, Akang/Teteh bisa langsung cek di:</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>Web Resmi: <a href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta#schedule" target="_blank" rel="noopener noreferrer" className="text-accent underline font-bold">alazharpwk.cazh.id</a></li>
+              <li>Instagram: <a href="https://www.instagram.com/azhart_tv_" target="_blank" rel="noopener noreferrer" className="text-accent underline font-bold">@azhart_tv_</a></li>
+            </ul>
+            <p className="text-[10px] mt-2 italic text-white/60">Yuk! Jangan sampai ketinggalan gelombangnya ya.</p>
+          </div>
+        );
+      } else if (lowerInput.includes("contact") || lowerInput.includes("nomor") || lowerInput.includes("hubungi") || lowerInput.includes("wa") || lowerInput.includes("person") || lowerInput.includes("telp")) {
+        botResponse = (
+          <div className="space-y-4">
+            <p className="font-bold border-b border-accent/20 pb-2 text-white">CONTACT PERSON</p>
+            <div className="space-y-3">
+              <div className="bg-accent/10 p-2 rounded-lg border border-accent/20">
+                <p className="font-bold text-accent text-xs">PONDOK</p>
+                <p className="text-[11px]">0812-8985-2035 (A.N CECEP RAHMAT)</p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-[10px] text-white/60 font-medium">* Bisa Mondok & Non Mondok:</p>
+                <div className="pl-2 space-y-2 border-l border-accent/30">
+                  <div>
+                    <p className="font-bold text-white text-[11px]">SDIT AL-AZHAR</p>
+                    <p className="text-[10px]">0895-3377-2941 a.n Elisa Setiawati</p>
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-[11px]">SMP I AL-AZHAR</p>
+                    <p className="text-[10px]">0812-7415-6718 a.n Muh. Husein</p>
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-[11px]">MA UNGGULAN AL-AZHAR</p>
+                    <p className="text-[10px]">0831-9753-0389 a.n AHMAD RIKI</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
       } else if (lowerInput.includes("alur") || lowerInput.includes("cara") || lowerInput.includes("step") || lowerInput.includes("daftar") || lowerInput.includes("pendaftaran")) {
         botResponse = "Berikut alur pendaftaran Ponpes Al-Azhar Purwakarta:\n1. Isi formulir pendaftaran di web resmi dengan data lengkap.\n2. Jika ada biaya pendaftaran, lakukan pembayaran melalui Bank atau Minimarket.\n3. Proses seleksi dapat dicek secara real time.\n4. Hasil penerimaan bisa dicek online menggunakan nomor pendaftaran.\n5. Peserta Diterima wajib melakukan daftar ulang untuk konfirmasi dan memperoleh Nomor Kartu.";
-      } else if (lowerInput.includes("jadwal") || lowerInput.includes("kapan") || lowerInput.includes("gelombang")) {
-        botResponse = "Jadwal pendaftaran terbagi dua:\n- Gelombang 1: 1 Oktober 2026 s.d 13 Desember 2026\n- Gelombang 2: 15 Desember 2026 s.d 31 Juli 2027\nYuk! Jangan sampai ketinggalan.";
       } else if (lowerInput.includes("berita") || lowerInput.includes("news") || lowerInput.includes("kegiatan") || lowerInput.includes("info")) {
         botResponse = "Kamu bisa mengecek berita terbaru Al-Azhar di menu 'Tentang Al-Azhar'. Di sana Kak Vior sering membagikan info kegiatan, prestasi santri, dan pengumuman terbaru lho!";
       } else if (lowerInput.includes("perpus") || lowerInput.includes("kitab") || lowerInput.includes("buku") || lowerInput.includes("baca")) {
         botResponse = "Di menu 'Perpustakaan', kita punya banyak koleksi kitab digital karya ulama. Kamu cukup ketik judul atau nama pengarang di kolom pencarian, lalu klik 'Akses Kitab' untuk membacanya secara online.";
       } else if (lowerInput.includes("halo") || lowerInput.includes("hai") || lowerInput.includes("hi") || lowerInput.includes("assalam")) {
-        botResponse = "Wa'alaikumussalam! Hai juga! Yuk tanya seputar Pendaftaran, Biaya, Jadwal, atau fasilitas lainnya.";
+        botResponse = "Wa'alaikumussalam! Hai juga! Yuk tanya seputar Pendaftaran, Biaya, Jadwal, Contact Person, atau fasilitas lainnya.";
       }
 
       // Navigation Command Detection
