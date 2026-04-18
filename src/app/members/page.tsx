@@ -8,6 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Instagram, Phone, MapPin, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, optimizeCloudinary } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import { Quote as QuoteIcon } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -109,52 +111,104 @@ function MembersPage() {
                     </Card>
                   </DialogTrigger>
 
-                  <DialogContent className="max-w-4xl h-[90vh] p-0 overflow-hidden glass-card border-white/10 flex flex-col md:flex-row">
+                  <DialogContent className="max-w-4xl h-[90vh] md:h-[600px] p-1 overflow-hidden bg-transparent border-none shadow-none">
                     <DialogTitle className="sr-only">Biografi {member.name}</DialogTitle>
                     <DialogDescription className="sr-only">Detail profil {member.name}</DialogDescription>
                     
-                    {/* Left: Full Image */}
-                    <div className="relative w-full md:w-1/2 h-64 md:h-full">
-                      <Image
-                        src={optimizeCloudinary(member.imageUrl || member.image_url || "https://picsum.photos/seed/default/400/500", 1200)}
-                        alt={member.name}
-                        fill
-                        className="object-cover"
-                      />
-                      {/* Subtle shadow for name readability */}
-                      <div className="absolute inset-x-0 bottom-0 h-1/3 md:h-full md:w-1/2 bg-gradient-to-t md:bg-gradient-to-r from-black/40 to-transparent" />
-                    </div>
+                    <div className="liquid-glass-container w-full h-full">
+                      <div className="liquid-glass-content flex flex-col md:flex-row h-full">
+                        {/* Left: Full Image */}
+                        <div className="relative w-full md:w-1/2 h-64 md:h-full overflow-hidden">
+                          <Image
+                            src={optimizeCloudinary(member.imageUrl || member.image_url || "https://picsum.photos/seed/default/400/500", 1200)}
+                            alt={member.name}
+                            fill
+                            className="object-cover"
+                          />
+                          {/* Subtle shadow for name readability on mobile */}
+                          <div className="absolute inset-x-0 bottom-0 h-1/2 md:hidden bg-gradient-to-t from-black/80 to-transparent" />
+                        </div>
 
-                    {/* Right: Content */}
-                    <div className="w-full md:w-1/2 p-8 md:p-12 md:overflow-y-auto flex flex-col justify-center space-y-8 relative">
-                      <div className="space-y-2">
-                        <h2 className="text-4xl md:text-5xl font-serif font-bold accent-glow">{member.name}</h2>
-                        <Badge variant="outline" className="border-accent text-accent text-sm">{member.role || "Anggota"}</Badge>
-                      </div>
+                        {/* Right: Content */}
+                        <div className="w-full md:w-1/2 p-8 md:p-12 md:overflow-y-auto flex flex-col justify-center space-y-8 relative bg-card/40 backdrop-blur-xl">
+                          {/* Atmospheric Background Blobs */}
+                          <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+                            <motion.div 
+                              animate={{ x: [0, 30, 0], y: [0, 20, 0] }}
+                              transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                              className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-accent/10 rounded-full blur-[60px]"
+                            />
+                            <motion.div 
+                              animate={{ x: [0, -20, 0], y: [0, 40, 0] }}
+                              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+                              className="absolute bottom-[0%] -right-[10%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[50px]"
+                            />
+                          </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-base">
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground text-xs uppercase tracking-widest flex items-center gap-2"><MapPin className="w-3 h-3"/> Tempat Lahir</p>
-                          <p className="font-semibold">{member.pob}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground text-xs uppercase tracking-widest flex items-center gap-2"><Calendar className="w-3 h-3"/> Tanggal Lahir</p>
-                          <p className="font-semibold">{member.dob}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground text-xs uppercase tracking-widest flex items-center gap-2"><Phone className="w-3 h-3"/> Telepon</p>
-                          <p className="font-semibold">{member.phone}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground text-xs uppercase tracking-widest flex items-center gap-2"><Instagram className="w-3 h-3"/> Instagram</p>
-                          <p className="font-semibold">{member.ig}</p>
-                        </div>
-                      </div>
+                          <motion.div 
+                            initial={{ opacity: 0, x: 20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.6 }}
+                            className="space-y-4 relative"
+                          >
+                            <div className="space-y-1">
+                              <h2 className="text-4xl md:text-5xl font-headline font-bold accent-glow tracking-tight text-white">{member.name}</h2>
+                              <div className="h-1 w-20 bg-accent/50 rounded-full overflow-hidden">
+                                <motion.div 
+                                  initial={{ x: "-100%" }}
+                                  animate={{ x: "100%" }}
+                                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                  className="h-full w-full bg-accent"
+                                />
+                              </div>
+                            </div>
+                            <Badge variant="outline" className="border-accent/40 bg-accent/10 text-accent text-xs font-bold px-3 py-1 rounded-lg uppercase tracking-widest">
+                              {member.role || "Anggota"}
+                            </Badge>
+                          </motion.div>
 
-                      <div className="pt-8 border-t border-white/10 relative">
-                        <p className="text-2xl md:text-3xl font-headline italic font-light leading-relaxed text-foreground/90">
-                          "{member.quote}"
-                        </p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 relative">
+                            {[
+                              { label: "Asal", value: member.pob, icon: MapPin },
+                              { label: "Lahir", value: member.dob, icon: Calendar },
+                              { label: "Kontak", value: member.phone, icon: Phone },
+                              { label: "IG", value: member.ig, icon: Instagram, prefix: "@" }
+                            ].map((item, idx) => (
+                              <motion.div 
+                                key={item.label}
+                                initial={{ opacity: 0, y: 10 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.1 + idx * 0.1 }}
+                                className="flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group"
+                              >
+                                <div className="p-2.5 rounded-xl bg-accent/10 text-accent group-hover:scale-110 transition-transform">
+                                  <item.icon className="w-4 h-4" />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">{item.label}</span>
+                                  <span className="text-sm font-semibold text-white/90 truncate max-w-[120px]">
+                                    {item.prefix}{item.value || "-"}
+                                  </span>
+                                </div>
+                              </motion.div>
+                            ))}
+                          </div>
+
+                          <motion.div 
+                            initial={{ opacity: 0, s: 0.9 }}
+                            whileInView={{ opacity: 1, s: 1 }}
+                            transition={{ duration: 0.7, delay: 0.5 }}
+                            className="pt-8 border-t border-white/5 relative"
+                          >
+                            <div className="relative p-6 rounded-3xl bg-accent/5 border border-accent/20 overflow-hidden">
+                              <QuoteIcon className="absolute -top-2 -left-2 w-12 h-12 text-accent/10 -rotate-12" />
+                              <p className="text-xl md:text-2xl font-headline italic font-light leading-relaxed text-white/90 relative z-10 text-center">
+                                {member.quote || "Bangga menjadi bagian dari De Seviore."}
+                              </p>
+                              <QuoteIcon className="absolute -bottom-2 -right-2 w-12 h-12 text-accent/10 rotate-12" />
+                            </div>
+                          </motion.div>
+                        </div>
                       </div>
                     </div>
                   </DialogContent>
