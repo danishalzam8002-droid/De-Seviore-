@@ -527,7 +527,7 @@ export default function Home() {
                         viewport={{ once: true }}
                         className="flex flex-col gap-2"
                       >
-                        <p className="text-white font-bold text-lg md:text-xl tracking-tight bg-accent/40 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 italic shadow-2xl inline-block w-fit">
+                        <p className="text-white font-bold text-lg md:text-xl tracking-tight bg-accent/30 backdrop-blur-2xl px-4 py-2 rounded-xl italic shadow-2xl inline-block w-fit">
                           #{item.title || "SevioreMoment"}
                         </p>
                       </motion.div>
