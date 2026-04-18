@@ -451,9 +451,9 @@ export default function Home() {
             </div>
 
             <div className="pt-4 md:pt-8">
-              <Button size="lg" className="h-14 md:h-16 px-8 md:px-12 rounded-2xl bg-accent text-background hover:bg-accent/90 shadow-xl shadow-accent/20 hover:scale-105 transition-all text-lg md:text-xl font-bold gap-3 w-full md:w-auto" asChild>
+               <Button size="lg" className="h-14 md:h-16 px-8 md:px-12 rounded-2xl bg-accent text-background hover:bg-accent/90 shadow-xl shadow-accent/20 hover:scale-105 transition-all text-lg md:text-xl font-bold gap-3 w-full md:w-auto" asChild>
                 <Link href="/alazhar/info-pendaftaran">
-                   LIHAT INFO PENDAFTARAN <Send size={24} />
+                   LIHAT INFO PENDAFTARAN ✨ <Send size={24} />
                 </Link>
               </Button>
               <p className="mt-6 text-xs md:text-sm text-muted-foreground italic">

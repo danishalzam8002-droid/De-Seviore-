@@ -331,43 +331,64 @@ function AdminDashboard() {
     });
   };
 
-  const startUpload = async (formData: FormData, type: 'gallery' | 'album' = 'gallery') => {
+  const startUpload = async (formData: FormData, type: 'gallery' | 'album' = 'gallery', title?: string) => {
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    if (!cloudName) {
+      toast({ title: "Konfigurasi Error", description: "Cloudinary belum dikonfigurasi.", variant: "destructive" });
+      return;
+    }
+
     try {
       setIsUploading(true);
-      setUploadProgress(10);
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      setUploadProgress(0);
 
-      if (!response.ok) throw new Error("Gagal mengunggah ke Cloudinary");
+      // Menggunakan XMLHttpRequest untuk pelacakan progres real-time
+      const xhr = new XMLHttpRequest();
+      
+      const uploadPromise = new Promise<{ secure_url: string }>((resolve, reject) => {
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
+        
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
+            setUploadProgress(percentComplete);
+          }
+        };
 
-      const data = await response.json();
-      const downloadURL = data.secure_url;
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(JSON.parse(xhr.responseText));
+          } else {
+            reject(new Error(`Upload gagal dengan status ${xhr.status}`));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error("Kesalahan jaringan saat mengunggah."));
+        xhr.send(formData);
+      });
+
+      const uploadResult = await uploadPromise;
+      const downloadURL = uploadResult.secure_url;
       
       setUploadProgress(100);
 
       if (type === 'gallery') {
         const newItem = { 
           image_url: downloadURL, 
-          title: "Momen Seviore",
+          title: title || "Momen Seviore",
           created_at: new Date().toISOString()
         };
         const { data: insertedData, error } = await supabase.from('gallery').insert([newItem]).select().single();
         if (error) throw error;
         
         if (insertedData) {
-          setGalleryItems([...galleryItems, insertedData]);
+          setGalleryItems(prev => [insertedData, ...prev]);
           toast({ title: "Berhasil", description: "Gambar ditambahkan ke galeri." });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upload error:", error);
-      toast({ title: "Gagal", description: "Gagal mengunggah gambar ke Cloudinary.", variant: "destructive" });
+      toast({ title: "Gagal", description: error.message || "Gagal mengunggah gambar.", variant: "destructive" });
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
@@ -792,12 +813,12 @@ function AdminDashboard() {
           <TabsContent value="gallery">
             <GalleryTab 
               galleryItems={galleryItems}
-              onUpload={(file) => {
+              onUpload={(file, title) => {
                 const formData = new FormData();
                 formData.append("file", file);
                 formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
                 formData.append("folder", "gallery");
-                startUpload(formData, 'gallery');
+                startUpload(formData, 'gallery', title);
               }}
               onDelete={handleDeleteGallery}
               isUploading={isUploading}
