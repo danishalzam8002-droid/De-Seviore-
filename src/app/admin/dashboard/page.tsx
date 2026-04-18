@@ -53,6 +53,7 @@ function AdminDashboard() {
   const [requests, setRequests] = useState<any[]>([]);
   const currentUserRole = adminRoles.find(a => a.email === user?.email)?.role || 'Member';
 
+  const [compressionStats, setCompressionStats] = useState<{ original: number; compressed: number; saved: number } | null>(null);
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; title: string; description: string; onConfirm: () => void }>({
     open: false,
     title: "",
@@ -331,22 +332,42 @@ function AdminDashboard() {
     });
   };
 
-  const startUpload = async (formData: FormData, type: 'gallery' | 'album' = 'gallery', title?: string) => {
+  const startUpload = async (file: File, type: 'gallery' | 'album' = 'gallery', title?: string) => {
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     if (!cloudName) {
       toast({ title: "Konfigurasi Error", description: "Cloudinary belum dikonfigurasi.", variant: "destructive" });
       return;
     }
+    
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
     try {
       setIsUploading(true);
       setUploadProgress(0);
+      setCompressionStats(null);
 
-      // Menggunakan XMLHttpRequest untuk pelacakan progres real-time
-      const xhr = new XMLHttpRequest();
+      // 1. Kompresi Gambar
+      setUploadStatus('uploading'); // Visual feedback
+      const compressedBlob = await compressImage(file);
       
+      // Hitung statistik kompresi
+      const savedPercent = Math.round((1 - (compressedBlob.size / file.size)) * 100);
+      setCompressionStats({
+        original: file.size,
+        compressed: compressedBlob.size,
+        saved: savedPercent
+      });
+
+      // 2. Persiapkan FormData
+      const formData = new FormData();
+      formData.append("file", compressedBlob);
+      formData.append("upload_preset", uploadPreset!);
+      formData.append("folder", type);
+
+      // 3. Unggah dengan XMLHttpRequest (Progress Tracking)
+      const xhr = new XMLHttpRequest();
       const uploadPromise = new Promise<{ secure_url: string }>((resolve, reject) => {
-        xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/${type === 'gallery' ? 'image' : 'auto'}/upload`);
         
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
@@ -359,7 +380,12 @@ function AdminDashboard() {
           if (xhr.status >= 200 && xhr.status < 300) {
             resolve(JSON.parse(xhr.responseText));
           } else {
-            reject(new Error(`Upload gagal dengan status ${xhr.status}`));
+            try {
+              const errorData = JSON.parse(xhr.responseText);
+              reject(new Error(errorData.error?.message || `Upload gagal dengan status ${xhr.status}`));
+            } catch (e) {
+              reject(new Error(`Upload gagal dengan status ${xhr.status}`));
+            }
           }
         };
 
@@ -383,7 +409,10 @@ function AdminDashboard() {
         
         if (insertedData) {
           setGalleryItems(prev => [insertedData, ...prev]);
-          toast({ title: "Berhasil", description: "Gambar ditambahkan ke galeri." });
+          toast({ 
+            title: "Berhasil!", 
+            description: `Momen berhasil diunggah. (Hemat: ${savedPercent}%)`
+          });
         }
       }
     } catch (error: any) {
@@ -392,6 +421,7 @@ function AdminDashboard() {
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
+      // Stats will be cleared on next upload or stayed for a while
     }
   };
 
@@ -454,6 +484,35 @@ function AdminDashboard() {
       toast({ title: "Dihapus", description: "Gambar telah dihapus dari galeri." });
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const handleUpdateGalleryTitle = async (id: string, newTitle: string) => {
+    try {
+      if (currentUserRole === 'Member') {
+        const { error } = await supabase.from('requests').insert([{
+          table_name: 'gallery',
+          action: 'UPDATE',
+          data: { title: newTitle },
+          target_id: id,
+          requested_by: user?.email
+        }]);
+        if (error) throw error;
+        toast({ title: "Permintaan Dikirim", description: "Perubahan judul momen menunggu persetujuan Admin." });
+      } else {
+        const { error } = await supabase
+          .from('gallery')
+          .update({ title: newTitle })
+          .eq('id', id);
+        
+        if (error) throw error;
+        
+        setGalleryItems(galleryItems.map(item => item.id === id ? { ...item, title: newTitle } : item));
+        toast({ title: "Diperbarui", description: "Judul momen telah diperbarui." });
+      }
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Gagal", description: "Gagal memperbarui judul.", variant: "destructive" });
     }
   };
 
@@ -588,6 +647,7 @@ function AdminDashboard() {
         if (request.table_name === 'members') setMembers(updated || []);
         if (request.table_name === 'kitab') setKitabs(updated || []);
         if (request.table_name === 'albums') setAlbumItems(updated || []);
+        if (request.table_name === 'gallery') setGalleryItems(updated || []);
       } else {
         const { data: updatedAdmins } = await supabase.from('admins').select('*');
         setAdminRoles(updatedAdmins || []);
@@ -813,16 +873,12 @@ function AdminDashboard() {
           <TabsContent value="gallery">
             <GalleryTab 
               galleryItems={galleryItems}
-              onUpload={(file, title) => {
-                const formData = new FormData();
-                formData.append("file", file);
-                formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
-                formData.append("folder", "gallery");
-                startUpload(formData, 'gallery', title);
-              }}
+              onUpload={(file, title) => startUpload(file, 'gallery', title)}
               onDelete={handleDeleteGallery}
+              onUpdateTitle={handleUpdateGalleryTitle}
               isUploading={isUploading}
               uploadProgress={uploadProgress}
+              compressionStats={compressionStats}
             />
           </TabsContent>
 
