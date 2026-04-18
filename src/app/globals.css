@@ -47,3 +47,56 @@
 .accent-glow {
   text-shadow: 0 0 10px hsla(var(--accent), 0.5);
 }
+
+@keyframes liquid-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.liquid-glass-container {
+  position: relative;
+  padding: 3px;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.liquid-glass-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    transparent 40%,
+    hsl(var(--accent)) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  animation: liquid-spin 4s linear infinite;
+}
+
+.liquid-glass-container::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: hsl(var(--card));
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.liquid-glass-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(1.25rem - 2px);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+}
+
