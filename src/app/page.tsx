@@ -56,6 +56,7 @@ export default function Home() {
   const springY = useSpring(mouseY, { stiffness: 100, damping: 20 });
   const [isHovering, setIsHovering] = useState(false);
   const [stars, setStars] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [logoStars, setLogoStars] = useState<{ id: number; x: number; y: number; tx: number; ty: number }[]>([]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -73,6 +74,17 @@ export default function Home() {
       };
       setStars((prev) => [...prev.slice(-20), newStar]); // Keep only last 20 stars
     }
+  };
+
+  const handleLogoClick = () => {
+    const newStars = Array.from({ length: 8 }).map((_, i) => ({
+      id: Date.now() + i,
+      x: 0,
+      y: 0,
+      tx: (Math.random() - 0.5) * 300,
+      ty: (Math.random() - 0.5) * 300,
+    }));
+    setLogoStars((prev) => [...prev.slice(-16), ...newStars]);
   };
 
   useEffect(() => {
@@ -185,29 +197,30 @@ export default function Home() {
             <motion.div 
               initial={{ rotate: -10, opacity: 0, scale: 0.8 }}
               animate={{ 
-                rotate: [0, -3, 3, 0],
-                y: [0, -10, 0],
+                rotate: [0, -1.5, 1.5, 0],
+                y: [0, -15, 0],
                 opacity: 1, 
                 scale: 1 
               }}
               whileHover={{ 
-                scale: 1.15,
-                rotate: [0, -8, 8, -5, 5, 0],
+                scale: 1.08,
+                rotate: [0, -3, 3, -2, 2, 0],
                 transition: {
                   rotate: {
                     repeat: Infinity,
-                    duration: 0.5,
+                    duration: 1.2,
                     ease: "easeInOut"
                   }
                 }
               }}
-              whileTap={{ scale: 0.9, rotate: -15 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleLogoClick}
               transition={{ 
                 delay: 0.3, 
-                duration: 1,
+                duration: 1.5,
                 y: {
                   repeat: Infinity,
-                  duration: 4,
+                  duration: 6,
                   ease: "easeInOut"
                 }
               }}
@@ -217,16 +230,38 @@ export default function Home() {
                 src={logo.imageUrl}
                 alt="Logo De Seviore"
                 fill
-                className="object-contain drop-shadow-[0_0_25px_rgba(26,204,230,0.5)] transition-all duration-500 group-hover:drop-shadow-[0_0_40px_rgba(26,204,230,0.8)]"
+                className="object-contain drop-shadow-[0_0_25px_rgba(26,204,230,0.4)] transition-all duration-700 group-hover:drop-shadow-[0_0_45px_rgba(26,204,230,0.6)]"
               />
-              {/* Abstract decorative particles around logo on hover */}
+              
+              {/* Explosion Stars on Click */}
+              <AnimatePresence>
+                {logoStars.map((star) => (
+                  <motion.div
+                    key={star.id}
+                    initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                    animate={{ 
+                      x: star.tx, 
+                      y: star.ty, 
+                      opacity: 0, 
+                      scale: 0,
+                      rotate: 360 
+                    }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-yellow-400"
+                  >
+                    <Star size={16} fill="currentColor" className="drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]" />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {/* Smooth floating particles on hover */}
               <motion.div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"
                 animate={{ rotate: 360 }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
               >
-                <div className="absolute top-0 left-0 w-2 h-2 bg-accent rounded-full blur-[2px] animate-pulse" />
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-blue-400 rounded-full blur-[3px] animate-pulse delay-75" />
+                <div className="absolute top-0 left-1/4 w-1.5 h-1.5 bg-accent/60 rounded-full blur-[1px]" />
+                <div className="absolute bottom-1/4 right-0 w-2 h-2 bg-blue-400/60 rounded-full blur-[2px]" />
               </motion.div>
             </motion.div>
           )}
