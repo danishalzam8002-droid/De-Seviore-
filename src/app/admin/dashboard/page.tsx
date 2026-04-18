@@ -785,22 +785,11 @@ function AdminDashboard() {
             <TabsTrigger value="members" className="data-[state=active]:bg-accent data-[state=active]:text-background">
               <Users className="w-4 h-4 mr-2" /> Anggota
             </TabsTrigger>
-            <TabsTrigger value="content" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-              <BookOpen className="w-4 h-4 mr-2" /> Info Angkatan
-            </TabsTrigger>
-            <TabsTrigger value="gallery" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-              <ImageIcon className="w-4 h-4 mr-2" /> Galeri
-            </TabsTrigger>
-            <TabsTrigger value="albums" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-              <Camera className="w-4 h-4 mr-2" /> Album
-            </TabsTrigger>
-            <TabsTrigger value="library" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-              <BookOpen className="w-4 h-4 mr-2" /> Pendidikan
-            </TabsTrigger>
+            
             {(currentUserRole === 'Admin' || currentUserRole === 'Admin Utama') && (
               <>
                 <TabsTrigger value="access" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-                  <Key className="w-4 h-4 mr-2" /> {(currentUserRole === 'Admin' || currentUserRole === 'Admin Utama') ? "Akses Login" : "Profil Saya"}
+                  <Key className="w-4 h-4 mr-2" /> Kelola Akun
                 </TabsTrigger>
                 <TabsTrigger value="requests" className="data-[state=active]:bg-accent data-[state=active]:text-background relative">
                   <Bell className="w-4 h-4 mr-2" /> Permintaan
@@ -810,10 +799,23 @@ function AdminDashboard() {
                     </span>
                   )}
                 </TabsTrigger>
-                <TabsTrigger value="monitoring" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-                  <Activity className="w-4 h-4 mr-2" /> Monitoring
-                </TabsTrigger>
               </>
+            )}
+
+            <TabsTrigger value="gallery" className="data-[state=active]:bg-accent data-[state=active]:text-background">
+              <ImageIcon className="w-4 h-4 mr-2" /> Moment
+            </TabsTrigger>
+            <TabsTrigger value="albums" className="data-[state=active]:bg-accent data-[state=active]:text-background">
+              <Camera className="w-4 h-4 mr-2" /> Album
+            </TabsTrigger>
+            <TabsTrigger value="content" className="data-[state=active]:bg-accent data-[state=active]:text-background">
+              <BookOpen className="w-4 h-4 mr-2" /> Website
+            </TabsTrigger>
+            
+            {(currentUserRole === 'Admin' || currentUserRole === 'Admin Utama') && (
+              <TabsTrigger value="monitoring" className="data-[state=active]:bg-accent data-[state=active]:text-background">
+                <Activity className="w-4 h-4 mr-2" /> Monitoring
+              </TabsTrigger>
             )}
           </TabsList>
 
