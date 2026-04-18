@@ -36,12 +36,13 @@ export function Navbar() {
   return (
     <motion.nav 
       variants={{
-        visible: { y: 0, opacity: 1 },
-        hidden: { y: 100, opacity: 0 },
+        visible: { y: 0, x: "-50%", opacity: 1 },
+        hidden: { y: 100, x: "-50%", opacity: 0 },
       }}
+      initial="visible"
       animate={hidden ? "hidden" : "visible"}
       transition={{ duration: 0.35, ease: "easeInOut" }}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full glass-card border-white/20 flex items-center gap-6 md:gap-8"
+      className="fixed bottom-6 left-1/2 z-50 px-6 py-3 rounded-full glass-card border-white/20 flex items-center gap-6 md:gap-8"
     >
       
       {/* 1. Beranda */}
