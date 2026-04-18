@@ -55,6 +55,44 @@ export function UsageMonitor() {
     fetchUsage();
   }, []);
 
+  const [isTestingEmail, setIsTestingEmail] = useState(false);
+
+  const handleTestEmail = async () => {
+    if (!data?.resend.isConfigured) return;
+    
+    setIsTestingEmail(true);
+    try {
+      // Get current user email from supabase if needed, 
+      // but for this simple dashboard we can just ask the user or use a default.
+      // Let's prompt for the email to be sure.
+      const testEmail = window.prompt("Masukkan email tujuan untuk tes (Harus email terdaftar Resend jika belum verifikasi domain):");
+      
+      if (!testEmail) {
+        setIsTestingEmail(false);
+        return;
+      }
+
+      const res = await fetch('/api/admin/test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: testEmail })
+      });
+      
+      const result = await res.json();
+      
+      if (res.ok) {
+        alert("Berhasil! " + result.message);
+      } else {
+        alert("Gagal: " + (result.error || "Terjadi kesalahan"));
+      }
+    } catch (err) {
+      console.error('Test email failed:', err);
+      alert("Terjadi kesalahan saat mencoba mengirim email.");
+    } finally {
+      setIsTestingEmail(false);
+    }
+  };
+
   if (loading && !data) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
@@ -198,6 +236,16 @@ export function UsageMonitor() {
               Menggunakan email pengirim: <br />
               <span className="text-accent">{data.resend.fromEmail}</span>
             </p>
+            <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full text-[10px] border-accent/30 text-accent hover:bg-accent/10"
+                onClick={handleTestEmail}
+                disabled={isTestingEmail || !data.resend.isConfigured}
+            >
+              {isTestingEmail ? <RefreshCw className="w-3 h-3 mr-2 animate-spin" /> : <Mail className="w-3 h-3 mr-2" />}
+              Kirim Email Tes
+            </Button>
             <Button variant="ghost" size="sm" className="w-full text-[10px] text-accent hover:bg-accent/10" asChild>
               <a href="https://resend.com/emails" target="_blank" rel="noreferrer">
                 Log Email Resend <ExternalLink className="w-3 h-3 ml-1" />
