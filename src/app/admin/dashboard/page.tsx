@@ -738,6 +738,26 @@ function AdminDashboard() {
     <main className="min-h-screen pb-32">
       <Navbar />
 
+      {/* Atmospheric Background Animations */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <motion.div 
+          animate={{
+            x: [0, 50, 0],
+            y: [0, 30, 0],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[120px]"
+        />
+        <motion.div 
+          animate={{
+            x: [0, -40, 0],
+            y: [0, 60, 0],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[40%] -right-[10%] w-[30%] h-[30%] bg-accent/10 rounded-full blur-[100px]"
+        />
+      </div>
+
       <div className="container mx-auto px-6 py-20">
         <motion.header 
           initial={{ opacity: 0, y: -20 }}
@@ -782,149 +802,209 @@ function AdminDashboard() {
         >
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <TabsList className="bg-card border border-white/10 p-1 w-full md:w-auto">
-            <TabsTrigger value="members" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-              <Users className="w-4 h-4 mr-2" /> Anggota
+            <TabsTrigger 
+              value="members" 
+              className="relative data-[state=active]:text-background transition-colors duration-300"
+            >
+              <Users className="w-4 h-4 mr-2" /> 
+              <span className="relative z-10">Anggota</span>
+              {activeTab === "members" && (
+                <motion.div 
+                  layoutId="activeTab" 
+                  className="absolute inset-0 bg-accent rounded-md" 
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} 
+                />
+              )}
             </TabsTrigger>
             
             {(currentUserRole === 'Admin' || currentUserRole === 'Admin Utama') && (
               <>
-                <TabsTrigger value="access" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-                  <Key className="w-4 h-4 mr-2" /> Kelola Akun
+                <TabsTrigger 
+                  value="access" 
+                  className="relative data-[state=active]:text-background transition-colors duration-300"
+                >
+                  <Key className="w-4 h-4 mr-2" /> 
+                  <span className="relative z-10">Kelola Akun</span>
+                  {activeTab === "access" && (
+                    <motion.div layoutId="activeTab" className="absolute inset-0 bg-accent rounded-md" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
+                  )}
                 </TabsTrigger>
-                <TabsTrigger value="requests" className="data-[state=active]:bg-accent data-[state=active]:text-background relative">
-                  <Bell className="w-4 h-4 mr-2" /> Permintaan
+                <TabsTrigger 
+                  value="requests" 
+                  className="relative data-[state=active]:text-background transition-colors duration-300"
+                >
+                  <Bell className="w-4 h-4 mr-2" /> 
+                  <span className="relative z-10">Permintaan</span>
                   {requests.length > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white z-20">
                       {requests.length}
                     </span>
+                  )}
+                  {activeTab === "requests" && (
+                    <motion.div layoutId="activeTab" className="absolute inset-0 bg-accent rounded-md" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
                   )}
                 </TabsTrigger>
               </>
             )}
 
-            <TabsTrigger value="gallery" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-              <ImageIcon className="w-4 h-4 mr-2" /> Moment
+            <TabsTrigger 
+              value="gallery" 
+              className="relative data-[state=active]:text-background transition-colors duration-300"
+            >
+              <ImageIcon className="w-4 h-4 mr-2" /> 
+              <span className="relative z-10">Moment</span>
+              {activeTab === "gallery" && (
+                <motion.div layoutId="activeTab" className="absolute inset-0 bg-accent rounded-md" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
+              )}
             </TabsTrigger>
-            <TabsTrigger value="albums" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-              <Camera className="w-4 h-4 mr-2" /> Album
+            <TabsTrigger 
+              value="albums" 
+              className="relative data-[state=active]:text-background transition-colors duration-300"
+            >
+              <Camera className="w-4 h-4 mr-2" /> 
+              <span className="relative z-10">Album</span>
+              {activeTab === "albums" && (
+                <motion.div layoutId="activeTab" className="absolute inset-0 bg-accent rounded-md" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
+              )}
             </TabsTrigger>
-            <TabsTrigger value="content" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-              <BookOpen className="w-4 h-4 mr-2" /> Website
+            <TabsTrigger 
+              value="content" 
+              className="relative data-[state=active]:text-background transition-colors duration-300"
+            >
+              <BookOpen className="w-4 h-4 mr-2" /> 
+              <span className="relative z-10">Website</span>
+              {activeTab === "content" && (
+                <motion.div layoutId="activeTab" className="absolute inset-0 bg-accent rounded-md" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
+              )}
             </TabsTrigger>
             
             {(currentUserRole === 'Admin' || currentUserRole === 'Admin Utama') && (
-              <TabsTrigger value="monitoring" className="data-[state=active]:bg-accent data-[state=active]:text-background">
-                <Activity className="w-4 h-4 mr-2" /> Monitoring
+              <TabsTrigger 
+                value="monitoring" 
+                className="relative data-[state=active]:text-background transition-colors duration-300"
+              >
+                <Activity className="w-4 h-4 mr-2" /> 
+                <span className="relative z-10">Monitoring</span>
+                {activeTab === "monitoring" && (
+                  <motion.div layoutId="activeTab" className="absolute inset-0 bg-accent rounded-md" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
+                )}
               </TabsTrigger>
             )}
           </TabsList>
 
-          <TabsContent value="members">
-            <MembersTab 
-              members={members} 
-              onSave={handleSaveMember} 
-              onDelete={handleDeleteMember}
-              isUploading={isUploading}
-              uploadProgress={uploadProgress}
-            />
+          <TabsContent value="members" className="outline-none">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+              <MembersTab 
+                members={members} 
+                onSave={handleSaveMember} 
+                onDelete={handleDeleteMember}
+                isUploading={isUploading}
+                uploadProgress={uploadProgress}
+              />
+            </motion.div>
           </TabsContent>
 
-          <TabsContent value="content">
-             <Card className="glass-card max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <CardHeader>
-                 <CardTitle>Lore, Nilai & Media Angkatan</CardTitle>
-                 <CardDescription>Perbarui sejarah, filosofi, dan video kenangan yang ditampilkan di halaman beranda.</CardDescription>
-               </CardHeader>
-               <CardContent className="space-y-6">
-                 <div className="space-y-2">
-                   <Label>Teks Sejarah</Label>
-                   <Textarea
-                     value={batchContent.history}
-                     onChange={(e) => setBatchContent({ ...batchContent, history: e.target.value })}
-                     className="bg-background/50 h-32"
-                   />
-                 </div>
-                 <div className="space-y-2">
-                   <Label>Teks Filosofi</Label>
-                   <Textarea
-                     value={batchContent.philosophy}
-                     onChange={(e) => setBatchContent({ ...batchContent, philosophy: e.target.value })}
-                     className="bg-background/50 h-32"
-                   />
-                 </div>
-                 <div className="space-y-2">
-                   <Label className="flex items-center gap-2">
-                     <Video className="w-4 h-4 text-accent" />
-                     URL Video Kenangan (Embed YouTube)
-                   </Label>
-                   <Input
-                     value={batchContent.videoUrl}
-                     onChange={(e) => setBatchContent({ ...batchContent, videoUrl: e.target.value })}
-                     placeholder="Contoh: https://www.youtube.com/embed/XXXXXX"
-                     className="bg-background/50"
-                   />
-                   <p className="text-[10px] text-muted-foreground italic">Gunakan link 'Embed' dari YouTube untuk hasil terbaik.</p>
-                 </div>
-                 <Button onClick={handleUpdateBatchContent} className="w-full bg-accent text-background font-bold uppercase tracking-wider py-6">
-                   <Save className="w-5 h-5 mr-2" /> Simpan dan Unggah Perubahan
-                 </Button>
-               </CardContent>
-             </Card>
+          <TabsContent value="content" className="outline-none">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+              <Card className="glass-card max-w-3xl mx-auto">
+                <CardHeader>
+                  <CardTitle>Lore, Nilai & Media Angkatan</CardTitle>
+                  <CardDescription>Perbarui sejarah, filosofi, dan video kenangan yang ditampilkan di halaman beranda.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label>Teks Sejarah</Label>
+                    <Textarea
+                      value={batchContent.history}
+                      onChange={(e) => setBatchContent({ ...batchContent, history: e.target.value })}
+                      className="bg-background/50 h-32"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Teks Filosofi</Label>
+                    <Textarea
+                      value={batchContent.philosophy}
+                      onChange={(e) => setBatchContent({ ...batchContent, philosophy: e.target.value })}
+                      className="bg-background/50 h-32"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Video className="w-4 h-4 text-accent" />
+                      URL Video Kenangan (Embed YouTube)
+                    </Label>
+                    <Input
+                      value={batchContent.videoUrl}
+                      onChange={(e) => setBatchContent({ ...batchContent, videoUrl: e.target.value })}
+                      placeholder="Contoh: https://www.youtube.com/embed/XXXXXX"
+                      className="bg-background/50"
+                    />
+                    <p className="text-[10px] text-muted-foreground italic">Gunakan link 'Embed' dari YouTube untuk hasil terbaik.</p>
+                  </div>
+                  <Button onClick={handleUpdateBatchContent} className="w-full bg-accent text-background font-bold uppercase tracking-wider py-6">
+                    <Save className="w-5 h-5 mr-2" /> Simpan dan Unggah Perubahan
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
           </TabsContent>
 
-          <TabsContent value="gallery">
-            <GalleryTab 
-              galleryItems={galleryItems}
-              onUpload={(file, title) => startUpload(file, 'gallery', title)}
-              onDelete={handleDeleteGallery}
-              onUpdateTitle={handleUpdateGalleryTitle}
-              isUploading={isUploading}
-              uploadProgress={uploadProgress}
-              compressionStats={compressionStats}
-            />
+          <TabsContent value="gallery" className="outline-none">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+              <GalleryTab 
+                galleryItems={galleryItems}
+                onUpload={(file, title) => startUpload(file, 'gallery', title)}
+                onDelete={handleDeleteGallery}
+                onUpdateTitle={handleUpdateGalleryTitle}
+                isUploading={isUploading}
+                uploadProgress={uploadProgress}
+                compressionStats={compressionStats}
+              />
+            </motion.div>
           </TabsContent>
 
-          <TabsContent value="albums">
-            <AlbumsTab 
-              albums={albumItems}
-              onAdd={handleAddAlbum}
-              onDelete={handleDeleteAlbum}
-              isUploading={isUploading}
-              uploadProgress={uploadProgress}
-            />
+          <TabsContent value="albums" className="outline-none">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+              <AlbumsTab 
+                albums={albumItems}
+                onAdd={handleAddAlbum}
+                onDelete={handleDeleteAlbum}
+                isUploading={isUploading}
+                uploadProgress={uploadProgress}
+              />
+            </motion.div>
           </TabsContent>
 
-          <TabsContent value="library">
-            <LibraryTab 
-              kitabs={kitabs}
-              onAdd={handleSaveKitab}
-              onDelete={handleDeleteKitab}
-            />
-          </TabsContent>
 
           {(currentUserRole === 'Admin' || currentUserRole === 'Admin Utama') && (
             <>
-              <TabsContent value="access">
-                <AccessTab 
-                  admins={adminRoles}
-                  onAddAdmin={handleCreateAdmin}
-                  onDeleteAdmin={handleDeleteAdmin}
-                  onUpdateAdmin={handleUpdateAdmin}
-                  currentUserEmail={user?.email}
-                  isCreating={isCreatingAdmin}
-                />
+              <TabsContent value="access" className="outline-none">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                  <AccessTab 
+                    admins={adminRoles}
+                    onAddAdmin={handleCreateAdmin}
+                    onDeleteAdmin={handleDeleteAdmin}
+                    onUpdateAdmin={handleUpdateAdmin}
+                    currentUserEmail={user?.email}
+                    isCreating={isCreatingAdmin}
+                  />
+                </motion.div>
               </TabsContent>
 
-              <TabsContent value="requests">
-                <RequestsTab 
-                  requests={requests}
-                  onApprove={handleApproveRequest}
-                  onReject={handleRejectRequest}
-                />
+              <TabsContent value="requests" className="outline-none">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                  <RequestsTab 
+                    requests={requests}
+                    onApprove={handleApproveRequest}
+                    onReject={handleRejectRequest}
+                  />
+                </motion.div>
               </TabsContent>
 
-              <TabsContent value="monitoring">
-                <MonitoringTab />
+              <TabsContent value="monitoring" className="outline-none">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                  <MonitoringTab />
+                </motion.div>
               </TabsContent>
             </>
           )}
