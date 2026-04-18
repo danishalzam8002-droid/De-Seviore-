@@ -336,10 +336,16 @@ export function KakViorBot() {
 
     // Call the new Gemini AI API
     try {
+      // Filter messages to only send text content and avoid circular references (React nodes)
+      const safeMessages = [...messages, userMessage].map(m => ({
+        role: m.sender,
+        text: typeof m.text === 'string' ? m.text : 'Menu Bantuan'
+      }));
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMessage] })
+        body: JSON.stringify({ messages: safeMessages })
       });
 
       const data = await response.json();
