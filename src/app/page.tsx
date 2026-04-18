@@ -213,32 +213,32 @@ export default function Home() {
       {/* School Affiliation */}
       <section className="container mx-auto px-6 py-6 flex justify-center">
         <div className="glass-card flex flex-col items-center justify-center space-y-4 px-10 py-8 rounded-3xl w-fit shadow-xl border border-white/5 bg-background/30 backdrop-blur-md">
-          <p className="text-sm font-semibold text-muted-foreground capitalize tracking-widest text-center">
+          <p className="text-xl md:text-2xl font-bold text-muted-foreground/80 capitalize tracking-widest text-center">
             Student Of :
           </p>
           <div className="flex items-center justify-center gap-6 md:gap-12">
-            {/* Logo Yayasan (Kiri) */}
-            <div className="relative w-20 h-20 md:w-28 md:h-28 opacity-80 hover:opacity-100 transition-opacity duration-300">
-              <Image
-                src="/logo-yayasan.jpg"
-                alt="Logo Yayasan"
-                fill
-                className="object-contain drop-shadow-md rounded-xl"
-              />
-            </div>
-            
-            {/* Logo Pondok (Tengah) */}
+            {/* Logo Pondok (Kiri) */}
             <div className="relative w-24 h-24 md:w-32 md:h-32 opacity-90 hover:opacity-100 transition-opacity duration-300">
               <Image
                 src="/school-logo.png"
                 alt="School Logo"
                 fill
-                className="object-contain drop-shadow-lg"
+                className="object-contain drop-shadow-md"
+              />
+            </div>
+
+            {/* Logo Yayasan (Tengah) */}
+            <div className="relative w-24 h-24 md:w-32 md:h-32 opacity-90 hover:opacity-100 transition-opacity duration-300">
+              <Image
+                src="/logo-yayasan.jpg"
+                alt="Logo Yayasan"
+                fill
+                className="object-contain drop-shadow-lg rounded-xl"
               />
             </div>
             
             {/* Logo MA (Kanan) */}
-            <div className="relative w-20 h-20 md:w-28 md:h-28 opacity-80 hover:opacity-100 transition-opacity duration-300">
+            <div className="relative w-24 h-24 md:w-32 md:h-32 opacity-90 hover:opacity-100 transition-opacity duration-300">
               <Image
                 src="/logo-ma.png"
                 alt="Logo MA"

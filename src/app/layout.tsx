@@ -1,13 +1,19 @@
 
 import type { Metadata } from 'next';
-import { Playfair_Display, PT_Sans } from 'next/font/google';
+import { Permanent_Marker, PT_Sans, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import dynamic from 'next/dynamic';
 
+const permanentMarker = Permanent_Marker({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-headline',
+});
+
 const playfair = Playfair_Display({
   subsets: ['latin'],
-  variable: '--font-headline',
+  variable: '--font-serif',
 });
 
 const ptSans = PT_Sans({
@@ -47,7 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className="dark">
-      <body className={`${playfair.variable} ${ptSans.variable} font-body antialiased bg-background text-foreground min-h-screen`}>
+      <body className={`${permanentMarker.variable} ${ptSans.variable} ${playfair.variable} font-body antialiased bg-background text-foreground min-h-screen`}>
         {children}
         <KakViorBotClient />
         <Toaster />

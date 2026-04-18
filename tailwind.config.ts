@@ -11,7 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        headline: ['Playfair Display', 'serif'],
+        headline: ['Permanent Marker', 'cursive'],
+        serif: ['var(--font-serif)', 'serif'],
         body: ['PT Sans', 'sans-serif'],
         code: ['monospace'],
       },

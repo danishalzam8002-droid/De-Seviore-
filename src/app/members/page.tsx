@@ -126,7 +126,7 @@ function MembersPage() {
                     {/* Right: Content */}
                     <div className="w-full md:w-1/2 p-8 md:p-12 md:overflow-y-auto flex flex-col justify-center space-y-8 relative">
                       <div className="space-y-2">
-                        <h2 className="text-4xl md:text-5xl font-headline font-bold accent-glow">{member.name}</h2>
+                        <h2 className="text-4xl md:text-5xl font-serif font-bold accent-glow">{member.name}</h2>
                         <Badge variant="outline" className="border-accent text-accent text-sm">{member.role || "Anggota"}</Badge>
                       </div>
 
