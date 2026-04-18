@@ -33,7 +33,6 @@ export default function Home() {
   const logo = PlaceHolderImages.find(img => img.id === 'batch-logo');
   const bgImages = [
     "/backgrounds/bg-1.png",
-    "/backgrounds/bg-2.png",
     "/backgrounds/bg-3.png",
     "/backgrounds/bg-4.png",
     "/backgrounds/bg-5.png"
@@ -281,6 +280,52 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Registration CTA Section */}
+      <section className="container mx-auto px-6 py-20">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="relative glass-card overflow-hidden rounded-[3rem] p-1 shadow-2xl"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-transparent to-blue-500/10 opacity-50" />
+          <div className="relative z-10 bg-background/40 backdrop-blur-xl rounded-[2.9rem] p-8 md:p-16 text-center space-y-8 border border-white/10">
+            <div className="flex justify-center gap-4 mb-4">
+               <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="p-3 bg-yellow-500/20 rounded-2xl text-yellow-500"><Star /></motion.div>
+               <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="p-3 bg-accent/20 rounded-2xl text-accent"><Sparkles /></motion.div>
+               <motion.div animate={{ rotate: [0, -10, 10, 0] }} transition={{ repeat: Infinity, duration: 2, delay: 0.5 }} className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-500"><Heart /></motion.div>
+            </div>
+            
+            <div className="space-y-4">
+              <h2 className="text-4xl md:text-6xl font-headline font-bold accent-glow">
+                Ayo Jadi Bagian <br/> dari Keluarga Al-Azhar! ✨
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
+                Pendaftaran santri baru sudah dibuka lho Akang & Teteh! Yuk, bergabung dengan ribuan santri lainnya untuk mencetak generasi Rabbani yang unggul. 🎓
+              </p>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-3">
+              <div className="px-4 py-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-500 text-[10px] font-bold uppercase tracking-widest">Pondok Pesantren</div>
+              <div className="px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-500 text-[10px] font-bold uppercase tracking-widest">SDIT Al-Azhar</div>
+              <div className="px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-500 text-[10px] font-bold uppercase tracking-widest">SMP Islam Al-Azhar</div>
+              <div className="px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-widest">MA Unggulan Al-Azhar</div>
+            </div>
+
+            <div className="pt-8">
+              <Button size="lg" className="h-16 px-12 rounded-2xl bg-accent text-background hover:bg-accent/90 shadow-xl shadow-accent/20 hover:scale-105 transition-all text-xl font-bold gap-3" asChild>
+                <Link href="/alazhar/info-pendaftaran">
+                   LIHAT INFO PENDAFTARAN <Send size={24} />
+                </Link>
+              </Button>
+              <p className="mt-6 text-sm text-muted-foreground italic">
+                * Buka link di atas untuk rincian biaya & kontak person admin yang ramah! 😊
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
       {/* Video Trailer Section */}
       <section className="container mx-auto px-6 pb-20 pt-6">
         <div className="glass-card rounded-2xl overflow-hidden p-1 md:p-4">
@@ -375,52 +420,6 @@ export default function Home() {
             </div>
           )}
         </Carousel>
-      </section>
-
-      {/* Registration CTA Section */}
-      <section className="container mx-auto px-6 py-20">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="relative glass-card overflow-hidden rounded-[3rem] p-1 shadow-2xl"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-transparent to-blue-500/10 opacity-50" />
-          <div className="relative z-10 bg-background/40 backdrop-blur-xl rounded-[2.9rem] p-8 md:p-16 text-center space-y-8 border border-white/10">
-            <div className="flex justify-center gap-4 mb-4">
-               <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="p-3 bg-yellow-500/20 rounded-2xl text-yellow-500"><Star /></motion.div>
-               <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="p-3 bg-accent/20 rounded-2xl text-accent"><Sparkles /></motion.div>
-               <motion.div animate={{ rotate: [0, -10, 10, 0] }} transition={{ repeat: Infinity, duration: 2, delay: 0.5 }} className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-500"><Heart /></motion.div>
-            </div>
-            
-            <div className="space-y-4">
-              <h2 className="text-4xl md:text-6xl font-headline font-bold accent-glow">
-                Ayo Jadi Bagian <br/> dari Keluarga Al-Azhar! ✨
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
-                Pendaftaran santri baru sudah dibuka lho Akang & Teteh! Yuk, bergabung dengan ribuan santri lainnya untuk mencetak generasi Rabbani yang unggul. 🎓
-              </p>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-3">
-              <div className="px-4 py-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-500 text-[10px] font-bold uppercase tracking-widest">Pondok Pesantren</div>
-              <div className="px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-500 text-[10px] font-bold uppercase tracking-widest">SDIT Al-Azhar</div>
-              <div className="px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-500 text-[10px] font-bold uppercase tracking-widest">SMP Islam Al-Azhar</div>
-              <div className="px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-widest">MA Unggulan Al-Azhar</div>
-            </div>
-
-            <div className="pt-8">
-              <Button size="lg" className="h-16 px-12 rounded-2xl bg-accent text-background hover:bg-accent/90 shadow-xl shadow-accent/20 hover:scale-105 transition-all text-xl font-bold gap-3" asChild>
-                <Link href="/alazhar/info-pendaftaran">
-                   LIHAT INFO PENDAFTARAN <Send size={24} />
-                </Link>
-              </Button>
-              <p className="mt-6 text-sm text-muted-foreground italic">
-                * Buka link di atas untuk rincian biaya & kontak person admin yang ramah! 😊
-              </p>
-            </div>
-          </div>
-        </motion.div>
       </section>
 
       {/* Quote Section */}
