@@ -340,63 +340,59 @@ export function KakViorBot() {
       const textVal = typeof userMessage.text === "string" ? userMessage.text : "";
       const lowerInput = textVal.toLowerCase();
 
-      if (lowerInput.includes("biaya") || lowerInput.includes("harga") || lowerInput.includes("bayar") || lowerInput.includes("rincian")) {
+      } else if (lowerInput.includes("biaya") || lowerInput.includes("harga") || lowerInput.includes("bayar") || lowerInput.includes("rincian") || lowerInput.includes("daftar") || lowerInput.includes("pendaftaran") || lowerInput.includes("alur")) {
         botResponse = (
           <div className="space-y-4">
-            <p className="font-bold border-b border-accent/20 pb-2 text-white">RINCIAN BIAYA</p>
+            <p className="font-bold border-b border-accent/20 pb-2 text-white uppercase">Informasi Pendaftaran & Biaya</p>
             
-            <div>
-              <p className="font-bold text-accent mb-1">BIAYA MASUK DAN KELENGKAPAN</p>
-              <table className="w-full text-xs text-white/80">
-                <tbody>
-                  <tr><td>INFAQ PENDIDIKAN</td><td className="text-right">Rp 1.500.000</td></tr>
-                  <tr><td>SEWA LEMARI</td><td className="text-right">Rp 300.000</td></tr>
-                  <tr><td>SEWA RANJANG</td><td className="text-right">Rp 300.000</td></tr>
-                  <tr><td>BELI KASUR</td><td className="text-right">Rp 500.000</td></tr>
-                  <tr><td>SERAGAM</td><td className="text-right">Rp 900.000</td></tr>
+            {/* Biaya Section */}
+            <div className="space-y-3 bg-white/5 p-3 rounded-xl border border-white/10">
+              <p className="font-bold text-accent text-[11px] uppercase tracking-wider">Rincian Biaya Masuk</p>
+              <table className="w-full text-[10px] text-white/80">
+                <tbody className="divide-y divide-white/5">
+                  <tr><td className="py-1">Infaq Pendidikan</td><td className="text-right py-1">Rp 1.500.000</td></tr>
+                  <tr><td className="py-1">Sewa Lemari & Ranjang</td><td className="text-right py-1">Rp 600.000</td></tr>
+                  <tr><td className="py-1">Perlengkapan (Kasur & Seragam)</td><td className="text-right py-1">Rp 1.400.000</td></tr>
+                  <tr><td className="py-1">Infaq Bangunan</td><td className="text-right py-1">Rp 1.500.000</td></tr>
+                  <tr><td className="py-1">Buku (2 Semester)</td><td className="text-right py-1">Rp 800.000</td></tr>
+                  <tr className="font-bold text-white"><td className="pt-2">TOTAL BIAYA MASUK</td><td className="text-right pt-2">Rp 5.800.000</td></tr>
                 </tbody>
               </table>
+              <div className="pt-2 border-t border-white/5">
+                <p className="font-bold text-accent text-[11px] uppercase tracking-wider">Infaq Bulanan</p>
+                <p className="text-[10px] text-white/80">Makan, SPP, & Kepondokan: <span className="font-bold text-white">Rp 1.200.000</span></p>
+              </div>
             </div>
 
-            <div>
-              <p className="font-bold text-accent justify-between mb-1">INFAQ TAHUNAN</p>
-              <table className="w-full text-xs text-white/80">
-                <tbody>
-                  <tr><td>INFAQ BANGUNAN</td><td className="text-right">Rp 1.500.000</td></tr>
-                  <tr><td>BUKU PELAJARAN 2 SEMESTER</td><td className="text-right">Rp 800.000</td></tr>
-                  <tr className="font-bold border-t border-accent/20"><td className="pt-1 text-white">TOTAL BIAYA MASUK</td><td className="text-right pt-1 text-white">Rp 5.800.000</td></tr>
-                </tbody>
-              </table>
+            {/* Medsos Section */}
+            <div className="space-y-2">
+              <p className="font-bold text-accent text-[11px] uppercase tracking-wider">Pendaftaran Online & Medsos</p>
+              <div className="grid grid-cols-1 gap-2">
+                <a href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-accent/20 border border-accent/40 p-2 rounded-lg text-[10px] font-bold text-white hover:bg-accent/30 transition-colors">
+                  DAFTAR SEKARANG (WEB RESMI) <Send size={12} />
+                </a>
+                <a href="https://www.instagram.com/azhar_tv_" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-white/5 border border-white/10 p-2 rounded-lg text-[10px] font-medium text-white/80 hover:bg-white/10 transition-colors">
+                  INSTAGRAM: @azhar_tv_ <Bot size={12} />
+                </a>
+              </div>
             </div>
 
-            <div>
-              <p className="font-bold text-accent mb-1">INFAQ BULANAN</p>
-              <table className="w-full text-xs text-white/80">
-                <tbody>
-                  <tr><td>MAKAN</td><td className="text-right">Rp 700.000</td></tr>
-                  <tr><td>KEPONDOKAN</td><td className="text-right">Rp 300.000</td></tr>
-                  <tr><td>SPP</td><td className="text-right">Rp 200.000</td></tr>
-                  <tr className="font-bold border-t border-accent/20"><td className="pt-1 text-white">TOTAL BIAYA BULANAN</td><td className="text-right pt-1 text-white">Rp 1.200.000</td></tr>
-                </tbody>
-              </table>
+            {/* Contact Section */}
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <p className="font-bold text-accent text-[11px] uppercase tracking-wider">Hubungi Kami (WhatsApp)</p>
+              <div className="space-y-2">
+                <div className="p-2 bg-accent/5 rounded-lg border border-accent/10">
+                  <p className="font-bold text-white text-[10px]">PONDOK: 0812-8985-2035</p>
+                  <p className="text-[9px] text-white/60">A.N CECEP RAHMAT</p>
+                </div>
+                <div className="grid grid-cols-1 gap-1 pl-2 border-l border-accent/30">
+                  <p className="text-[9px] font-bold text-accent/80 italic mb-1">* Bisa Mondok & Non Mondok:</p>
+                  <p className="text-[9px] text-white/80"><span className="font-bold">SDIT:</span> 0895-3377-2941 a.n Elisa</p>
+                  <p className="text-[9px] text-white/80"><span className="font-bold">SMP I:</span> 0812-7415-6718 a.n Husein</p>
+                  <p className="text-[9px] text-white/80"><span className="font-bold">MA:</span> 0831-9753-0389 a.n Ahmad Riki</p>
+                </div>
+              </div>
             </div>
-
-            <p className="font-bold text-[10px] bg-accent/20 p-2 rounded-lg text-center text-accent">
-              FORMULIR PENDAFTARAN / REGISTRASI<br/>Rp 250.000
-            </p>
-
-            <a href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta#schedule" target="_blank" rel="noopener noreferrer" className="block text-center w-full mt-2 font-bold underline hover:text-accent transition-all text-[10px] text-white/60">Lihat Jadwal & Promo di Web Resmi</a>
-          </div>
-        );
-      } else if (lowerInput.includes("jadwal") || lowerInput.includes("gelombang") || lowerInput.includes("kapan")) {
-        botResponse = (
-          <div className="space-y-2">
-            <p>Untuk jadwal pendaftaran terupdate, Akang/Teteh bisa langsung cek di:</p>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>Web Resmi: <a href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta#schedule" target="_blank" rel="noopener noreferrer" className="text-accent underline font-bold">alazharpwk.cazh.id</a></li>
-              <li>Instagram: <a href="https://www.instagram.com/azhar_tv_" target="_blank" rel="noopener noreferrer" className="text-accent underline font-bold">@azhar_tv_</a></li>
-            </ul>
-            <p className="text-[10px] mt-2 italic text-white/60">Yuk! Jangan sampai ketinggalan gelombangnya ya.</p>
           </div>
         );
       } else if (lowerInput.includes("contact") || lowerInput.includes("nomor") || lowerInput.includes("hubungi") || lowerInput.includes("wa") || lowerInput.includes("person") || lowerInput.includes("telp")) {
@@ -428,8 +424,17 @@ export function KakViorBot() {
             </div>
           </div>
         );
-      } else if (lowerInput.includes("alur") || lowerInput.includes("cara") || lowerInput.includes("step") || lowerInput.includes("daftar") || lowerInput.includes("pendaftaran")) {
-        botResponse = "Berikut alur pendaftaran Ponpes Al-Azhar Purwakarta:\n1. Isi formulir pendaftaran di web resmi dengan data lengkap.\n2. Jika ada biaya pendaftaran, lakukan pembayaran melalui Bank atau Minimarket.\n3. Proses seleksi dapat dicek secara real time.\n4. Hasil penerimaan bisa dicek online menggunakan nomor pendaftaran.\n5. Peserta Diterima wajib melakukan daftar ulang untuk konfirmasi dan memperoleh Nomor Kartu.";
+      } else if (lowerInput.includes("jadwal") || lowerInput.includes("gelombang") || lowerInput.includes("kapan")) {
+        botResponse = (
+          <div className="space-y-2">
+            <p>Untuk jadwal pendaftaran terupdate, Akang/Teteh bisa langsung cek di:</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>Web Resmi: <a href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta#schedule" target="_blank" rel="noopener noreferrer" className="text-accent underline font-bold">alazharpwk.cazh.id</a></li>
+              <li>Instagram: <a href="https://www.instagram.com/azhar_tv_" target="_blank" rel="noopener noreferrer" className="text-accent underline font-bold">@azhar_tv_</a></li>
+            </ul>
+            <p className="text-[10px] mt-2 italic text-white/60">Yuk! Jangan sampai ketinggalan gelombangnya ya.</p>
+          </div>
+        );
       } else if (lowerInput.includes("berita") || lowerInput.includes("news") || lowerInput.includes("kegiatan") || lowerInput.includes("info")) {
         botResponse = "Kamu bisa mengecek berita terbaru Al-Azhar di menu 'Tentang Al-Azhar'. Di sana Kak Vior sering membagikan info kegiatan, prestasi santri, dan pengumuman terbaru lho!";
       } else if (lowerInput.includes("perpus") || lowerInput.includes("kitab") || lowerInput.includes("buku") || lowerInput.includes("baca")) {
