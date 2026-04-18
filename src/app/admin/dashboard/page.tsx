@@ -867,6 +867,18 @@ function AdminDashboard() {
                 <motion.div layoutId="activeTab" className="absolute inset-0 bg-accent rounded-md" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
               )}
             </TabsTrigger>
+
+            <TabsTrigger 
+              value="library" 
+              className="relative data-[state=active]:text-background transition-colors duration-300"
+            >
+              <BookOpen className="w-4 h-4 mr-2" /> 
+              <span className="relative z-10">Kitab</span>
+              {activeTab === "library" && (
+                <motion.div layoutId="activeTab" className="absolute inset-0 bg-accent rounded-md" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
+              )}
+            </TabsTrigger>
+
             <TabsTrigger 
               value="content" 
               className="relative data-[state=active]:text-background transition-colors duration-300"
@@ -971,6 +983,16 @@ function AdminDashboard() {
                 onDelete={handleDeleteAlbum}
                 isUploading={isUploading}
                 uploadProgress={uploadProgress}
+              />
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="library" className="outline-none">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+              <LibraryTab 
+                kitabs={kitabs}
+                onAdd={handleSaveKitab}
+                onDelete={handleDeleteKitab}
               />
             </motion.div>
           </TabsContent>

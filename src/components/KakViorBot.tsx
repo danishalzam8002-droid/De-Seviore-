@@ -27,41 +27,36 @@ function AnimatedBotIcon({ size = 24, className = "" }: { size?: number, classNa
       <style>
         {`
           @keyframes wave {
-            0%, 90%, 100% { transform: rotate(0deg); }
-            92% { transform: rotate(-25deg); }
-            94% { transform: rotate(15deg); }
-            96% { transform: rotate(-20deg); }
-            98% { transform: rotate(5deg); }
+            0%, 95%, 100% { transform: rotate(0deg); }
+            96% { transform: rotate(-15deg); }
+            97% { transform: rotate(10deg); }
+            98% { transform: rotate(-5deg); }
           }
           @keyframes body-float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            25% { transform: translateY(-1.5px) rotate(1.5deg); }
-            75% { transform: translateY(0.5px) rotate(-1deg); }
+            50% { transform: translateY(-2px) rotate(0.5deg); }
           }
           @keyframes eye-saccade {
-            0%, 40%, 80%, 100% { transform: translate(0, 0); }
-            45% { transform: translate(1.5px, -0.5px); }
-            50% { transform: translate(1.5px, -0.5px); }
-            85% { transform: translate(-1px, 0.5px); }
-            90% { transform: translate(-1px, 0.5px); }
+            0%, 70%, 95%, 100% { transform: translate(0, 0); }
+            80%, 90% { transform: translate(1px, -0.5px); }
           }
           @keyframes eye-blink-snappy {
-            0%, 48%, 52%, 100% { transform: scaleY(1); }
-            50% { transform: scaleY(0); }
+            0%, 96%, 99%, 100% { transform: scaleY(1); }
+            97.5% { transform: scaleY(0); }
           }
           .bot-arm {
             transform-origin: 18px 14px;
-            animation: wave 6s ease-in-out infinite;
+            animation: wave 15s ease-in-out infinite;
           }
           .bot-body {
-            animation: body-float 5s ease-in-out infinite;
+            animation: body-float 8s ease-in-out infinite;
           }
           .bot-eye-group {
-            animation: eye-saccade 7s step-end infinite;
+            animation: eye-saccade 12s step-end infinite;
           }
           .bot-eye {
             transform-origin: center;
-            animation: eye-blink-snappy 4s ease-in-out infinite;
+            animation: eye-blink-snappy 10s ease-in-out infinite;
           }
           /* Main Bot: Peeks, looks left, looks right */
           @keyframes peek-main {
@@ -206,15 +201,15 @@ export function KakViorBot() {
               </div>
             </button>
             <button 
-              onClick={() => handleSendMessage(undefined, "Akses Perpustakaan")}
+              onClick={() => handleSendMessage(undefined, "Akses Kitab Digital")}
               className="group flex items-center gap-3 bg-accent/20 hover:bg-accent/30 border border-accent/30 p-2.5 rounded-xl transition-all hover:translate-x-1 animate-menu-pop [animation-delay:0.4s] text-left"
             >
               <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-background group-hover:scale-110 transition-transform">
                 <MessageCircle size={16} />
               </div>
               <div>
-                <p className="font-bold text-xs text-accent">PERPUSTAKAAN</p>
-                <p className="text-[9px] text-white/60">Baca Kitab Digital</p>
+                <p className="font-bold text-xs text-accent">KITAB DIGITAL</p>
+                <p className="text-[9px] text-white/60">Baca Koleksi Kitab</p>
               </div>
             </button>
           </div>
