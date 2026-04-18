@@ -111,7 +111,7 @@ function MembersPage() {
                     </Card>
                   </DialogTrigger>
 
-                  <DialogContent className="max-w-4xl h-[90vh] md:h-[600px] p-1 overflow-hidden bg-transparent border-none shadow-none">
+                  <DialogContent className="max-w-5xl h-[90vh] md:h-[650px] p-1 overflow-hidden bg-transparent border-none shadow-none">
                     <DialogTitle className="sr-only">Biografi {member.name}</DialogTitle>
                     <DialogDescription className="sr-only">Detail profil {member.name}</DialogDescription>
                     
@@ -186,7 +186,7 @@ function MembersPage() {
                                 </div>
                                 <div className="flex flex-col">
                                   <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">{item.label}</span>
-                                  <span className="text-sm font-semibold text-white/90 truncate max-w-[120px]">
+                                  <span className="text-sm font-semibold text-white/90">
                                     {item.prefix}{item.value || "-"}
                                   </span>
                                 </div>
