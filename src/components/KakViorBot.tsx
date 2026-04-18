@@ -41,8 +41,8 @@ function AnimatedBotIcon({ size = 24, className = "" }: { size?: number, classNa
             80%, 90% { transform: translate(1px, -0.5px); }
           }
           @keyframes eye-blink-snappy {
-            0%, 96%, 99%, 100% { transform: scaleY(1); }
-            97.5% { transform: scaleY(0); }
+            0%, 85%, 95%, 100% { transform: scaleY(1); }
+            90% { transform: scaleY(0.2); }
           }
           .bot-arm {
             transform-origin: 18px 14px;
@@ -498,7 +498,7 @@ export function KakViorBot() {
           {/* Side Bot 1 */}
           <div className="absolute -top-6 right-36 animate-peek-bot-side pointer-events-none">
             <div className="absolute -top-4 -right-1 bg-accent/80 text-background text-[7px] font-bold px-1 py-0.5 rounded-full animate-bot-talk-side shadow-md">
-               ??
+               MONDOK?
             </div>
             <AnimatedBotIcon size={36} className="text-accent/80 drop-shadow-[0_0_8px_rgba(26,204,230,0.4)]" />
           </div>
@@ -506,13 +506,13 @@ export function KakViorBot() {
           {/* Side Bot 2 (Mini) */}
           <div className="absolute -top-10 right-2 animate-peek-bot-mini pointer-events-none">
             <div className="absolute -top-4 -left-1 bg-accent/60 text-background text-[6px] font-bold px-1 py-0.5 rounded-full animate-bot-talk-mini shadow-sm">
-               ??
+               BINGUNG??
             </div>
             <AnimatedBotIcon size={28} className="text-accent/60 drop-shadow-[0_0_6px_rgba(26,204,230,0.3)]" />
           </div>
 
           <div className="bg-background/95 backdrop-blur-md border border-accent/40 text-accent px-4 py-2 rounded-2xl rounded-br-sm text-sm font-semibold shadow-[0_0_15px_rgba(26,204,230,0.2)] whitespace-nowrap z-10 transition-transform hover:scale-105 duration-300">
-            Bingung?? tanya sama kak vior
+            Bingung Mau Kemana? 
           </div>
         </div>
         <Button
