@@ -801,7 +801,7 @@ function AdminDashboard() {
           transition={{ delay: 0.2, duration: 0.8 }}
         >
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="bg-card border border-white/10 p-1 w-full md:w-auto">
+          <TabsList className="bg-card border border-white/10 p-1 w-full h-auto flex-wrap justify-center gap-1 md:gap-0">
             <TabsTrigger 
               value="members" 
               className="relative data-[state=active]:text-background transition-colors duration-300"
