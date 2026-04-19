@@ -53,9 +53,16 @@ export function AlbumsTab({
             <CardTitle>Daftar Album Kenangan</CardTitle>
             <CardDescription>Kelola koleksi foto Google Drive untuk dibagikan.</CardDescription>
           </div>
-          <Button onClick={() => setIsDialogOpen(true)} className="bg-accent text-background font-bold hover:bg-accent/80">
-            <Plus className="w-4 h-4 mr-2" /> Tambah Album
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" asChild className="border-accent/30 text-accent hover:bg-accent/10 font-bold">
+              <a href="/albums" target="_blank">
+                 PREVIEW HALAMAN <ExternalLink className="w-4 h-4 ml-2" />
+              </a>
+            </Button>
+            <Button onClick={() => setIsDialogOpen(true)} className="bg-accent text-background font-bold hover:bg-accent/80">
+              <Plus className="w-4 h-4 mr-2" /> Tambah Album
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

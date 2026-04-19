@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -19,7 +20,11 @@ import {
   CheckCircle2,
   Calendar,
   ClipboardCheck,
-  UserPlus
+  UserPlus,
+  Rocket,
+  Award,
+  BookOpen,
+  PenTool
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -45,6 +50,33 @@ export default function InfoPendaftaranPage() {
     }
   };
 
+  // Student Registration Data State
+  const [students, setStudents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const res = await fetch('/api/ppdb/students');
+        const data = await res.json();
+        if (data.success) {
+          setStudents(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch students:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudents();
+  }, []);
+
+  const filteredStudents = students.filter(s => 
+    s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    s.school.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const registrationSteps = [
     {
       title: "Pendaftaran Online",
@@ -69,6 +101,13 @@ export default function InfoPendaftaranPage() {
       desc: "Hasil seleksi akan diumumkan melalui dashboard PPDB.",
       icon: <CheckCircle2 className="w-6 h-6" />,
       color: "bg-emerald-500/20 text-emerald-500"
+    },
+    {
+      title: "Pembayaran",
+      desc: "Pelunasan biaya masuk sesuai rincian biaya",
+      icon: <Wallet className="w-6 h-6" />,
+      color: "bg-amber-500/20 text-amber-500",
+      tag: "Khusus Jalur Mandiri"
     }
   ];
 
@@ -214,7 +253,7 @@ export default function InfoPendaftaranPage() {
                 <h2 className="text-2xl md:text-3xl font-headline font-bold">Langkah Mudah Mendaftar</h2>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 relative">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4 relative">
                 {/* Connector line for desktop */}
                 <div className="hidden md:block absolute top-12 left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-accent/30 to-transparent -z-10" />
                 
@@ -230,12 +269,18 @@ export default function InfoPendaftaranPage() {
                     <div className="space-y-1 md:space-y-2">
                       <h3 className="font-bold text-base md:text-lg text-white">{step.title}</h3>
                       <p className="text-[10px] md:text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
+                      {step.tag && (
+                        <div className="mt-2 inline-block px-3 py-1 rounded-lg bg-accent text-background text-[8px] md:text-[9px] font-black uppercase tracking-widest shadow-lg shadow-accent/20">
+                          {step.tag}
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
           </div>
+
 
           {/* Registration Main Card */}
           <div className="lg:col-span-12">
@@ -251,12 +296,26 @@ export default function InfoPendaftaranPage() {
                       Siap Jadi Bagian dari <br className="hidden md:block"/> Generasi Rabbani?
                     </h2>
                     <p className="text-base md:text-lg text-muted-foreground font-light">
-                      Pendaftaran telah dibuka! Jangan lewatkan kesempatan emas untuk menimba ilmu di lingkungan yang Islami dan modern.
+                      Pendaftaran masih dibuka! Jangan lewatkan kesempatan emas untuk menimba ilmu di lingkungan yang Islami dan modern.
                     </p>
                     <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-2 md:pt-4">
                       <Button size="lg" className="h-14 md:h-16 px-6 md:px-10 rounded-2xl bg-accent text-background hover:bg-accent/90 shadow-[0_10px_30px_rgba(26,204,230,0.3)] hover:scale-105 transition-all text-base md:text-lg font-bold gap-3 group/btn w-full sm:w-auto" asChild>
-                        <Link href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta" target="_blank">
-                          <ExternalLink size={20} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" /> DAFTAR ONLINE SEKARANG
+                        <Link href="https://alazharpwk.cazh.id/ppdb/ponpes-al-azhar-purwakarta" target="_blank" className="flex items-center gap-3">
+                          <motion.span
+                            animate={{ 
+                              rotate: [0, -10, 10, -10, 10, 0],
+                              y: [0, -2, 2, -2, 2, 0]
+                            }}
+                            transition={{ 
+                              duration: 2, 
+                              repeat: Infinity,
+                              repeatType: "mirror" 
+                            }}
+                            className="inline-block"
+                          >
+                            <Rocket size={24} className="fill-background" />
+                          </motion.span>
+                          DAFTAR ONLINE SEKARANG
                         </Link>
                       </Button>
                     </div>
@@ -270,8 +329,8 @@ export default function InfoPendaftaranPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                     <div className="absolute bottom-6 left-6 right-6 p-4 glass-card border-white/20 rounded-2xl text-center">
-                      <p className="text-accent font-bold text-sm tracking-widest uppercase mb-1">Coming This Month</p>
-                      <p className="text-white text-xs font-medium">Gelombang Pertama Terbatas!</p>
+                      <p className="text-accent font-bold text-sm tracking-widest uppercase mb-1">Pendaftaran Masih Dibuka</p>
+                      <p className="text-white text-xs font-medium">Kuota Tersedia</p>
                     </div>
                   </div>
                 </CardContent>
@@ -287,8 +346,11 @@ export default function InfoPendaftaranPage() {
                   <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-accent/20 flex items-center justify-center text-accent mb-4">
                     <Wallet size={24} />
                   </div>
-                  <CardTitle className="text-2xl md:text-3xl font-headline font-bold">Investasi Masa Depan 💰</CardTitle>
+                  <CardTitle className="text-2xl md:text-3xl font-headline font-bold">Investasi Akhirat 💰</CardTitle>
                   <CardDescription className="text-sm md:text-base">Membangun kualitas pendidikan & karakter terbaik.</CardDescription>
+                  <div className="mt-2 inline-flex items-center px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] md:text-xs font-bold uppercase tracking-wider">
+                     Biaya Pondok ( Jalur Mandiri )
+                  </div>
                 </CardHeader>
                 <CardContent className="p-6 md:p-8 pt-0 space-y-6 md:space-y-8">
                   <div className="space-y-4">
@@ -307,7 +369,6 @@ export default function InfoPendaftaranPage() {
                       ))}
                       
                       <div className="mt-6 md:mt-8 p-5 md:p-6 rounded-2xl md:rounded-3xl bg-accent/10 border border-accent/20 flex flex-col items-center gap-1 md:gap-2 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-2 opacity-5 italic font-bold">TOTAL</div>
                         <span className="text-[9px] md:text-[10px] text-accent font-bold uppercase tracking-[0.2em] md:tracking-[0.3em]">Total Biaya Masuk</span>
                         <span className="text-3xl md:text-4xl font-headline font-bold text-white tracking-tight drop-shadow-sm">Rp 5.800.000</span>
                         <div className="flex gap-1 mt-1 md:mt-2">
@@ -337,7 +398,7 @@ export default function InfoPendaftaranPage() {
             <motion.div variants={itemVariants} className="space-y-6">
               <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
                 <div className="p-2.5 md:p-3 bg-accent/20 rounded-xl md:rounded-2xl text-accent"><Phone size={24} /></div>
-                <h2 className="text-2xl md:text-3xl font-headline font-bold">Konsultasi dengan Admin 📱</h2>
+                <h2 className="text-2xl md:text-3xl font-headline font-bold">Konsultasi dengan Admin kami 📱</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {contactPersons.map((contact, idx) => (
@@ -410,10 +471,185 @@ export default function InfoPendaftaranPage() {
                 <div className="text-center md:text-left relative z-10">
                   <h4 className="text-xl md:text-2xl font-bold text-white mb-1 md:mb-2">Masih Bingung?</h4>
                   <p className="text-xs md:text-base text-muted-foreground leading-relaxed">
-                    Jangan sungkan untuk bertanya. Kami di sini untuk membantu Akang & Teteh memberikan yang terbaik bagi putra-putri tercinta. ❤️
+                    Jangan sungkan untuk bertanya kepada admin, kami di sini untuk membantu Bunda & Ayah memberikan yang terbaik bagi putra putri tercinta. ❤️
                   </p>
                 </div>
               </motion.div>
+            </motion.div>
+          </div>
+
+          {/* Biaya Non Mondok Section */}
+          <div className="lg:col-span-12 mt-12 md:mt-20">
+            <motion.div variants={itemVariants} className="space-y-10">
+              <div className="text-center space-y-4">
+                <Badge variant="outline" className="px-4 py-1.5 border-accent/30 text-accent text-[10px] md:text-xs uppercase tracking-[0.2em] font-black">Full Day School</Badge>
+                <h2 className="text-3xl md:text-5xl font-headline font-bold text-white tracking-tight">
+                  Biaya Non Mondok ☀️
+                </h2>
+                <p className="text-muted-foreground text-sm md:text-lg font-light max-w-2xl mx-auto italic">
+                  Khusus bagi santri yang tidak menetap di asrama (Pulang-Pergi).
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                {[
+                  {
+                    unit: "MA Unggulan",
+                    entry: "250.000",
+                    spp: "200.000",
+                    icon: <Award className="w-8 h-8" />,
+                    color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+                  },
+                  {
+                    unit: "SMP Islam",
+                    entry: "250.000",
+                    spp: "200.000",
+                    icon: <BookOpen className="w-8 h-8" />,
+                    color: "text-blue-400 bg-blue-500/10 border-blue-500/20"
+                  },
+                  {
+                    unit: "SDIT Al-Azhar",
+                    entry: "200.000",
+                    spp: "150.000",
+                    icon: <PenTool className="w-8 h-8" />,
+                    color: "text-amber-400 bg-amber-500/10 border-amber-500/20"
+                  }
+                ].map((item, idx) => (
+                  <motion.div
+                    key={idx}
+                    whileHover={{ y: -10 }}
+                    className="glass-card group p-8 rounded-[2.5rem] border border-white/5 hover:border-accent/30 transition-all flex flex-col items-center text-center relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:scale-150 group-hover:rotate-12 transition-transform">
+                      {item.icon}
+                    </div>
+                    
+                    <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-lg", item.color)}>
+                      {item.icon}
+                    </div>
+
+                    <h3 className="text-xl font-bold text-white mb-6 group-hover:text-accent transition-colors">{item.unit}</h3>
+                    
+                    <div className="w-full space-y-6">
+                      <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
+                        <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold">Biaya Masuk</span>
+                        <div className="text-2xl font-bold text-white">Rp {item.entry}</div>
+                        <span className="text-[8px] text-accent/60 font-medium italic">* Termasuk SPP Bulan Pertama</span>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-accent/5 border border-accent/10 space-y-1">
+                        <span className="text-[9px] uppercase tracking-widest text-accent/60 font-bold">SPP Bulanan</span>
+                        <div className="text-2xl font-bold text-accent">Rp {item.spp}</div>
+                        <span className="text-[8px] text-white/20 font-medium uppercase tracking-tighter">Flat Per Bulan</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Siswa Diterima Section */}
+          <div className="lg:col-span-12 mt-12 md:mt-20">
+            <motion.div variants={itemVariants} className="space-y-10">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="space-y-3">
+                  <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 uppercase tracking-[0.2em] font-black px-4 py-1.5 rounded-full text-[10px]">
+                    LIVE UPDATES
+                  </Badge>
+                  <h2 className="text-3xl md:text-5xl font-headline font-bold text-white tracking-tight">
+                    Siswa Diterima <span className="text-accent italic">(2026-2027)</span>
+                  </h2>
+                  <p className="text-muted-foreground text-sm md:text-lg font-light max-w-2xl">
+                    Selamat bergabung kepada para santri baru yang telah dinyatakan lolos seleksi. Mari mengukir prestasi bersama Al-Azhar.
+                  </p>
+                </div>
+                
+                <div className="relative w-full md:w-80 group">
+                  <div className="absolute inset-0 bg-accent/20 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                  <div className="relative flex items-center">
+                    <ClipboardCheck className="absolute left-4 w-5 h-5 text-accent opacity-50" />
+                    <input 
+                      type="text"
+                      placeholder="Cari nama atau sekolah..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-accent/50 transition-all font-medium text-sm backdrop-blur-xl"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="glass-card h-32 rounded-3xl animate-pulse bg-white/5 border border-white/5" />
+                  ))}
+                </div>
+              ) : filteredStudents.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <AnimatePresence mode="popLayout">
+                    {filteredStudents.map((student, idx) => (
+                      <motion.div
+                        layout
+                        key={student.name + idx}
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.4, delay: idx * 0.05 }}
+                        className="glass-card group p-6 rounded-[2rem] border border-white/5 hover:border-accent/30 transition-all relative overflow-hidden"
+                      >
+                        <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:scale-120 group-hover:rotate-12 transition-transform">
+                          <CheckCircle2 size={80} className="text-accent" />
+                        </div>
+                        <div className="flex items-center gap-5 relative z-10">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center border border-accent/20 text-accent font-bold text-lg">
+                            {student.name.charAt(0)}
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <h4 className="font-bold text-white group-hover:text-accent transition-colors leading-tight line-clamp-1">
+                              {student.name}
+                            </h4>
+                            <div className="flex items-center gap-2">
+                              <School size={12} className="text-muted-foreground" />
+                              <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
+                                {student.school || "Ponpes Al-Azhar"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between">
+                           <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] font-black uppercase px-3 py-1">
+                              DITERIMA
+                           </Badge>
+                           <span className="text-[9px] text-white/20 font-mono tracking-tighter">
+                              #{student.id || "2026-PPDB"}
+                           </span>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <div className="py-20 text-center glass-card rounded-[3rem] border-white/5">
+                   <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 text-white/20">
+                      <GraduationCap size={40} />
+                   </div>
+                   <p className="text-muted-foreground italic text-lg">Data santri tidak ditemukan.</p>
+                </div>
+              )}
+              
+              <div className="flex justify-center pt-10">
+                 <div className="px-6 py-3 rounded-full bg-white/5 border border-white/10 flex items-center gap-3 backdrop-blur-xl">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-xs font-bold text-white/50 tracking-widest uppercase">
+                       {students.length} Santri Telah Diterima
+                    </span>
+                 </div>
+              </div>
             </motion.div>
           </div>
 

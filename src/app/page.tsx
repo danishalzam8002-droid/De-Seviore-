@@ -9,7 +9,7 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Card, CardContent } from "@/components/ui/card";
-import { Quote, History, Shield, Camera, Play, Star, Sparkles, Heart, Send } from "lucide-react";
+import { Quote, History, Shield, Camera, Play, Star, Sparkles, Heart, Send, Lock, Timer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Carousel,
@@ -19,9 +19,18 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useUser } from "@/hooks/use-supabase-user";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
+import { AlbumCountdown } from "@/components/AlbumCountdown";
 
 export default function Home() {
   const { user } = useUser();
@@ -48,7 +57,7 @@ export default function Home() {
   );
 
   const galleryPlugin = useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: true })
+    Autoplay({ delay: 3000, stopOnInteraction: false })
   );
 
   const [videoCarouselApi, setVideoCarouselApi] = useState<CarouselApi>();
@@ -61,6 +70,19 @@ export default function Home() {
   const [isHovering, setIsHovering] = useState(false);
   const [stars, setStars] = useState<{ id: number; x: number; y: number }[]>([]);
   const [logoStars, setLogoStars] = useState<{ id: number; x: number; y: number; tx: number; ty: number }[]>([]);
+
+  // LOCKDOWN LOGIC FOR ALBUM KENANGAN
+  const GRADUATION_DATE = new Date("2026-05-31T20:00:00+07:00");
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  useEffect(() => {
+    const checkUnlock = () => {
+      setIsUnlocked(new Date() >= GRADUATION_DATE);
+    };
+    checkUnlock();
+    const timer = setInterval(checkUnlock, 10000); // Check every 10s
+    return () => clearInterval(timer);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -430,7 +452,7 @@ export default function Home() {
           </AnimatePresence>
 
           <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-transparent to-blue-500/10 opacity-50" />
-          <div className="relative z-10 bg-background/40 backdrop-blur-xl rounded-[1.9rem] md:rounded-[2.9rem] p-8 md:p-16 text-center space-y-8 border border-white/10">
+          <div className="relative z-10 bg-background/40 backdrop-blur-xl rounded-[1.9rem] md:rounded-[2.9rem] p-6 md:p-10 text-center space-y-6 border border-white/10">
             <div className="flex justify-center gap-4 mb-4">
                <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="p-2 md:p-3 bg-yellow-500/20 rounded-2xl text-yellow-500"><Star /></motion.div>
                <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="p-2 md:p-3 bg-accent/20 rounded-2xl text-accent"><Sparkles /></motion.div>
@@ -446,11 +468,32 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-              {["Pondok Pesantren", "SDIT Al-Azhar", "SMP Islam Al-Azhar", "MA Unggulan Al-Azhar"].map((unit, idx) => (
-                <div key={idx} className="px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-white/10 bg-white/5 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-white/70">
-                  {unit}
-                </div>
+            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 pt-4">
+              {[
+                { src: "/PONDOK PESANTREN AL-AZHAR.png", alt: "Ponpes Al-Azhar" },
+                { src: "/MA UNGGULAN AL-AZHAR.png", alt: "MA Unggulan Al-Azhar" },
+                { src: "/SMP ISLAM AL AZHAR.png", alt: "SMP Islam Al-Azhar" },
+                { src: "/SDIT AL AZHAR.png", alt: "SDIT Al-Azhar" },
+              ].map((unit, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.15, duration: 0.8, ease: "easeOut" }}
+                  className="relative group"
+                >
+                  <motion.div
+                    className="relative w-20 h-20 md:w-28 md:h-28 transition-all duration-500 filter drop-shadow-xl group-hover:drop-shadow-[0_0_30px_rgba(26,204,230,0.5)] group-hover:scale-110 active:scale-95"
+                  >
+                    <Image
+                      src={unit.src}
+                      alt={unit.alt}
+                      fill
+                      className="object-contain"
+                    />
+                  </motion.div>
+                </motion.div>
               ))}
             </div>
 
@@ -469,7 +512,7 @@ export default function Home() {
       </section>
 
       {/* Video Trailer Section */}
-      <section className="container mx-auto px-6 pb-12 md:pb-20 pt-6">
+      <section className="container mx-auto px-6 pb-4 md:pb-6 pt-6">
         <div className="glass-card rounded-2xl overflow-hidden p-1 md:p-4">
           <div className="flex items-center gap-3 text-accent mb-6 md:mb-8 p-4">
             <Play className="w-8 h-8 fill-accent" />
@@ -506,7 +549,7 @@ export default function Home() {
       </section>
 
       {/* Gallery Section */}
-      <section className="container mx-auto px-6 py-12 md:py-20">
+      <section className="container mx-auto px-6 pt-4 pb-4 md:pb-6">
         <div className="flex items-center gap-3 text-accent mb-8 md:mb-12">
           <Camera className="w-8 h-8" />
           <h2 className="text-3xl md:text-4xl font-headline font-bold">Swipe The Moment!!</h2>
@@ -515,8 +558,6 @@ export default function Home() {
         <Carousel 
           opts={{ align: "start", loop: true }} 
           plugins={[galleryPlugin.current]}
-          onMouseEnter={galleryPlugin.current.stop}
-          onMouseLeave={galleryPlugin.current.reset}
           className="w-full"
         >
           <CarouselContent className="-ml-4">
@@ -562,31 +603,183 @@ export default function Home() {
             <CarouselNext className="relative inset-0 translate-y-0 h-10 w-10 border-white/10" />
           </div>
 
-          {/* Link to Albums Page - Restricted to Admins */}
-          {user && (
-            <div className="mt-10 md:mt-12 text-center animate-in fade-in zoom-in duration-700 delay-300">
-              <a 
-                href="/albums" 
-                className="group inline-flex flex-col items-center gap-2 text-muted-foreground hover:text-accent transition-all duration-300"
+          {/* Link to Albums Page */}
+          <div className="mt-8 md:mt-10 flex justify-center w-full max-w-4xl mx-auto">
+            {isUnlocked ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className="w-full"
               >
-                <div className="p-3 rounded-full border border-white/10 bg-white/5 group-hover:border-accent/30 group-hover:bg-accent/5">
-                  <Camera className="w-5 h-5 text-accent" />
+                <Link
+                  href="/albums"
+                  className="group relative flex flex-col items-center gap-4 p-8 md:p-10 rounded-[3rem] bg-white/5 border border-accent/40 backdrop-blur-xl transition-all duration-500 hover:border-accent hover:bg-accent/10 hover:scale-105 shadow-[0_0_30px_rgba(26,204,230,0.2)] hover:shadow-[0_0_50px_rgba(26,204,230,0.4)] overflow-hidden w-full"
+                >
+                  {/* Glowing Bingkai Effect */}
+                  <div className="absolute inset-0 border border-accent/20 rounded-[3rem] animate-pulse" />
+                  
+                  <motion.div
+                    animate={{ 
+                      y: [0, -8, 0],
+                      rotate: [0, -5, 5, 0]
+                    }}
+                    transition={{ 
+                      repeat: Infinity, 
+                      duration: 4,
+                      ease: "easeInOut" 
+                    }}
+                    className="relative z-10 p-6 rounded-full bg-accent/20 border border-accent/30 text-accent group-hover:shadow-[0_0_40px_rgba(26,204,230,0.5)] transition-all duration-500"
+                  >
+                    <Camera size={48} className="drop-shadow-glow" />
+                  </motion.div>
+                  
+                  <div className="relative z-10 text-center space-y-2">
+                    <span className="text-2xl md:text-3xl font-headline font-bold text-white uppercase tracking-wider group-hover:text-accent transition-colors block">
+                      Album Kenangan Angkatan 7
+                    </span>
+                    <p className="text-xs md:text-sm text-muted-foreground font-light tracking-widest uppercase opacity-80 group-hover:opacity-100">
+                      Buka dan Unduh Memori Indah Bersama ✨
+                    </p>
+                  </div>
+
+                  {/* Sparkling particles on hover */}
+                  <div className="absolute top-4 right-6 text-accent animate-bounce">
+                    <Sparkles size={20} />
+                  </div>
+                </Link>
+              </motion.div>
+            ) : (
+              <div className="group relative w-full rounded-[3.5rem] p-[2px] bg-gradient-to-br from-white/10 to-transparent border border-white/10 overflow-hidden shadow-2xl">
+                {/* Visual Bingkai (Frame) */}
+                <div className="absolute inset-0 border border-white/10 rounded-[3.5rem] pointer-events-none" />
+                
+                <motion.div 
+                  className="relative flex flex-col items-center gap-6 p-8 md:p-12 transition-all duration-700 ease-out group-hover:blur-md group-hover:scale-105 group-hover:bg-black/20"
+                >
+                  <div className="w-full">
+                    <AlbumCountdown targetDate={GRADUATION_DATE} onComplete={() => setIsUnlocked(true)} />
+                  </div>
+                </motion.div>
+
+                {/* Hover Overlay: Segera Hadir */}
+                <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-black/60 backdrop-blur-[4px]">
+                   <div 
+                    className="relative flex flex-col items-center gap-2 transform scale-90 group-hover:scale-100 transition-transform duration-500"
+                   >
+                     {/* De Seviore - Top Center */}
+                     <div className="absolute -top-[193px] left-1/2 -translate-x-1/2">
+                       <motion.img 
+                          src="/logo.png"
+                          className="w-56 h-56 object-contain"
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          whileInView={{ 
+                            scale: [0.5, 1.2, 1],
+                            opacity: 1,
+                            y: [0, -20, 0]
+                          }}
+                          transition={{ 
+                            scale: { duration: 0.7, ease: "backOut" },
+                            y: { repeat: Infinity, duration: 4, ease: "easeInOut" }
+                          }}
+                        />
+                        {/* Stars for Seviore */}
+                        <motion.div 
+                          animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5] }}
+                          transition={{ repeat: Infinity, duration: 2, delay: 0.5 }}
+                          className="absolute -top-4 -right-4 text-accent"
+                        >
+                          <Sparkles size={28} />
+                        </motion.div>
+                        <motion.div 
+                          animate={{ opacity: [0, 1, 0], scale: [0.5, 1.1, 0.5] }}
+                          transition={{ repeat: Infinity, duration: 2.5, delay: 1.2 }}
+                          className="absolute bottom-4 -left-8 text-accent/60"
+                        >
+                          <Star size={20} fill="currentColor" />
+                        </motion.div>
+                     </div>
+                      
+                      {/* Aver Cenza - Right */}
+                      <div className="absolute -right-52 top-0">
+                        <motion.img 
+                          src="/logo lezabois.png"
+                          className="w-44 h-44 object-contain"
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          whileInView={{ 
+                            scale: [0.5, 1.2, 1],
+                            opacity: 1,
+                            x: [0, 25, 0],
+                            y: [0, -20, 0]
+                          }}
+                          transition={{ 
+                            scale: { duration: 0.7, delay: 0.1, ease: "backOut" },
+                            x: { repeat: Infinity, duration: 5, ease: "easeInOut" },
+                            y: { repeat: Infinity, duration: 7, ease: "easeInOut" }
+                          }}
+                        />
+                        {/* Star for Aver Cenza */}
+                        <motion.div 
+                          animate={{ opacity: [0, 1, 0], scale: [0.4, 1.3, 0.4] }}
+                          transition={{ repeat: Infinity, duration: 1.8, delay: 0.8 }}
+                          className="absolute -top-10 -right-2 text-white shadow-glow"
+                        >
+                          <Sparkles size={24} />
+                        </motion.div>
+                      </div>
+
+                      {/* Mafaza - Left */}
+                      <div className="absolute -left-52 top-10">
+                        <motion.img 
+                          src="/mafaza.png"
+                          className="w-36 h-36 object-contain"
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          whileInView={{ 
+                            scale: [0.5, 1.2, 1],
+                            opacity: 1,
+                            x: [0, -20, 0],
+                            y: [0, 15, 0]
+                          }}
+                          transition={{ 
+                            scale: { duration: 0.7, delay: 0.2, ease: "backOut" },
+                            x: { repeat: Infinity, duration: 8, ease: "easeInOut" },
+                            y: { repeat: Infinity, duration: 6, ease: "easeInOut" }
+                          }}
+                        />
+                        {/* Star for Mafaza */}
+                        <motion.div 
+                          animate={{ opacity: [0, 1, 0], scale: [0.6, 1.4, 0.6] }}
+                          transition={{ repeat: Infinity, duration: 2.2, delay: 1.5 }}
+                          className="absolute -bottom-4 -left-4 text-accent shadow-glow"
+                        >
+                          <Sparkles size={22} />
+                        </motion.div>
+                      </div>
+
+                     <div className="px-5 py-2 rounded-full bg-accent border-2 border-white/20 text-background text-lg font-black uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(26,204,230,0.5)] animate-pulse">
+                        Segera Hadir
+                     </div>
+                     <p className="text-white font-bold tracking-[0.2em] uppercase text-[9px] opacity-80 decoration-accent/50 underline-offset-4 underline italic">
+                        Klik kembali setelah wisuda
+                     </p>
+                   </div>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60 group-hover:opacity-100">
-                  Lihat Album Kenangan
-                </span>
-              </a>
-            </div>
-          )}
+
+                <div className="absolute top-6 right-8 text-white/10 group-hover:text-accent transition-colors">
+                  <Timer size={24} />
+                </div>
+              </div>
+            )}
+          </div>
         </Carousel>
       </section>
 
       {/* Quote Section */}
-      <section className="py-20 bg-primary/5 relative overflow-hidden">
+      <section className="py-8 md:py-10 bg-primary/5 relative overflow-hidden">
         <div className="container mx-auto px-6 text-center">
-          <Quote className="w-8 md:w-12 h-8 md:h-12 text-accent mx-auto mb-6 md:mb-8 opacity-50" />
-          <blockquote className="text-2xl md:text-5xl font-headline font-italic leading-tight max-w-4xl mx-auto px-4">
-            "Kelas bukan sekadar tempat belajar; ini adalah keluarga tempat kamu menemukan jati dirimu."
+          <Quote className="w-6 md:w-8 h-6 md:h-8 text-accent mx-auto mb-6 md:mb-8 opacity-50" />
+          <blockquote className="text-xl md:text-3xl font-headline font-italic leading-tight max-w-4xl mx-auto px-4">
+            "Kelas bukan sekadar tempat belajar, ini adalah keluarga tempat kamu menemukan jati dirimu."
           </blockquote>
         </div>
       </section>
