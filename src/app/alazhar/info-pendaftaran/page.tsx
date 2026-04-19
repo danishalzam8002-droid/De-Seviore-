@@ -120,7 +120,7 @@ export default function InfoPendaftaranPage() {
       color: "from-yellow-500/20 to-amber-500/20",
       border: "border-yellow-500/30",
       textColor: "text-yellow-500",
-      icon: <Building2 className="w-5 h-5" />,
+      icon: <img src="/PONDOK PESANTREN AL-AZHAR.png" alt="Logo Pondok" className="w-7 h-7 object-contain drop-shadow-md" />,
       tag: "Utama / Kepondokan",
       note: "Khusus Boarding (Mondok)"
     },
@@ -132,7 +132,7 @@ export default function InfoPendaftaranPage() {
       color: "from-emerald-500/20 to-teal-500/20",
       border: "border-emerald-500/30",
       textColor: "text-emerald-500",
-      icon: <GraduationCap className="w-5 h-5" />,
+      icon: <img src="/MA UNGGULAN AL-AZHAR.png" alt="Logo MA" className="w-7 h-7 object-contain drop-shadow-md" />,
       tag: "Mondok & Non-Mondok",
       note: "Madrasah Aliyah swasta"
     },
@@ -144,7 +144,7 @@ export default function InfoPendaftaranPage() {
       color: "from-blue-500/20 to-cyan-500/20",
       border: "border-blue-500/30",
       textColor: "text-blue-500",
-      icon: <School className="w-5 h-5" />,
+      icon: <img src="/SMP ISLAM AL AZHAR.png" alt="Logo SMP" className="w-7 h-7 object-contain drop-shadow-md" />,
       tag: "Mondok & Non-Mondok",
       note: "Sekolah Menengah Pertama"
     },
@@ -156,7 +156,7 @@ export default function InfoPendaftaranPage() {
       color: "from-orange-500/20 to-red-500/20",
       border: "border-orange-500/30",
       textColor: "text-orange-500",
-      icon: <Sparkles className="w-5 h-5" />,
+      icon: <img src="/SDIT AL AZHAR.png" alt="Logo SDIT" className="w-7 h-7 object-contain drop-shadow-md" />,
       tag: "Mondok & Non-Mondok",
       note: "Sekolah Dasar Islam Terpadu"
     },
@@ -451,7 +451,7 @@ export default function InfoPendaftaranPage() {
 
                     {contact.isComingSoon && (
                       <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                         <Badge className="bg-white text-black text-[10px] font-bold px-3 py-1.5">COMING SOON!</Badge>
+                         <Badge className="bg-white text-pink-500 text-[10px] font-bold px-3 py-1.5 shadow-[0_0_15px_rgba(236,72,153,0.5)]">COMING SOON!</Badge>
                       </div>
                     )}
                   </motion.a>
