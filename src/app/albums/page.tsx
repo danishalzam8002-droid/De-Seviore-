@@ -93,12 +93,15 @@ function AlbumsPage() {
       )
       .subscribe();
 
-    const unlockTimer = (!isUnlocked && !isAdmin) ? setInterval(() => {
-       if (new Date() >= GRADUATION_DATE) {
-         setIsUnlocked(true);
-         clearInterval(unlockTimer);
-       }
-    }, 10000) : null;
+    let unlockTimer: ReturnType<typeof setInterval> | undefined;
+    if (!isUnlocked && !isAdmin) {
+      unlockTimer = setInterval(() => {
+        if (new Date() >= GRADUATION_DATE) {
+          setIsUnlocked(true);
+          clearInterval(unlockTimer);
+        }
+      }, 10000);
+    }
 
     return () => {
        supabase.removeChannel(channel);
