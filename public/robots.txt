@@ -1,6 +1,1 @@
-User-agent: *
-Allow: /
-Disallow: /admin/
-Disallow: /debug/
-
-Sitemap: https://deseviore.vercel.app/sitemap.xml
+HA  

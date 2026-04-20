@@ -246,7 +246,7 @@ export default function InfoPendaftaranPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
           
           {/* Timeline / Flow Section */}
-          <div className="lg:col-span-12">
+          <div className="lg:col-span-12 order-1">
             <motion.div variants={itemVariants} className="space-y-8">
               <div className="flex flex-col items-center gap-2 mb-6 md:mb-10">
                 <Badge variant="outline" className="px-3 md:px-4 py-1 border-accent/30 text-accent text-[8px] md:text-xs uppercase tracking-widest font-bold">Registration Flow</Badge>
@@ -283,7 +283,7 @@ export default function InfoPendaftaranPage() {
 
 
           {/* Registration Main Card */}
-          <div className="lg:col-span-12">
+          <div className="lg:col-span-12 order-2">
             <motion.div variants={itemVariants}>
               <Card className="glass-card border-white/10 overflow-hidden relative group hover:border-accent/20 transition-all duration-700 rounded-[2rem] md:rounded-[3rem] shadow-2xl">
                 <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
@@ -339,7 +339,7 @@ export default function InfoPendaftaranPage() {
           </div>
 
           {/* Cost Section */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 order-3">
             <motion.div variants={itemVariants} className="h-full">
               <Card className="glass-card border-white/5 h-full rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl">
                 <CardHeader className="p-6 md:p-8 pb-4">
@@ -394,7 +394,7 @@ export default function InfoPendaftaranPage() {
           </div>
 
           {/* Contact Section */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 order-5 lg:order-4 mt-12 lg:mt-0">
             <motion.div variants={itemVariants} className="space-y-6">
               <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
                 <div className="p-2.5 md:p-3 bg-accent/20 rounded-xl md:rounded-2xl text-accent"><Phone size={24} /></div>
@@ -479,15 +479,15 @@ export default function InfoPendaftaranPage() {
           </div>
 
           {/* Biaya Non Mondok Section */}
-          <div className="lg:col-span-12 mt-12 md:mt-20">
+          <div className="lg:col-span-12 mt-12 md:mt-20 order-4 lg:order-5">
             <motion.div variants={itemVariants} className="space-y-10">
               <div className="text-center space-y-4">
                 <Badge variant="outline" className="px-4 py-1.5 border-accent/30 text-accent text-[10px] md:text-xs uppercase tracking-[0.2em] font-black">Full Day School</Badge>
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-white tracking-tight">
-                  Biaya Non Mondok ☀️
+                  Program Non Mondok ☀️
                 </h2>
                 <p className="text-muted-foreground text-sm md:text-lg font-light max-w-2xl mx-auto italic">
-                  Khusus bagi santri yang tidak menetap di asrama (Pulang-Pergi).
+                  Cocok untuk Akang Teteh yang mau Pulang-Pergi tapi ingin sekolah di lingkungan Pondok.
                 </p>
               </div>
 
@@ -550,7 +550,7 @@ export default function InfoPendaftaranPage() {
           </div>
 
           {/* Siswa Diterima Section */}
-          <div className="lg:col-span-12 mt-12 md:mt-20">
+          <div className="lg:col-span-12 mt-12 md:mt-20 order-6">
             <motion.div variants={itemVariants} className="space-y-10">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-3">
