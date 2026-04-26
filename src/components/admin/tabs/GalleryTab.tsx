@@ -18,6 +18,7 @@ interface GalleryTabProps {
   isUploading: boolean;
   uploadProgress: number;
   compressionStats: { original: number; compressed: number; saved: number } | null;
+  userRole?: string;
 }
 
 export function GalleryTab({ 
@@ -27,7 +28,8 @@ export function GalleryTab({
   onUpdateTitle,
   isUploading, 
   uploadProgress,
-  compressionStats
+  compressionStats,
+  userRole
 }: GalleryTabProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -75,6 +77,8 @@ export function GalleryTab({
     setEditingItem(null);
   };
 
+  const isAdmin = userRole === 'Admin' || userRole === 'Admin Utama';
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Card className="glass-card">
@@ -83,9 +87,11 @@ export function GalleryTab({
             <CardTitle>Koleksi Galeri</CardTitle>
             <CardDescription>Kelola momen-momen berharga yang sudah diunggah.</CardDescription>
           </div>
-          <Button onClick={() => setIsDialogOpen(true)} className="bg-accent text-background font-bold hover:bg-accent/80">
-            <Plus className="w-4 h-4 mr-2" /> Unggah Momen
-          </Button>
+          {isAdmin && (
+            <Button onClick={() => setIsDialogOpen(true)} className="bg-accent text-background font-bold hover:bg-accent/80">
+              <Plus className="w-4 h-4 mr-2" /> Unggah Momen
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -102,24 +108,26 @@ export function GalleryTab({
                 />
                 <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 text-center">
                   <p className="text-[10px] uppercase font-bold tracking-widest mb-3 line-clamp-3">{item.title}</p>
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      className="h-8 w-8 bg-white/10 border-white/20 hover:bg-accent hover:text-background transition-all"
-                      onClick={() => handleStartEdit(item)}
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      variant="destructive" 
-                      size="icon" 
-                      className="h-8 w-8 hover:scale-110 transition-transform"
-                      onClick={() => onDelete(item.id!)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-8 w-8 bg-white/10 border-white/20 hover:bg-accent hover:text-background transition-all"
+                        onClick={() => handleStartEdit(item)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="icon" 
+                        className="h-8 w-8 hover:scale-110 transition-transform"
+                        onClick={() => onDelete(item.id!)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

@@ -15,6 +15,7 @@ interface AlbumsTabProps {
   onDelete: (id: string) => void;
   isUploading: boolean;
   uploadProgress: number;
+  userRole?: string;
 }
 
 export function AlbumsTab({ 
@@ -22,7 +23,8 @@ export function AlbumsTab({
   onAdd, 
   onDelete, 
   isUploading, 
-  uploadProgress 
+  uploadProgress,
+  userRole
 }: AlbumsTabProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newAlbum, setNewAlbum] = useState<Partial<Album>>({ title: "", drive_link: "", image_url: "" });
@@ -45,6 +47,8 @@ export function AlbumsTab({
     setIsDialogOpen(false);
   };
 
+  const isAdmin = userRole === 'Admin' || userRole === 'Admin Utama';
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Card className="glass-card">
@@ -59,9 +63,11 @@ export function AlbumsTab({
                  PREVIEW HALAMAN <ExternalLink className="w-4 h-4 ml-2" />
               </a>
             </Button>
-            <Button onClick={() => setIsDialogOpen(true)} className="bg-accent text-background font-bold hover:bg-accent/80">
-              <Plus className="w-4 h-4 mr-2" /> Tambah Album
-            </Button>
+            {isAdmin && (
+              <Button onClick={() => setIsDialogOpen(true)} className="bg-accent text-background font-bold hover:bg-accent/80">
+                <Plus className="w-4 h-4 mr-2" /> Tambah Album
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -88,14 +94,16 @@ export function AlbumsTab({
                       BUKA DRIVE <ExternalLink className="w-3 h-3 ml-2" />
                     </a>
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-9 w-9 text-destructive hover:bg-destructive/10"
-                    onClick={() => onDelete(album.id!)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  {isAdmin && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-9 w-9 text-destructive hover:bg-destructive/10"
+                      onClick={() => onDelete(album.id!)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}

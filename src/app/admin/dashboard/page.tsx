@@ -971,6 +971,7 @@ function AdminDashboard() {
                 isUploading={isUploading}
                 uploadProgress={uploadProgress}
                 compressionStats={compressionStats}
+                userRole={currentUserRole}
               />
             </motion.div>
           </TabsContent>
@@ -983,6 +984,7 @@ function AdminDashboard() {
                 onDelete={handleDeleteAlbum}
                 isUploading={isUploading}
                 uploadProgress={uploadProgress}
+                userRole={currentUserRole}
               />
             </motion.div>
           </TabsContent>
